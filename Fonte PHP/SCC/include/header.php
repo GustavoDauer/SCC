@@ -125,7 +125,7 @@ require_once '../include/comum.php';
                     </a>                        
                 </li>
             <?php } ?>
-                <?php if (isAdminLevel($LISTAR_S2)) { ?>
+            <?php if (isAdminLevel($LISTAR_S2)) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= substr_count($address, "S2Controller") > 0 ? "active" : ""; ?>" href='../Controller/S2Controller.php?action=getAllList'>
                         <img src="../include/imagens/s2.png" height="35" hspace="2"> S2
@@ -163,8 +163,15 @@ require_once '../include/comum.php';
             <?php if (isAdminLevel($LISTAR_FISCALIZACAO)) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>'>
-                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2">Fiscalização <sub>em testes</sub>
+                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2">Fiscalização
                     </a>
                 </li>
-            <?php } ?>                
+            <?php } ?>
+            <?php if (isAdminLevel($LISTAR_IDENTIDADE)) { ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= substr_count($address, "IdentidadeController") > 0 ? "active" : ""; ?>" href='../Controller/IdentidadeController.php?action=getAllList'>
+                        <img src="../include/imagens/identidade.png" height="35" hspace="2">Identidade
+                    </a>
+                </li>
+            <?php } ?>                  
         </ul>

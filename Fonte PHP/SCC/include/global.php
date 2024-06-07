@@ -29,7 +29,7 @@
  */
 $VERSAO = "19.14";
 $SOFTWARE = "SCC";
-$TODAS_SECOES = array("SALC", "Conformidade", "Almoxarifado", "Tesouraria", "S1", "S2", "S3", "S4", "FS", "Juridico", "Fiscalizacao", "RP", "SecInfo", "Comando");
+$TODAS_SECOES = array("SALC", "Conformidade", "Almoxarifado", "Tesouraria", "S1", "S2", "S3", "S4", "FS", "Juridico", "Fiscalizacao", "RP", "SecInfo", "Comando", "Identidade");
 $ADMINISTRADORES = array("S2", "SecInfo", "Comando");
 $REQUISITANTES = $TODAS_SECOES; // Referenciar seções que podem adicionar requisições
 $SALC = array("SALC", "SecInfo"); // Referenciar seções que podem administrar informações da SALC (caso haja)
@@ -96,6 +96,11 @@ $LISTAR_COMANDO = array("Comando", "SecInfo");
 $ADICIONAR_COMANDO = array("Comando", "SecInfo");
 $EDITAR_COMANDO = array("Comando", "SecInfo");
 $EXCLUIR_COMANDO = array("Comando", "SecInfo");
+
+$LISTAR_IDENTIDADE = array("Identidade", "SecInfo");
+$ADICIONAR_IDENTIDADE = array("Identidade", "SecInfo");
+$EDITAR_IDENTIDADE = array("Identidade", "SecInfo");
+$EXCLUIR_IDENTIDADE = array("Identidade", "SecInfo");
 
 // INEXISTENTES
 $LISTAR_SECINFO = array("SecInfo");

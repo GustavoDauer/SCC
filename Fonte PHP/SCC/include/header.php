@@ -131,14 +131,7 @@ require_once '../include/comum.php';
                         <img src="../include/imagens/s2.png" height="35" hspace="2"> S2
                     </a>                        
                 </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_S3)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "S3Controller") > 0 ? "active" : ""; ?>" href='../Controller/S3Controller.php?action=getAllList'>
-                        <img src="../include/imagens/s3.png" height="35" hspace="2"> S3
-                    </a>                        
-                </li>
-            <?php } ?>
+            <?php } ?>            
             <?php if (isAdminLevel($LISTAR_S4)) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= substr_count($address, "S4Controller") > 0 ? "active" : ""; ?>" href='../Controller/S4Controller.php?action=getAllList'>
@@ -163,7 +156,7 @@ require_once '../include/comum.php';
             <?php if (isAdminLevel($LISTAR_FISCALIZACAO)) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>'>
-                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2">Fiscalização
+                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2"><s>Fiscalização</s>
                     </a>
                 </li>
             <?php } ?>

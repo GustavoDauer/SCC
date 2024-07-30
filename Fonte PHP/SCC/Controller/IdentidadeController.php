@@ -33,7 +33,7 @@ require_once '../DAO/SecaoDAO.php';
 require_once '../Model/Identidade.php';
 
 class IdentidadeController {
-    
+
     private $identidadeInstance;
 
     /**
@@ -49,20 +49,43 @@ class IdentidadeController {
      */
     public function getAllList() {
         try {
-            $this->getFormData(); // Used to get filters            
-            //$objectList = $this->visitanteDAO->getAllList($this->filtro);
+            $this->getFormData();
             require_once '../View/view_Identidade_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
         }
     }
-    
+
     public function generate() {
-        $this->getFormData();
-        echo $this->identidadeInstance->getLinha() . "<br>";
+        $this->getFormData();        
         $strings = explode(";", $this->identidadeInstance->getLinha());
-        echo var_dump($strings);
-        
+        $linha = $this->identidadeInstance->getLinha();
+        $id1 = $id2 = $id3 = $id4 = "";
+        if (isset($linha)) {                        
+            $resultado = explode("SEPARADOR", $linha);
+            $id1 = $resultado[0];
+            $id1 = explode("\t", $id1);            
+            //echo var_dump($id1) . "<hr>";
+            $this->identidadeInstance->setId1($id1);
+            $id2 = $resultado[1];
+            $id2 = explode("\t", $id2);            
+            //echo var_dump($id2) . "<hr>";
+            $this->identidadeInstance->setId2($id2);
+            $id3 = $resultado[2];
+            $id3 = explode("\t", $id3);            
+            //echo var_dump($id3) . "<hr>";
+            $this->identidadeInstance->setId3($id3);
+            $id4 = $resultado[3];
+            $id4 = explode("\t", $id4);
+            //echo var_dump($id4) . "<hr>";   
+            $this->identidadeInstance->setId4($id4);
+//            if (count($resultado) != 80) {
+//                echo "Deu ruim: " . count($resultado) . " colunas";
+//            } else {
+//                
+//            }
+        }
+        require_once '../View/view_Identidade_impressao.php';                     
     }
 }
 

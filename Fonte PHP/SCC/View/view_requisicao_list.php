@@ -289,11 +289,18 @@ function formatValue($value) {
     }
     ?>    
     <h6 style="font-size: 16px;"><b>Data atualização:</b> <?= $secaoDAO->getBySecao("Fiscalizacao")->getDataAtualizacao(); ?> - <span style="font-weight: bold; color: <?= $color ?>;"><?= $alert ?></span></h6>
-<!--    <h6 style="font-size: 16px;"><b>Mensagem:</b> <?= $secaoDAO->getBySecao("Fiscalizacao")->getMensagem(); ?></h6>
-    <div align="left">                        
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#mensagem">Editar mensagem</button>
-    </div>        
-    <br>    -->
+    <div style="margin-top: 7px;margin-left: 7px; font-size: 11px;">
+        <?php if (isAdminLevel($LISTAR_CATEGORIA)) { ?>
+            <a href="../Controller/CategoriaController.php?action=getAllList">                            
+                <img src="../include/imagens/gerenciar_categorias.jpg" width="25" height="25" hspace="2" vspace="2"> Categorias
+            </a> |
+        <?php } ?>
+    </div>
+    <!--    <h6 style="font-size: 16px;"><b>Mensagem:</b> <?= $secaoDAO->getBySecao("Fiscalizacao")->getMensagem(); ?></h6>
+        <div align="left">                        
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#mensagem">Editar mensagem</button>
+        </div>        
+        <br>    -->
 </div>
 <div class="conteudo" style="border: 1px dashed lightskyblue; padding: 7px;">
     <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('requisicoes');"> 
@@ -346,7 +353,7 @@ function formatValue($value) {
                                         if (!empty($notaCreditoSelectList) && $notaCreditoSelectList != null) {
                                             foreach ($notaCreditoSelectList as $notaCredito) {
                                                 ?>
-                                                <option value="<?= $notaCredito->getId() ?>" <?=  $idNotaCredito == $notaCredito->getId() ? "selected" : ""  ?>><?= $notaCredito->getNc()  ?></option>
+                                                <option value="<?= $notaCredito->getId() ?>" <?= $idNotaCredito == $notaCredito->getId() ? "selected" : "" ?>><?= $notaCredito->getNc() ?></option>
                                                 <?php
                                             }
                                         } else {
@@ -354,7 +361,7 @@ function formatValue($value) {
                                             if (!empty($notaCreditoSelectList) && $notaCreditoSelectList != null) {
                                                 foreach ($notaCreditoSelectList as $notaCredito) {
                                                     ?>
-                                                    <option value="<?= $notaCredito->getId();  ?>" <?= $notaCredito->getId() == $idNotaCredito ? " selected" : ""  ?>><?=  $notaCredito->getNc()  ?></option>
+                                                    <option value="<?= $notaCredito->getId(); ?>" <?= $notaCredito->getId() == $idNotaCredito ? " selected" : "" ?>><?= $notaCredito->getNc() ?></option>
                                                     <?php
                                                 }
                                             }

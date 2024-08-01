@@ -78,11 +78,6 @@ require_once '../include/comum.php';
                             <a href="../Controller/UsuarioController.php?action=getAllList">                            
                                 <img src="../include/imagens/gerenciar_usuarios.png" width="25" height="25" hspace="2" vspace="2"> Usuários
                             </a> |
-                        <?php } ?>    
-                        <?php if (isAdminLevel($LISTAR_CATEGORIA)) { ?>
-                            <a href="../Controller/CategoriaController.php?action=getAllList">                            
-                                <img src="../include/imagens/gerenciar_categorias.jpg" width="25" height="25" hspace="2" vspace="2"> Categorias
-                            </a> |
                         <?php } ?>
                     </span>
                     <!--<hr style="margin: 0px;">-->
@@ -155,8 +150,8 @@ require_once '../include/comum.php';
             <?php } ?>
             <?php if (isAdminLevel($LISTAR_FISCALIZACAO)) { ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>'>
-                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2"><s>Fiscalização</s>
+                    <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 || substr_count($address, "CategoriaController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>'>
+                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2">Fiscalização
                     </a>
                 </li>
             <?php } ?>

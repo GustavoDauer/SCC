@@ -331,22 +331,25 @@ class FiscalizacaoController {
 
     function notaFiscalInsert() {
         try {
-            $this->getFormData();
-            // TODO
-            // Checar se o ID da requisicao = 0 e fazer a inserção automática de
-            //  uma requisição redirecionando para o cadastro de notas fiscais 
-            //  para a respectiva requisição
-            // Caso não o id da requisicao > 0, executar o fluxo normalmente
+            $this->getFormData();            
+            /* 
+               Checar se o ID da requisicao = 0 e fazer a inserção automática de
+               uma requisição redirecionando para o cadastro de notas fiscais 
+               para a respectiva requisição
+               Caso não o id da requisicao > 0, executar o fluxo normalmente 
+             */
             if ($this->requisicaoInstance->getId() == 0) {
                 $requisicaoDAO = new RequisicaoDAO();
                 $this->requisicaoInstance->setDataRequisicao(date('Y-m-d'));
-                $lastId = $requisicaoDAO->insert($this->requisicaoInstance);                                          
-                if ($lastId > 0) {                    
-                    header("Location: FiscalizacaoController.php?action=insert_nf&idRequisicao=" . $lastId);                    
-                } else {
-                    echo "Problemas!";
+                $this->requisicaoInstance->setTipoNE("ordinario");
+                $this->requisicaoInstance->setTipoNF("material");
+                $lastId = $requisicaoDAO->insert($this->requisicaoInstance);
+                if ($lastId > 0) {
+                    header("Location: FiscalizacaoController.php?action=insert_nf&idRequisicao=" . $lastId);
                 }
-                exit();
+                else {
+                    throw new Exception("Problema na execução de inserção automática de dados!");
+                }                
             }
             $notaFiscalDAO = new NotaFiscalDAO();
             $secaoDAO = new SecaoDAO();

@@ -30,30 +30,30 @@
 class Veiculo {
 
     private $id,
-            $tipoVeiculo,
-            $placa,
+            $marca,
             $modelo,
+            $anoFabricacao,
+            $anoModelo,
             $cor,
-            $nomeCompleto,
-            $identidade,
-            $destino,
-            $dataEntrada,
-            $dataSaida;
+            $placa,
+            $placaEB,
+            $tipo,
+            $idPessoa;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
             $this->id = $idOrRow;
         } else if (is_array($idOrRow)) {
             $this->id = $idOrRow["id"];
-            $this->tipoVeiculo = $idOrRow["tipoVeiculo"];
-            $this->placa = $idOrRow["placa"];
+            $this->marca = $idOrRow["marca"];
             $this->modelo = $idOrRow["modelo"];
+            $this->anoFabricacao = $idOrRow["anoFabricacao"];
+            $this->anoModelo = $idOrRow["anoModelo"];
             $this->cor = $idOrRow["cor"];
-            $this->nomeCompleto = $idOrRow["nomeCompleto"];
-            $this->identidade = $idOrRow["identidade"];
-            $this->destino = $idOrRow["destino"];
-            $this->dataEntrada = $idOrRow["dataEntrada"];
-            $this->dataSaida = $idOrRow["dataSaida"];
+            $this->placa = $idOrRow["placa"];
+            $this->placaEB = $idOrRow["placaEB"];
+            $this->tipo = $idOrRow["tipo"];
+            $this->idPessoa = $idOrRow["idPessoa"];
         }
     }
 
@@ -61,83 +61,83 @@ class Veiculo {
         return $this->id;
     }
 
-    public function getTipoVeiculo() {
-        return $this->tipoVeiculo;
-    }
-
-    public function getPlaca() {
-        return $this->placa;
+    public function getMarca() {
+        return $this->marca;
     }
 
     public function getModelo() {
         return $this->modelo;
     }
 
+    public function getAnoFabricacao() {
+        return $this->anoFabricacao;
+    }
+
+    public function getAnoModelo() {
+        return $this->anoModelo;
+    }
+
     public function getCor() {
         return $this->cor;
     }
 
-    public function getNomeCompleto() {
-        return $this->nomeCompleto;
+    public function getPlaca() {
+        return $this->placa;
     }
 
-    public function getIdentidade() {
-        return $this->identidade;
+    public function getPlacaEB() {
+        return $this->placaEB;
     }
 
-    public function getDestino() {
-        return $this->destino;
+    public function getTipo() {
+        return $this->tipo;
     }
 
-    public function getDataEntrada() {
-        return $this->dataEntrada;
-    }
-
-    public function getDataSaida() {
-        return $this->dataSaida;
+    public function getIdPessoa() {
+        return $this->idPessoa;
     }
 
     public function setId($id) {
         $this->id = $id;
     }
 
-    public function setTipoVeiculo($tipoVeiculo) {
-        $this->tipoVeiculo = $tipoVeiculo;
-    }
-
-    public function setPlaca($placa) {
-        $this->placa = $placa;
+    public function setMarca($marca) {
+        $this->marca = $marca;
     }
 
     public function setModelo($modelo) {
         $this->modelo = $modelo;
     }
 
+    public function setAnoFabricacao($anoFabricacao) {
+        $this->anoFabricacao = $anoFabricacao;
+    }
+
+    public function setAnoModelo($anoModelo) {
+        $this->anoModelo = $anoModelo;
+    }
+
     public function setCor($cor) {
         $this->cor = $cor;
     }
 
-    public function setNomeCompleto($nomeCompleto) {
-        $this->nomeCompleto = $nomeCompleto;
+    public function setPlaca($placa) {
+        $this->placa = $placa;
     }
 
-    public function setIdentidade($identidade) {
-        $this->identidade = $identidade;
+    public function setPlacaEB($placaEB) {
+        $this->placaEB = $placaEB;
     }
 
-    public function setDestino($destino) {
-        $this->destino = $destino;
+    public function setTipo($tipo) {
+        $this->tipo = $tipo;
     }
 
-    public function setDataEntrada($dataEntrada) {
-        $this->dataEntrada = $dataEntrada;
-    }
-
-    public function setDataSaida($dataSaida) {
-        $this->dataSaida = $dataSaida;
+    public function setIdPessoa($idPessoa) {
+        $this->idPessoa = $idPessoa;
     }
 
     public function validate() {
-        return $this->tipoVeiculo != null && !empty($this->tipoVeiculo);
+        return $this->tipo != null && !empty($this->tipo);
     }
 }

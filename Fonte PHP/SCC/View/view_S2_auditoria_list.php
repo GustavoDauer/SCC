@@ -50,28 +50,29 @@ require_once '../include/header.php';
         $color = "darkgreen";
         $alert = $dateDif->format('%a') . " dia(s) atrás";
     }
-    $dataExpiracao = filter_input(INPUT_GET, "dataExpiracao", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
     ?>    
     <h6 style="font-size: 16px;margin: 0;"><b>Data atualização:</b> <?= $secaoDAO->getBySecao("S2")->getDataAtualizacao(); ?> - <span style="font-weight: bold; color: <?= $color ?>;"><?= $alert ?></span></h6>
     <div style="text-align: center;">
-        <span style="font-size: 10px; font-family: sans-serif;">                                                    
-            <img src="../include/imagens/gerenciar_usuarios.png" width="25" height="25" hspace="2" vspace="2"> Cadastros | 
-            <a href="../Controller/S2Controller.php?action=auditoriaList">                            
-                <img src="../include/imagens/s2.png" width="25" height="25" hspace="2" vspace="2"> Auditorias
-            </a> |                        
+        <span style="font-size: 10px; font-family: sans-serif;">   
+            <a href="../Controller/S2Controller.php?action=getAllList">
+                <img src="../include/imagens/gerenciar_usuarios.png" width="25" height="25" hspace="2" vspace="2"> Cadastros
+            </a> |                   
+            <img src="../include/imagens/s2.png" width="25" height="25" hspace="2" vspace="2"> Auditorias
+            |
         </span>
         <!--<hr style="margin: 0px;">-->
     </div>
     <div align="center">
         <form action="../Controller/S2Controller.php" method="get" id="filtro">        
-            <input type="hidden" name="action" value="getAllList">
-            <input type="radio" id="dataExpiracao" name="dataExpiracao" value="todos" onchange="update();" <?= $dataExpiracao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="dataExpiracao" name="dataExpiracao" value="ativos" onchange="update();" <?= $dataExpiracao == "ativos" ? " checked" : "" ?>> Ativos  <input type="radio" id="dataExpiracao" name="dataExpiracao" value="expirados" onchange="update();" <?= $dataExpiracao == "expirados" ? " checked" : "" ?>> Expirados 
+            <input type="hidden" name="action" value="auditoriaList">
+            Entrada entre <input type="date" id="inicio" name="inicio" value="<?= $inicio ?>" onchange="update();"> 
+            | <input type="date" id="fim" name="fim" value="<?= $fim ?>" onchange="update();">
         </form>
     </div>
     <div style="border: 1px dashed lightskyblue; padding: 7px;">
         <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTablePessoa');"> 
         <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTablePessoa');">        
-        <span style="margin-left: 14px; font-weight: bold;">CADASTRO DE PESSOAS</span> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
+        <span style="margin-left: 14px; font-weight: bold;">AUDITORIA DE PESSOAS</span> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
     </div>
     <br>    
     <table class="table table-bordered">
@@ -86,17 +87,13 @@ require_once '../include/header.php';
                 <th>Vínculo</th>                         
                 <th>Documentos</th>     
                 <th>Expiração</th>
-                <th>
-                    <?php if (isAdminLevel($ADICIONAR_S2)) { ?>
-                        <a href="../Controller/S2Controller.php?action=pessoa_insert"><img src='../include/imagens/adicionar.png' width='25' height='25' title='Adicionar'></a>
-                    <?php } ?>
-                </th>                
+                <th></th>                
             </tr>
         </thead>
         <tbody id="myTablePessoa">   
-            <?php if (is_array($pessoaList) && isAdminLevel($LISTAR_S2)) { ?> 
+            <?php if (is_array($auditoriaPessoaList) && isAdminLevel($LISTAR_S2)) { ?> 
                 <?php
-                foreach ($pessoaList as $pessoa):
+                foreach ($auditoriaPessoaList as $pessoa):
                     $alert = "";
                     $colorClass = "";
                     $dateDif = date_diff(new DateTime($pessoa->getDataExpiracao()), $hoje);
@@ -151,7 +148,7 @@ require_once '../include/header.php';
     <div style="border: 1px dashed lightskyblue; padding: 7px;">
         <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTableVeiculo');"> 
         <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTableVeiculo');">        
-        <span style="margin-left: 14px; font-weight: bold;">CADASTRO DE VEÍCULOS</span> <a href="../View/view_S2_servico_veiculo.php" target="_blank">Módulo Serviço</a>
+        <span style="margin-left: 14px; font-weight: bold;">AUDITORIA DE VEÍCULOS</span> <a href="../View/view_S2_servico_veiculo.php" target="_blank">Módulo Serviço</a>
     </div>
     <br>    
     <table class="table table-bordered">
@@ -162,33 +159,48 @@ require_once '../include/header.php';
                 </th>
             </tr>
             <tr>                
-                <th>Marca/Modelo/Ano</th>                
-                <th>Placa</th>                         
-                <th>Tipo</th>
-                <th>Proprietário</th>
-                <th>
-                    <?php if (isAdminLevel($ADICIONAR_S2)) { ?>
-                        <a href="../Controller/S2Controller.php?action=veiculo_insert"><img src='../include/imagens/adicionar.png' width='25' height='25' title='Adicionar'></a>
-                    <?php } ?>
-                </th>                
+                <th>Usuário</th>                
+                <th>Entrada</th>                         
+                <th>Local</th>
+                <th>Autorização</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="myTableVeiculo">   
-            <?php if (is_array($veiculoList) && isAdminLevel($LISTAR_S2)) { ?> 
-                <?php foreach ($veiculoList as $object): ?>
+            <?php if (is_array($auditoriaVeiculoList) && isAdminLevel($LISTAR_S2)) { ?> 
+                <?php
+                foreach ($auditoriaVeiculoList as $object):
+                    $veiculo = $object->getIdVeiculo() > 0 ? $veiculoDAO->getById($object->getIdVeiculo()) : null;
+                    ?>
                     <tr>                                           
-                        <td style="text-align: center;">
-                            <?= $object->getMarca() ?> <?= $object->getModelo() ?> <?= $object->getAnoFabricacao() ?> / <?= $object->getAnoModelo() ?> <input type="color" value="<?= $object->getCor() ?>" disabled>
-                        </td>
-                        <td>
-                            <?= $object->getPlaca() ?> 
-                        </td>         
-                        <td><?= $object->getTipo() ?></td>
-                        <td><?= ($object->getIdPessoa() > 0 ? $pessoaDAO->getById($object->getIdPessoa())->getNome() : ""); ?></td>                        
-                        <td style="white-space: nowrap">
-                            <?php if (isAdminLevel($EDITAR_S2)) { ?>
-                                <a href="../Controller/S2Controller.php?action=veiculo_update&id=<?= $object->getId() ?>"><img src='../include/imagens/editar.png' width='25' height='25' title='Editar'></a>
+                        <td style="text-align: center;">                                                        
+                            <?php if (!is_null($veiculo)) { ?>
+                                <?= $veiculo->getTipo() ?> 
+                                <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?> <input type="color" value="<?= $veiculo->getCor() ?>" disabled> <?= $veiculo->getPlaca() ?> - 
+                                <?= ($veiculo->getIdPessoa() > 0 ? $pessoaDAO->getById($veiculo->getIdPessoa())->getNome() : ""); ?>     
                             <?php } ?>
+                            <?= !empty($object->getPreccp()) ? "Nome: " . $object->getNome() . " PREC-CP: " . $object->getPreccp() . " - Placa: " . $object->getPlaca() : ""; ?>
+                        </td>
+                        <td><?= date_format(new DateTime($object->getDataEntrada()), "d/m/Y H:i:s"); ?></td>         
+                        <td><?= $object->getLocal() === "batalhao" ? "Estacionamento Batalhão" : "Vila Militar"; ?></td>
+                        <td>
+                            <?php
+                            if ($object->getAutorizacao() == 1 && !empty($object->getPreccp())) {
+                                ?>
+                                <span class="alert alert-warning"><strong>Visitante Autorizado</strong></span>                                
+                                <?php
+                            } else if ($object->getAutorizacao() == 1) {
+                                ?>
+                                <span class="alert alert-success"><strong>Autorizado</strong></span>
+                                <?php
+                            } else {
+                                ?>
+                                <span class="alert alert-danger"><strong>Não Autorizado</strong></span>
+                                <?php
+                            }
+                            ?>
+                        </td>
+                        <td style="white-space: nowrap">                            
                             <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
                                 <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                             <?php } ?>

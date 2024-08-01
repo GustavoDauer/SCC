@@ -46,7 +46,7 @@ class FotoDAO {
         }
     }
 
-    function uploadFoto($foto, $id) {
+    function uploadFoto($foto, $id, $prefix = "") {
         try {
             if (is_array($foto) && !empty($foto["name"])) {
                 $tamanho = filesize($foto["tmp_name"]);
@@ -68,11 +68,11 @@ class FotoDAO {
                         return false;
                 }
                 if (!empty($nome)) {
-                    if (move_uploaded_file($foto["tmp_name"], "../include/fotos/" . $nome . $extensao)) {
+                    if (move_uploaded_file($foto["tmp_name"], "../include/fotos/" . $prefix . $nome . $extensao)) {
                         return true;
                     }
                 } else {
-                    throw new Exception("Erro na geração do nome do arquivo.<br><i>O arquivo apresentou o nome $nome.$extensao");
+                    throw new Exception("Erro na geração do nome do arquivo.<br><i>O arquivo apresentou o nome $prefix.$nome.$extensao");
                 }
                 throw new Exception("Erro desconhecido ao tentar salvar o arquivo. É possível que haja erro na configuração do diretório. Informe a Seção de Informática.");
                 return false;
@@ -109,5 +109,4 @@ class FotoDAO {
             throw($e);
         }
     }
-
 }

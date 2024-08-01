@@ -29,142 +29,105 @@
 require_once '../include/header.php';
 $hoje = date('Y-m-d');
 ?>
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="../include/js/jquery-3.4.1.slim.min.js"></script>
+<script src="../include/js/popper.min.js"></script>
 <script src="../include/js/jquery-mask/jquery.mask.min.js"></script>
 <div class="container">  
     <form accept-charset="UTF-8" action="../Controller/S2Controller.php?action=veiculo_<?= $object->getId() > 0 ? "update" : "insert" ?>&id=<?= $object->getId() ?>" class="needs-validation" novalidate method="post">
         <h2><?= $object->getId() > 0 ? "Editar" : "Inserir" ?> Veículo | <a href="#" onclick="history.back(-1);">Voltar</a> | <button type="submit" class="btn btn-primary">Salvar</button></h2>
         <hr>    
-        <input type="hidden" name="lastURL" value="<?= $_SERVER["HTTP_REFERER"] ?>">          
+        <input type="hidden" name="lastURL" value="<?= $_SERVER["HTTP_REFERER"] ?>">   
+        <div class="form-group">
+            <div class="form-row">  
+                <div class="col">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Proprietário</span>
+                        <select name="idPessoa" class="form-control">
+                            <option disabled selected>Selecione uma pessoa como proprietário</option>                            
+                            <?php foreach ($pessoaList as $pessoa): ?>                                
+                                <option value="<?= $pessoa->getId() ?>" <?= $object->getIdPessoa() == $pessoa->getId() ? "selected" : "" ?>><?= $pessoa->getNome() ?></option>
+                            <?php endforeach; ?>                           
+                        </select>
+                        <div class="valid-feedback">&nbsp;</div>
+                        <div class="invalid-feedback">&nbsp;</div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Tipo</span>
+                        <select name="tipo" class="form-control">
+                            <option>Carro</option>
+                            <option>Moto</option>
+                            <option>Van</option>
+                            <option>Ônibus/Caminhão</option>
+                        </select>
+                        <div class="valid-feedback">&nbsp;</div>
+                        <div class="invalid-feedback">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">  
+                <div class="col">                      
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Marca</span>                                                
+                        <input type="text" class="form-control" id="marca" placeholder="Exemplo: Ford, Chevrolet, Fiat, Jeep, Toyota" name="marca" oninput="this.value = this.value.toUpperCase()" maxlength="25" value="<?= $object->getMarca() ?>">
+                    </div>
+                </div> 
+                <div class="col">                      
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Modelo</span>                                                
+                        <input type="text" class="form-control" id="modelo" placeholder="Exemplo: Ka, Agile, Renagade, Hilux, Ranger" name="modelo" oninput="this.value = this.value.toUpperCase()" maxlength="25" value="<?= $object->getModelo() ?>">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <div class="form-row">                 
                 <div class="col">                      
                     <div class="input-group-prepend">
-                        <span class="input-group-text">Tipo Veículo</span>                        
-                        <select name="tipoVeiculo" class="form-control" required>                                                                                       
-                            <option value="" <?= $object->getTipoVeiculo() == "" ? "selected" : "" ?> disabled>Selecione um tipo de veículo</option>                                
-                            <option value="Civil" <?= $object->getTipoVeiculo() == "Civil" ? "selected" : "" ?>>Civil</option>                            
-                            <option value="Militar" <?= $object->getTipoVeiculo() == "Militar" ? "selected" : "" ?>>Militar</option>   
-                        </select>
+                        <span class="input-group-text">Ano Fabricação</span>                                                
+                        <input type="number" class="form-control" id="anoFabricacao" name="anoFabricacao" maxlength="4" value="<?= $object->getAnoFabricacao() ?>" min="1956" max="<?= date('Y') ?>">
+                    </div>
+                </div> 
+                <div class="col">                      
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Ano Modelo</span>                                                
+                        <input type="number" class="form-control" id="anoModelo" name="anoModelo" maxlength="4" value="<?= $object->getAnoModelo() ?>" min="1956" max="<?= date('Y') ?>">
+                    </div>
+                </div>             
+                <div class="col">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Cor</span>
+                        <input type="color" class="form-control" id="cor" name="cor" value="<?= $object->getCor() ?>">
                         <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;Obrigatório</div>
+                        <div class="invalid-feedback">&nbsp;</div>
                     </div>
                 </div>
                 <div class="col">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Placa</span>
-                        <input type="text" class="form-control" id="Placa" placeholder="Qual a placa do veiculo?" name="placa" maxlength="10" oninput="this.value = this.value.toUpperCase()" value="<?= $object->getPlaca() ?>">
+                        <input type="text" class="form-control" id="placa" name="placa" maxlength="8" oninput="this.value = this.value.toUpperCase()" value="<?= $object->getPlaca() ?>">
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;</div>
                     </div>
-                </div>
+                </div>                
             </div>
-        </div>        
+        </div>                           
         <div class="form-group">
             <div class="form-row"> 
-                <div class="col">
+                <div class="col-4">
                     <div class="input-group-prepend">
-                        <span class="input-group-text">Modelo</span>
-                        <input type="text" class="form-control" id="modelo" placeholder="Qual o modelo do veiculo?" name="modelo" oninput="this.value = this.value.toUpperCase()" maxlength="30" value="<?= $object->getModelo() ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Cor</span>
-                        <input type="color" class="form-control" id="cor" placeholder="Qual a cor do veiculo?" name="cor"  maxlength="20" value="<?= $object->getCor() ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div>
-                </div>
-            </div>
-        </div>     
-        <div class="form-group">
-            <div class="form-row"> 
-                <div class="col">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Nome Completo</span>
-                        <input type="text" class="form-control" id="nomeCompleto" name="nomeCompleto" placeholder="Qual o nome completo?" maxlength="80" oninput="this.value = this.value.toUpperCase()" value="<?= $object->getNomeCompleto(); ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div>  
-                </div> 
-                <div class="col">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Identidade</span>
-                        <input type="text" class="form-control" id="identidade" name="identidade" placeholder="Qual o CPF?" value="<?= $object->getIdentidade(); ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div> 
-                </div> 
-            </div> 
-        </div> 
-        <div class="form-group">
-            <div class="form-row"> 
-                <div class="col">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Destino</span>
-                        <input type="text" class="form-control" id="destino" name="destino" maxlength="70" oninput="this.value = this.value.toUpperCase()" placeholder="Qual o destino?" value="<?= $object->getDestino(); ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div>                                                         
-                </div>                                
-            </div>
-        </div>            
-        <?php
-        try {
-            $dataEntrada = explode(" ", $object->getDataEntrada());
-            if (count($dataEntrada) < 2) {
-                $dataEntrada[0] = "";
-                $dataEntrada[1] = "";
-            }
-            $dataSaida = explode(" ", $object->getDataSaida());
-
-            if (count($dataSaida) < 2) {
-                $dataSaida[0] = "";
-                $dataSaida[1] = "";
-            }
-        } catch (Exception $e) {
-            echo "Ocorreu um problema na manipulação de datas, informe o Administrador do Sistema.";
-        }
-        ?>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col">                    
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Data de Entrada</span> 
-                        <input type="date" class="form-control" id="dataEntrada" name="dataEntrada"  value="<?= empty($dataEntrada[0]) ? $hoje : $dataEntrada[0] ?>" required>
+                        <span class="input-group-text">EB</span>
+                        <input type="text" class="form-control" id="placaEB" name="placaEB" maxlength="25" oninput="this.value = this.value.toUpperCase()" value="<?= $object->getPlacaEB() ?>"> 
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;</div>
                     </div>                    
                 </div>
-                <div class="col">                                       
-                    <input type="time" class="form-control" id="horaEntrada" name="horaEntrada"value="<?= $dataEntrada[1] ?>">                        
+                <div class="col">
+                    <span style="color: blue; font-size: 12px;">* Veículos Militares</span>                
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col">                    
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Data de saída</span>
-                        <input type="date" class="form-control" id="dataSaida" name="dataSaida"value="<?= $dataSaida[0] ?>">
-                        <div class="valid-feedback">&nbsp;</div>
-                        <div class="invalid-feedback">&nbsp;</div>
-                    </div>                    
-                </div>
-                <div class="col">                                       
-                    <input type="time" class="form-control" id="horaSaida" name="horaSaida"value="<?= $dataSaida[1] ?>">                        
-                </div>                                    
-            </div>
-        </div>    
-        <div class="form-group">
-            <div class="form-row">
-                <div class="col">                    
-
-                </div>                                               
             </div>
         </div>
         <hr>
@@ -197,7 +160,7 @@ $hoje = date('Y-m-d');
 
     $(document).ready(function () {
         $('[name=placa]').mask('SSS-0A00');
-        $('[name=identidade]').mask('000.000.000-00');
+        $('[name=placaEB]').mask('EB0000000000');
     });
 </script>
 <?php

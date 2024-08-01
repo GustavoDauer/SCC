@@ -36,45 +36,44 @@ class VeiculoDAO {
         try {
             $c = connect();
             $sql = "INSERT INTO Veiculo("
-                    . "tipoVeiculo, placa, modelo, cor, nomeCompleto, identidade, destino, dataEntrada, dataSaida "
+                    . "marca, modelo, anoFabricacao, anoModelo, cor, placa, placaEB, tipo, Pessoa_idPessoa"
                     . ") "
                     . "VALUES("
-                    . "'" . $object->getTipoVeiculo() . "'"
-                    . ", '" . $object->getPlaca() . "'"
+                    . "'" . $object->getMarca() . "'"
                     . ", '" . $object->getModelo() . "'"
+                    . ", " . ($object->getAnoFabricacao() > 0 ? $object->getAnoFabricacao() : 'NULL') . ""
+                    . ", " . ($object->getAnoModelo() > 0 ? $object->getAnoModelo() : 'NULL') . ""
                     . ", '" . $object->getCor() . "'"
-                    . ", '" . $object->getNomeCompleto() . "'"
-                    . ", '" . $object->getIdentidade() . "'"
-                    . ", '" . $object->getDestino() . "'"
-                    . ", " . (!empty($object->getDataEntrada()) ? "'" . $object->getDataEntrada() . "' " : " NULL ")
-                    . ", " . (!empty($object->getDataSaida()) ? "'" . $object->getDataSaida() . "' " : " NULL ")                
-                    . ");";           
+                    . ", '" . $object->getPlaca() . "'"
+                    . ", '" . $object->getPlacaEB() . "'"
+                    . ", '" . $object->getTipo() . "'"
+                    . ", " . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : 'NULL') . ""
+                    . ");";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;            
+            $sqlOk = $stmt ? $stmt->execute() : false;
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
             throw($e);
         }
-        return true;
     }
 
     public function update($object) {
         try {
             $c = connect();
             $sql = "UPDATE Veiculo SET "
-                    . "tipoVeiculo = '" . $object->getTipoVeiculo() . "'"
-                    . ", placa = '" . $object->getPlaca() . "'"
+                    . "  marca = '" . $object->getMarca() . "'"
                     . ", modelo = '" . $object->getModelo() . "'"
+                    . ", anoFabricacao = " . ($object->getAnoFabricacao() > 0 ? $object->getAnoFabricacao() : 'NULL') . ""
+                    . ", anoModelo = " . ($object->getAnoModelo() > 0 ? $object->getAnoModelo() : 'NULL') . ""
                     . ", cor = '" . $object->getCor() . "'"
-                    . ", nomeCompleto = '" . $object->getNomeCompleto() . "'"
-                    . ", identidade = '" . $object->getIdentidade() . "'"
-                    . ", destino = '" . $object->getDestino() . "'"                
-                    . ", dataEntrada = " . (!empty($object->getDataEntrada()) ? "'" . $object->getDataEntrada() . "' " : "NULL ")
-                    . ", dataSaida = " . (!empty($object->getDataSaida()) ? "'" . $object->getDataSaida() . "' " : "NULL ")                    
-                    . " WHERE idVeiculo = " . $object->getId() . ";";            
+                    . ", placa = '" . $object->getPlaca() . "'"
+                    . ", placaEB = '" . $object->getPlacaEB() . "'"
+                    . ", tipo = '" . $object->getTipo() . "'"
+                    . ", Pessoa_idPessoa = " . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : 'NULL') . ""
+                    . " WHERE idVeiculo = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;                        
+            $sqlOk = $stmt ? $stmt->execute() : false;
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -88,7 +87,7 @@ class VeiculoDAO {
             $sql = "DELETE FROM Veiculo "
                     . " WHERE idVeiculo = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;           
+            $sqlOk = $stmt ? $stmt->execute() : false;
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -99,14 +98,15 @@ class VeiculoDAO {
     public function getAllList($filtro = "") {
         try {
             $c = connect();
-            $sql = "SELECT *, "
-                    . "DATE_FORMAT(dataEntrada, '%H:%i em %d/%m/%Y') as dataEntrada, "
-                    . "DATE_FORMAT(dataSaida, '%H:%i em %d/%m/%Y') as dataSaida "
+            $sql = "SELECT * "
                     . " FROM Veiculo "
-                    . (!empty($filtro["inicio"]) || !empty($filtro["fim"]) ? " WHERE " : "")
-                    . (!empty($filtro["inicio"]) ? " dataEntrada >= '" . $filtro["inicio"] . "' AND " : "")
-                    . (!empty($filtro["fim"]) && !empty($filtro["inicio"]) ? " dataEntrada <= '" . $filtro["fim"] . "' " : "")
-                    . " ORDER BY dataEntrada DESC ";
+                    . " LEFT JOIN Pessoa ON Pessoa.idPessoa = Veiculo.Pessoa_idPessoa ";
+            if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos") {
+                $sql .= " WHERE dataExpiracao >= CURRENT_DATE ";
+            } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
+                $sql .= " WHERE dataExpiracao < CURRENT_DATE ";
+            }
+            $sql .= " ORDER BY DataExpiracao, Pessoa_idPessoa ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -137,19 +137,37 @@ class VeiculoDAO {
         }
     }
 
+    public function checkPlaca($placa) {
+        try {
+            $c = connect();
+            $sql = "SELECT * "
+                    . " FROM Veiculo "
+                    . " WHERE placa = '$placa'";
+            $result = $c->query($sql);
+            while ($row = $result->fetch_assoc()) {
+                $objectArray = $this->fillArray($row);
+                $instance = new Veiculo($objectArray);
+            }
+            $c->close();
+            return isset($instance) ? $instance : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+
     public function fillArray($row) {
         return array(
             "id" => $row["idVeiculo"],
-            "tipoVeiculo" => $row["tipoVeiculo"],
-            "placa" => $row["placa"],
+            "marca" => $row["marca"],
             "modelo" => $row["modelo"],
+            "anoFabricacao" => $row["anoFabricacao"],
+            "anoModelo" => $row["anoModelo"],
             "cor" => $row["cor"],
-            "nomeCompleto" => $row["nomeCompleto"],
-            "identidade" => $row["identidade"],            
-            "destino" => $row["destino"],
-            "dataEntrada" => $row["dataEntrada"],
-            "dataSaida" => $row["dataSaida"]
+            "placa" => $row["placa"],
+            "placaEB" => $row["placaEB"],
+            "tipo" => $row["tipo"],
+            "dataCadastro" => $row["dataCadastro"],
+            "idPessoa" => $row["Pessoa_idPessoa"]
         );
     }
-
 }

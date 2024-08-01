@@ -65,7 +65,7 @@ require_once '../include/header.php';
     <div align="center">
         <form action="../Controller/S2Controller.php" method="get" id="filtro">        
             <input type="hidden" name="action" value="getAllList">
-            <input type="radio" id="dataExpiracao" name="dataExpiracao" value="todos" onchange="update();" <?= $dataExpiracao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="dataExpiracao" name="dataExpiracao" value="ativos" onchange="update();" <?= $dataExpiracao == "ativos" ? " checked" : "" ?>> Ativos  <input type="radio" id="dataExpiracao" name="dataExpiracao" value="expirados" onchange="update();" <?= $dataExpiracao == "expirados" ? " checked" : "" ?>> Expirados 
+            <input type="radio" id="dataExpiracao" name="dataExpiracao" value="todos" onchange="update();" <?= $dataExpiracao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="dataExpiracao" name="dataExpiracao" value="ativos" onchange="update();" <?= $dataExpiracao == "ativos" || empty($dataExpiracao) ? " checked" : "" ?>> Ativos  <input type="radio" id="dataExpiracao" name="dataExpiracao" value="expirados" onchange="update();" <?= $dataExpiracao == "expirados" ? " checked" : "" ?>> Expirados 
         </form>
     </div>
     <div style="border: 1px dashed lightskyblue; padding: 7px;">

@@ -101,7 +101,7 @@ class VeiculoDAO {
             $sql = "SELECT * "
                     . " FROM Veiculo "
                     . " LEFT JOIN Pessoa ON Pessoa.idPessoa = Veiculo.Pessoa_idPessoa ";
-            if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos") {
+            if (empty($filtro["dataExpiracao"]) || (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos")) {
                 $sql .= " WHERE dataExpiracao >= CURRENT_DATE ";
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
                 $sql .= " WHERE dataExpiracao < CURRENT_DATE ";

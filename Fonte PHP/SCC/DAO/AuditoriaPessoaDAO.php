@@ -39,7 +39,7 @@ class AuditoriaPessoaDAO {
                     . "Pessoa_idPessoa, dataEntrada, dataSaida, local"
                     . ") "
                     . "VALUES("
-                    . ", " . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : "NULL")
+                    . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : "NULL")
                     . ", " . (!empty($object->getDataEntrada()) ? "'" . $object->getDataEntrada() . "'" : "NULL")
                     . ", " . (!empty($object->getDataSaida()) ? "'" . $object->getDataSaida() . "'" : "NULL")
                     . ", '" . $object->getLocal() . "'"

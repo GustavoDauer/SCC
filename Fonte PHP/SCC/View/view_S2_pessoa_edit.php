@@ -39,15 +39,24 @@ $hoje = date('Y-m-d');
         <input type="hidden" name="lastURL" value="<?= $_SERVER["HTTP_REFERER"] ?>">   
         <div class="form-group">
             <div class="form-row">
-                <div class="col">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Foto</span>
-                        <img src='<?= $object->getUploadedPhoto(); ?>' style='margin-left: 50px; width: 400px; height: 400px'> 
+                <?php if ($object->getId() > 0) { ?>
+                    <div class="col">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Foto</span>
+                            <img src='<?= $object->getUploadedPhoto(); ?>' id="foto" style='margin-left: 50px; width: 400px; height: 400px'> 
+                        </div>
+                        <br>                    
                     </div>
-                    <br>                    
-                </div>
+                <?php } ?>
                 <div class="col">  
-                    <input class="form-control" type="file" name="arquivoFoto">
+                    <?php if (!$object->getId() > 0) { ?>
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Foto</span>
+                        <?php } ?>
+                        <input class="form-control" type="file" id="arquivoFoto" name="arquivoFoto">
+                        <?php if (!$object->getId() > 0) { ?>
+                        </div>
+                    <?php } ?>
                     <br>
                     <div class="input-group-prepend">
                         <span class="input-group-text">Nome completo</span>                                                
@@ -108,7 +117,7 @@ $hoje = date('Y-m-d');
     function update() {
         document.getElementById("filtro").submit();
     }
-    
+
     // Disable form submissions if there are invalid fields
     (function () {
         'use strict';

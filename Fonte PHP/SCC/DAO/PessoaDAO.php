@@ -187,6 +187,24 @@ class PessoaDAO {
         }
     }
 
+    public function checkIdentidadeMilitar($id) {
+        try {
+            $c = connect();
+            $sql = "SELECT * "
+                    . " FROM Pessoa "
+                    . " WHERE identidadeMilitar = '$id'";
+            $result = $c->query($sql);
+            while ($row = $result->fetch_assoc()) {
+                $objectArray = $this->fillArray($row);
+                $instance = new Pessoa($objectArray);
+            }
+            $c->close();
+            return isset($instance) ? $instance : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+    
     public function fillArray($row) {
         return array(
             "id" => $row["idPessoa"],

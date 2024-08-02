@@ -40,12 +40,9 @@ require_once '../DAO/FotoDAO.php';
 
 class S2Controller {
 
-    private $veiculoInstance, $pessoaInstance, // Model instance to be used by Controller and DAO
-            $veiculoDAO, $pessoaDAO, // DAO instance for database operations       
+    private $veiculoInstance, $pessoaInstance, // Model instance to be used by Controller and DAO  
             $foto;                             // Photo              
     private $filtro;
-    private $auditoriaVeiculoDAO;
-    private $auditoriaPessoaDAO;
 
     /**
      * Responsible to receive all input form data
@@ -103,16 +100,15 @@ class S2Controller {
      */
     public function getAllList() {
         try {
-            $this->getFormData(); // Used to get filters            
-            $this->veiculoDAO = new VeiculoDAO();
-            $this->pessoaDAO = new PessoaDAO();
+            $this->getFormData(); // Used to get filters  
+            $pessoaDAO = new PessoaDAO();
+            $veiculoDAO = new VeiculoDAO();
             $fotoDAO = new FotoDAO();
             $secaoDAO = new SecaoDAO();
             $postoDAO = new PostoDAO();
             $vinculoDAO = new VinculoDAO();
-            $pessoaDAO = $this->pessoaDAO;
-            $pessoaList = $this->pessoaDAO->getAllList($this->filtro);
-            $veiculoList = $this->veiculoDAO->getAllList($this->filtro);
+            $pessoaList = $pessoaDAO->getAllList($this->filtro);
+            $veiculoList = $veiculoDAO->getAllList($this->filtro);
             require_once '../View/view_S2_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
@@ -125,12 +121,12 @@ class S2Controller {
     public function veiculoInsert() {
         try {
             $this->getFormData();
-            $this->veiculoDAO = new VeiculoDAO();
+            $veiculoDAO = new VeiculoDAO();
             $secaoDAO = new SecaoDAO();
             $pessoaDAO = new PessoaDAO();
             $postoDAO = new PostoDAO();
             if ($this->veiculoInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form                
-                if ($this->veiculoDAO->insert($this->veiculoInstance)) {
+                if ($veiculoDAO->insert($this->veiculoInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . filter_input(INPUT_POST, "lastURL"));
                 } else {
@@ -152,19 +148,19 @@ class S2Controller {
     public function veiculoUpdate() {
         try {
             $this->getFormData();
-            $this->veiculoDAO = new VeiculoDAO();
+            $veiculoDAO = new VeiculoDAO();
             $secaoDAO = new SecaoDAO();
             $pessoaDAO = new PessoaDAO();
             $postoDAO = new PostoDAO();
             if ($this->veiculoInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form
-                if ($this->veiculoDAO->update($this->veiculoInstance)) {
+                if ($veiculoDAO->update($this->veiculoInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . filter_input(INPUT_POST, "lastURL"));
                 } else {
                     throw new Exception("Problema na atualização de dados no banco de dados!<br>O tamanho do arquivo deve ser de no máximo 40 KB e a extensão deve ser .jpg ou .png.");
                 }
             } else { // Require the view of the form   
-                $this->veiculoInstance = $this->veiculoInstance->getId() > 0 ? $this->veiculoDAO->getById($this->veiculoInstance->getId()) : null;
+                $this->veiculoInstance = $this->veiculoInstance->getId() > 0 ? $veiculoDAO->getById($this->veiculoInstance->getId()) : null;
                 $object = $this->veiculoInstance;
                 $pessoaList = $pessoaDAO->getAllList();
                 require_once '../View/view_S2_veiculo_edit.php';
@@ -180,10 +176,10 @@ class S2Controller {
     public function veiculoDelete() {
         try {
             $this->getFormData();
-            $this->veiculoDAO = new VeiculoDAO();
+            $veiculoDAO = new VeiculoDAO();
             $secaoDAO = new SecaoDAO();
             if ($this->veiculoInstance->getId() != null) {
-                if ($this->veiculoDAO->delete($this->veiculoInstance)) {
+                if ($veiculoDAO->delete($this->veiculoInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . $_SERVER["HTTP_REFERER"]);
                 } else {
@@ -201,7 +197,7 @@ class S2Controller {
     public function pessoaInsert() {
         try {
             $this->getFormData();
-            $this->pessoaDAO = new PessoaDAO();
+            $pessoaDAO = new PessoaDAO();
             $secaoDAO = new SecaoDAO();
             $postoDAO = new PostoDAO();
             $vinculoDAO = new VinculoDAO();
@@ -209,7 +205,7 @@ class S2Controller {
             $postoList = $postoDAO->getAllList();
             $vinculoList = $vinculoDAO->getAllList();
             if ($this->pessoaInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form                
-                if ($this->pessoaDAO->insert($this->pessoaInstance)) {
+                if ($pessoaDAO->insert($this->pessoaInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . filter_input(INPUT_POST, "lastURL"));
                 } else {
@@ -230,7 +226,7 @@ class S2Controller {
     public function pessoaUpdate() {
         try {
             $this->getFormData();
-            $this->pessoaDAO = new PessoaDAO();
+            $pessoaDAO = new PessoaDAO();
             $secaoDAO = new SecaoDAO();
             $postoDAO = new PostoDAO();
             $vinculoDAO = new VinculoDAO();
@@ -238,14 +234,14 @@ class S2Controller {
             $postoList = $postoDAO->getAllList();
             $vinculoList = $vinculoDAO->getAllList();
             if ($this->pessoaInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form
-                if ($this->pessoaDAO->update($this->pessoaInstance)) {
+                if ($pessoaDAO->update($this->pessoaInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . filter_input(INPUT_POST, "lastURL"));
                 } else {
                     throw new Exception("Problema na atualização de dados no banco de dados!<br>O tamanho do arquivo deve ser de no máximo 40 KB e a extensão deve ser .jpg ou .png.");
                 }
             } else { // Require the view of the form   
-                $this->pessoaInstance = $this->pessoaInstance->getId() > 0 ? $this->pessoaDAO->getById($this->pessoaInstance->getId()) : null;
+                $this->pessoaInstance = $this->pessoaInstance->getId() > 0 ? $pessoaDAO->getById($this->pessoaInstance->getId()) : null;
                 $object = $this->pessoaInstance;
                 require_once '../View/view_S2_pessoa_edit.php';
             }
@@ -260,11 +256,11 @@ class S2Controller {
     public function pessoaDelete() {
         try {
             $this->getFormData();
-            $this->pessoaDAO = new PessoaDAO();
+            $pessoaDAO = new PessoaDAO();
             $secaoDAO = new SecaoDAO();
             $fotoDAO = new FotoDAO();
             if ($this->pessoaInstance->getId() != null) {
-                if ($this->pessoaDAO->delete($this->pessoaInstance)) {
+                if ($pessoaDAO->delete($this->pessoaInstance)) {
                     $secaoDAO->updateDataAtualizacao("S2");
                     header("Location: " . $_SERVER["HTTP_REFERER"]);
                 } else {
@@ -279,13 +275,13 @@ class S2Controller {
     public function veiculoCheck() {
         try {
             $this->getFormData();
-            $this->veiculoDAO = new VeiculoDAO();
-            $this->auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
+            $veiculoDAO = new VeiculoDAO();
+            $auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
             $autorizado = "";
             $object = null;
             $placa = "";
             if (!empty($this->veiculoInstance->getPlaca())) {
-                $object = $this->veiculoDAO->checkPlaca($this->veiculoInstance->getPlaca());
+                $object = $veiculoDAO->checkPlaca($this->veiculoInstance->getPlaca());
                 if (!is_null($object)) {
                     $autorizado = "autorizado";
                 } else {
@@ -297,7 +293,7 @@ class S2Controller {
                 $auditoriaVeiculo->setLocal("batalhao");
                 $auditoriaVeiculo->setPlaca($placa);
                 $auditoriaVeiculo->setIdVeiculo(!is_null($object) ? $object->getId() : null);
-                if (!$this->auditoriaVeiculoDAO->insert($auditoriaVeiculo)) {
+                if (!$auditoriaVeiculoDAO->insert($auditoriaVeiculo)) {
                     throw new Exception("Erro no módulo de auditoria da 2ª Seção!");
                 }
                 require_once '../View/view_S2_servico_veiculo.php';
@@ -312,15 +308,15 @@ class S2Controller {
     public function veiculoPreccpCheck() {
         try {
             $this->getFormData();
-            $this->pessoaDAO = new PessoaDAO();
-            $this->auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
+            $pessoaDAO = new PessoaDAO();
+            $auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
             $autorizado = "";
             $object = null;
             $placa = "";
             $aviso = "";
             $preccp = "";
             if (!empty($this->pessoaInstance->getPreccp())) {
-                $pessoa = $this->pessoaDAO->getSCFExByPreccp($this->pessoaInstance->getPreccp());
+                $pessoa = $pessoaDAO->getSCFExByPreccp($this->pessoaInstance->getPreccp());
                 $placa = $this->veiculoInstance->getPlaca();
                 $preccp = $this->pessoaInstance->getPreccp();
                 $nome = $this->pessoaInstance->getNome();
@@ -335,7 +331,7 @@ class S2Controller {
                 $auditoriaVeiculo->setPlaca($placa);
                 $auditoriaVeiculo->setNome($nome);
                 $auditoriaVeiculo->setLocal("batalhao");
-                if (!$this->auditoriaVeiculoDAO->insert($auditoriaVeiculo)) {
+                if (!$auditoriaVeiculoDAO->insert($auditoriaVeiculo)) {
                     throw new Exception("Erro no módulo de auditoria da 2ª Seção!");
                 }
                 require_once '../View/view_S2_servico_veiculo.php';
@@ -347,18 +343,47 @@ class S2Controller {
         }
     }
 
+    public function pessoaCheck() {
+        try {
+            $this->getFormData();
+            $pessoaDAO = new PessoaDAO();
+            $auditoriaPessoaDAO = new AuditoriaPessoaDAO();
+            $autorizado = "";
+            $object = null;
+            if (!empty($this->pessoaInstance->getIdentidadeMilitar())) {
+                $object = $pessoaDAO->checkIdentidadeMilitar($this->pessoaInstance->getIdentidadeMilitar());
+                if (!is_null($object)) {
+                    $autorizado = "autorizado";
+                } else {
+                    $autorizado = "nao_autorizado";
+                    $identidade = $this->pessoaInstance->getIdentidadeMilitar();
+                }
+                $auditoriaPessoa = new AuditoriaPessoa();
+                $auditoriaPessoa->setAutorizacao($autorizado === "autorizado" ? 1 : 0);
+                $auditoriaPessoa->setLocal("batalhao");
+                $auditoriaPessoa->setIdPessoa(!is_null($object) ? $object->getId() : null);
+                if (!$auditoriaPessoaDAO->insert($auditoriaPessoa)) {
+                    throw new Exception("Erro no módulo de auditoria da 2ª Seção!");
+                }
+                require_once '../View/view_S2_servico_pessoa.php';
+            } else {
+                require_once '../View/view_S2_servico_pessoa.php';
+            }
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
+        }
+    }
+
     public function auditoriaList() {
         try {
             $this->getFormData(); // Used to get filters      
-            $this->veiculoDAO = new VeiculoDAO();
-            $this->pessoaDAO = new PessoaDAO();
-            $this->auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
-            $this->auditoriaPessoaDAO = new AuditoriaPessoaDAO();
+            $veiculoDAO = new VeiculoDAO();
+            $pessoaDAO = new PessoaDAO();
+            $auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
+            $auditoriaPessoaDAO = new AuditoriaPessoaDAO();
             $secaoDAO = new SecaoDAO();
-            $pessoaDAO = $this->pessoaDAO;
-            $veiculoDAO = $this->veiculoDAO;
-            $auditoriaVeiculoList = $this->auditoriaVeiculoDAO->getAllList($this->filtro);
-            $auditoriaPessoaList = $this->auditoriaPessoaDAO->getAllList($this->filtro);
+            $auditoriaVeiculoList = $auditoriaVeiculoDAO->getAllList($this->filtro);
+            $auditoriaPessoaList = $auditoriaPessoaDAO->getAllList($this->filtro);
             require_once '../View/view_S2_auditoria_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
@@ -398,7 +423,7 @@ switch ($action) {
         $controller->veiculoPreccpCheck();
         break;
     case "servico_pessoa":
-        //$controller->pessoaCheck();
+        $controller->pessoaCheck();
         break;
     case "auditoriaList":
         !isAdminLevel($LISTAR_S2) ? redirectToLogin() : $controller->auditoriaList();

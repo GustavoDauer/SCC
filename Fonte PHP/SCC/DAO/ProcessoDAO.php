@@ -101,8 +101,16 @@ class ProcessoDAO {
             $sqlFiltro = "";
             if (isset($filtro) && ($filtro["solucao"] != "todos" || !empty($filtro["tipo"]))) {
                 $sqlFiltro .= " WHERE ";
-                if ($filtro["solucao"] != "todos") {
-                    $sqlFiltro .= !empty($filtro["solucao"]) ? " solucao " . ($filtro["solucao"] == "emandamento" ? " = " : " != ") . " ''" : "";
+                if ($filtro["solucao"] != "todos" && !empty($filtro["solucao"])) {
+                    if ($filtro["solucao"] == "concluido") {
+                        $sqlFiltro .= " solucao != '' ";
+                    } else if ($filtro["solucao"] == "emandamento") {
+                        $sqlFiltro .= " solucao = '' ";
+                    } else if ($filtro["solucao"] == "protocolado") {
+                        $sqlFiltro .= " solucao = '' AND dataFim IS NOT NULL AND dataFim != '' ";
+                    } else {
+                        $sqlFiltro .= " solucao = '' ";
+                    }
                 }
                 if (!empty($filtro["tipo"])) {
                     $sqlFiltro .= $filtro["solucao"] != "todos" ? " AND " : "";
@@ -170,5 +178,4 @@ class ProcessoDAO {
             "dataPrazoOriginal" => $row["dataPrazoOriginal"]
         );
     }
-
 }

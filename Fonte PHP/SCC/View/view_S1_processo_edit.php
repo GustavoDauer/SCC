@@ -44,7 +44,7 @@ if ($action === "processo_update" || $action === "processo_insert") {
                 <div class="col">                    
                     <div class="input-group-prepend">
                         <span class="input-group-text">Responsável</span>
-                        <input type="text" class="form-control" id="responsavel" placeholder="Digite o nome de guerra do responsável.." name="responsavel" oninput="this.value = this.value.toUpperCase()" required value="<?= $object->getResponsavel() ?>" maxlength="70">
+                        <input type="text" class="form-control" id="responsavel" placeholder="Digite o nome de guerra do responsável.." name="responsavel" oninput="this.value = this.value.toUpperCase();" onkeyup="manager();" required value="<?= $object->getResponsavel() ?>" maxlength="70">
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;Informar responsável.</div>
                     </div>                    
@@ -208,7 +208,7 @@ if ($action === "processo_update" || $action === "processo_insert") {
 //            prorrogacao.required = true;
 //        } else {
 //            prorrogacao.required = false;
-//        }
+//        }       
     }
     check();
 </script>

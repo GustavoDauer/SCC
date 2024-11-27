@@ -82,20 +82,20 @@ $hoje = new DateTime();
     }
 </script>
 <style type="text/css">
-    .encostado { 
+    .encostado {
         color: gray;
     }
 
     .positivo {
-        color: green;        
+        color: green;
     }
 
     .negativo {
-        color: red;        
+        color: red;
     }
 
     .neutro {
-        color: blue;        
+        color: blue;
     }
 
     .destaque {
@@ -184,11 +184,11 @@ function contaCheck($previsto, $existente) {
     <div style="border: 1px dashed lightskyblue; padding: 7px;">
         <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimizeMapaDaForca()"> 
         <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximizeMapaDaForca()">
-        <?php if (isAdminLevel($EDITAR_S1)) { ?>
+<?php if (isAdminLevel($EDITAR_S1)) { ?>
             <span style="text-align: right;">
                 <a href="../Controller/S1Controller.php?action=mapaDaForca_update"><img src='../include/imagens/editar.png' width='25' height='25' title='Editar' style="margin-left: 14px;"></a>
             </span>                                   
-        <?php } ?>
+<?php } ?>
         <span style="margin-left: 14px; font-weight: bold;">MAPA DA FORÇA</span>
     </div>
     <?php if (is_array($mapaDaForcaList) && isAdminLevel($LISTAR_S1)) { ?> 
@@ -283,7 +283,7 @@ function contaCheck($previsto, $existente) {
                         <td class="<?= check($object->getTen2_previsto(), $object->getTen2_existente()) ?>"><?= $object->getTen2_previsto() ?></td> <!-- 2º Ten -->
                         <td class="<?= check($object->getAspof_previsto(), $object->getAspof_existente()) ?>"><?= $object->getAspof_previsto() ?></td> <!-- Asp Of -->
                         <td>
-                            <?= $totalPrevistoOficiais ?>
+        <?= $totalPrevistoOficiais ?>
                         </td>
                     </tr> 
                     <tr>                
@@ -291,28 +291,28 @@ function contaCheck($previsto, $existente) {
                             EXISTENTE
                         </td>   
                         <td class="<?= check($object->getCel_previsto(), $object->getCel_existente()) ?>">
-                            <?= $object->getCel_existente() ?> <?= contaCheck($object->getCel_previsto(), $object->getCel_existente()); ?>
+        <?= $object->getCel_existente() ?> <?= contaCheck($object->getCel_previsto(), $object->getCel_existente()); ?>
                         </td> <!-- Cel -->
                         <td class="<?= check($object->getTc_previsto(), $object->getTc_existente()) ?>">
-                            <?= $object->getTc_existente() ?> <?= contaCheck($object->getTc_previsto(), $object->getTc_existente()); ?>
+        <?= $object->getTc_existente() ?> <?= contaCheck($object->getTc_previsto(), $object->getTc_existente()); ?>
                         </td> <!-- TC -->
                         <td class="<?= check($object->getMaj_previsto(), $object->getMaj_existente()) ?>">
-                            <?= $object->getMaj_existente() ?> <?= contaCheck($object->getMaj_previsto(), $object->getMaj_existente()); ?>
+        <?= $object->getMaj_existente() ?> <?= contaCheck($object->getMaj_previsto(), $object->getMaj_existente()); ?>
                         </td> <!-- Maj -->
                         <td class="<?= check($object->getCap_previsto(), $object->getCap_existente()) ?>">
-                            <?= $object->getCap_existente() ?> <?= contaCheck($object->getCap_previsto(), $object->getCap_existente()); ?>
+        <?= $object->getCap_existente() ?> <?= contaCheck($object->getCap_previsto(), $object->getCap_existente()); ?>
                         </td> <!-- Cap -->
                         <td class="<?= check($object->getTen1_previsto(), $object->getTen1_existente()) ?>">
-                            <?= $object->getTen1_existente() ?> <?= contaCheck($object->getTen1_previsto(), $object->getTen1_existente()); ?>
+        <?= $object->getTen1_existente() ?> <?= contaCheck($object->getTen1_previsto(), $object->getTen1_existente()); ?>
                         </td> <!-- 1º Ten -->
                         <td class="<?= check($object->getTen2_previsto(), $object->getTen2_existente()) ?>">
-                            <?= $object->getTen2_existente() ?> <?= contaCheck($object->getTen2_previsto(), $object->getTen2_existente()); ?>
+        <?= $object->getTen2_existente() ?> <?= contaCheck($object->getTen2_previsto(), $object->getTen2_existente()); ?>
                         </td> <!-- 2º Ten -->
                         <td class="<?= check($object->getAspof_previsto(), $object->getAspof_existente()) ?>">
-                            <?= $object->getAspof_existente() ?> <?= contaCheck($object->getAspof_previsto(), $object->getAspof_existente()); ?>
+        <?= $object->getAspof_existente() ?> <?= contaCheck($object->getAspof_previsto(), $object->getAspof_existente()); ?>
                         </td> <!-- Asp Of -->
                         <td>
-                            <?= $totalExistenteOficiais ?> <small>+<?= $totalAdidoOficiais ?> adidos</small> = <?= $totalExistenteOficiais + $totalAdidoOficiais ?>
+        <?= $totalExistenteOficiais ?> <small>+<?= $totalAdidoOficiais ?> adidos</small> = <?= $totalExistenteOficiais + $totalAdidoOficiais ?>
                         </td>
                     </tr>
                     <tr>                
@@ -327,7 +327,7 @@ function contaCheck($previsto, $existente) {
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getTen2_adidoTexto() ?>"><?= $object->getTen2_adido() ?></a></td>  <!-- 2º Ten --> 
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getAspof_adidoTexto() ?>"><?= $object->getAspof_adido() ?></a></td>  <!-- Asp Of -->
                         <td>
-                            <?= $totalAdidoOficiais ?>
+        <?= $totalAdidoOficiais ?>
                         </td>
                     </tr>
                 </tbody>
@@ -351,7 +351,7 @@ function contaCheck($previsto, $existente) {
                         <td class="<?= check($object->getSgt2_previsto(), $object->getSgt2_existente()) ?>"><?= $object->getSgt2_previsto() ?></td> <!-- 2º Sgt -->
                         <td class="<?= check($object->getSgt3_previsto(), $object->getSgt3_existente()) ?>"><?= $object->getSgt3_previsto() ?></td> <!-- 3º Sgt -->     
                         <td>
-                            <?= $totalPrevistoStsgt ?>
+        <?= $totalPrevistoStsgt ?>
                         </td>
                     </tr>  
                     <tr>                
@@ -359,19 +359,19 @@ function contaCheck($previsto, $existente) {
                             EXISTENTE
                         </td>   
                         <td class="<?= check($object->getSten_previsto(), $object->getSten_existente()) ?>">
-                            <?= $object->getSten_existente() ?> <?= contaCheck($object->getSten_previsto(), $object->getSten_existente()); ?>
+        <?= $object->getSten_existente() ?> <?= contaCheck($object->getSten_previsto(), $object->getSten_existente()); ?>
                         </td> <!-- S Ten -->
                         <td class="<?= check($object->getSgt1_previsto(), $object->getSgt1_existente()) ?>">
-                            <?= $object->getSgt1_existente() ?> <?= contaCheck($object->getSgt1_previsto(), $object->getSgt1_existente()); ?>
+        <?= $object->getSgt1_existente() ?> <?= contaCheck($object->getSgt1_previsto(), $object->getSgt1_existente()); ?>
                         </td> <!-- 1º Sgt -->
                         <td class="<?= check($object->getSgt2_previsto(), $object->getSgt2_existente()) ?>">
-                            <?= $object->getSgt2_existente() ?> <?= contaCheck($object->getSgt2_previsto(), $object->getSgt2_existente()); ?>
+        <?= $object->getSgt2_existente() ?> <?= contaCheck($object->getSgt2_previsto(), $object->getSgt2_existente()); ?>
                         </td> <!-- 2º Sgt -->
                         <td class="<?= check($object->getSgt3_previsto(), $object->getSgt3_existente()) ?>">
-                            <?= $object->getSgt3_existente() ?> <?= contaCheck($object->getSgt3_previsto(), $object->getSgt3_existente()); ?>
+        <?= $object->getSgt3_existente() ?> <?= contaCheck($object->getSgt3_previsto(), $object->getSgt3_existente()); ?>
                         </td> <!-- 3º Sgt -->     
                         <td>
-                            <?= $totalExistenteStsgt ?> <small>+<?= $totalAdidoStsgt ?> adidos</small> = <?= $totalExistenteStsgt + $totalAdidoStsgt ?>
+        <?= $totalExistenteStsgt ?> <small>+<?= $totalAdidoStsgt ?> adidos</small> = <?= $totalExistenteStsgt + $totalAdidoStsgt ?>
                         </td>
                     </tr>
                     <tr>                
@@ -383,7 +383,7 @@ function contaCheck($previsto, $existente) {
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getSgt2_adidoTexto() ?>"><?= $object->getSgt2_adido() ?></a></td> <!-- 2º Sgt -->
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getSgt3_adidoTexto() ?>"><?= $object->getSgt3_adido() ?></a></td> <!-- 3º Sgt --> 
                         <td>
-                            <?= $totalAdidoStsgt ?>
+        <?= $totalAdidoStsgt ?>
                         </td>
                     </tr>                                                         
                 </tbody>   
@@ -407,7 +407,7 @@ function contaCheck($previsto, $existente) {
                         <td class="<?= check($object->getSdep_previsto(), $object->getSdep_existente()) ?>"><?= $object->getSdep_previsto() ?> <small style="color: black;">(QCP 121)</small></td> <!-- Sd EP -->
                         <td class="<?= check($object->getSdev_previsto(), $object->getSdev_existente()) ?>"><?= $object->getSdev_previsto() ?></td> <!-- Sd EV -->    
                         <td>
-                            <?= $totalPrevistoCbsd ?>
+        <?= $totalPrevistoCbsd ?>
                         </td>
                     </tr>    
                     <tr>                
@@ -415,19 +415,19 @@ function contaCheck($previsto, $existente) {
                             EXISTENTE
                         </td>   
                         <td class="<?= check($object->getCb_previsto(), $object->getCb_existente()) ?>">
-                            <?= $object->getCb_existente() ?> <?= contaCheck($object->getCb_previsto(), $object->getCb_existente()); ?>
+        <?= $object->getCb_existente() ?> <?= contaCheck($object->getCb_previsto(), $object->getCb_existente()); ?>
                         </td> <!-- Cb -->
                         <td class="<?= check($object->getCbev_previsto(), $object->getCbev_existente()) ?>">
-                            <?= $object->getCbev_existente() ?> <?= contaCheck($object->getCbev_previsto(), $object->getCbev_existente()); ?>
+        <?= $object->getCbev_existente() ?> <?= contaCheck($object->getCbev_previsto(), $object->getCbev_existente()); ?>
                         </td> <!-- Cb EV -->
                         <td class="<?= check($object->getSdep_previsto(), $object->getSdep_existente()) ?>">
-                            <?= $object->getSdep_existente() ?> <?= contaCheck($object->getSdep_previsto(), $object->getSdep_existente()); ?>
+        <?= $object->getSdep_existente() ?> <?= contaCheck($object->getSdep_previsto(), $object->getSdep_existente()); ?>
                         </td> <!-- Sd EP -->
                         <td class="<?= check($object->getSdev_previsto(), $object->getSdev_existente()) ?>">
-                            <?= $object->getSdev_existente() ?> <?= contaCheck($object->getSdev_previsto(), $object->getSdev_existente()); ?>
+        <?= $object->getSdev_existente() ?> <?= contaCheck($object->getSdev_previsto(), $object->getSdev_existente()); ?>
                         </td> <!-- Sd EV -->      
                         <td>
-                            <?= $totalExistenteCbsd ?> <small>+<?= $totalAdidoCbsd ?> adidos</small> = <?= $totalExistenteCbsd + $totalAdidoCbsd ?>
+        <?= $totalExistenteCbsd ?> <small>+<?= $totalAdidoCbsd ?> adidos</small> = <?= $totalExistenteCbsd + $totalAdidoCbsd ?>
                         </td>
                     </tr>
                     <tr>                
@@ -439,7 +439,7 @@ function contaCheck($previsto, $existente) {
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getSdep_adidoTexto() ?>"><?= $object->getSdep_adido() ?></a></td>  <!-- Sd EP --> 
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getSdev_adidoTexto() ?>"><?= $object->getSdev_adido() ?></a></td>  <!-- Sd EV -->  
                         <td>
-                            <?= $totalAdidoCbsd ?>
+        <?= $totalAdidoCbsd ?>
                         </td>
                     </tr>  
                 </tbody>
@@ -467,7 +467,7 @@ function contaCheck($previsto, $existente) {
                         <td class="<?= check($object->getSgt1_pttc_previsto(), $object->getSgt1_pttc_existente()) ?>"><?= $object->getSgt1_pttc_previsto() ?></td>  1º Sgt 
                         <td class="<?= check($object->getSgt2_pttc_previsto(), $object->getSgt2_pttc_existente()) ?>"><?= $object->getSgt2_pttc_previsto() ?></td>  2º Sgt                         
                         <td>
-                    <?= $totalPrevistoPttc ?>
+        <?= $totalPrevistoPttc ?>
                         </td>
                     </tr> -->
                     <tr>                
@@ -475,25 +475,25 @@ function contaCheck($previsto, $existente) {
                             EXISTENTE
                         </td>   
                         <td class="<?= check($object->getCap_pttc_previsto(), $object->getCap_pttc_existente()) ?>">
-                            <?= $object->getCap_pttc_existente() ?> <?= contaCheck($object->getCap_pttc_previsto(), $object->getCap_pttc_existente()); ?>
+        <?= $object->getCap_pttc_existente() ?> <?= contaCheck($object->getCap_pttc_previsto(), $object->getCap_pttc_existente()); ?>
                         </td> <!-- Cap -->
                         <td class="<?= check($object->getTen1_pttc_previsto(), $object->getTen1_pttc_existente()) ?>">
-                            <?= $object->getTen1_pttc_existente() ?> <?= contaCheck($object->getTen1_pttc_previsto(), $object->getTen1_pttc_existente()); ?>
+        <?= $object->getTen1_pttc_existente() ?> <?= contaCheck($object->getTen1_pttc_previsto(), $object->getTen1_pttc_existente()); ?>
                         </td> <!-- 1º Ten -->
                         <td class="<?= check($object->getTen2_pttc_previsto(), $object->getTen2_pttc_existente()) ?>">
-                            <?= $object->getTen2_pttc_existente() ?> <?= contaCheck($object->getTen2_pttc_previsto(), $object->getTen2_pttc_existente()); ?>
+        <?= $object->getTen2_pttc_existente() ?> <?= contaCheck($object->getTen2_pttc_previsto(), $object->getTen2_pttc_existente()); ?>
                         </td> <!-- 2º Ten -->                        
                         <td class="<?= check($object->getSten_pttc_previsto(), $object->getSten_pttc_existente()) ?>">
-                            <?= $object->getSten_pttc_existente() ?> <?= contaCheck($object->getSten_pttc_previsto(), $object->getSten_pttc_existente()); ?>
+        <?= $object->getSten_pttc_existente() ?> <?= contaCheck($object->getSten_pttc_previsto(), $object->getSten_pttc_existente()); ?>
                         </td> <!-- S Ten -->
                         <td class="<?= check($object->getSgt1_pttc_previsto(), $object->getSgt1_pttc_existente()) ?>">
-                            <?= $object->getSgt1_pttc_existente() ?> <?= contaCheck($object->getSgt1_pttc_previsto(), $object->getSgt1_pttc_existente()); ?>
+        <?= $object->getSgt1_pttc_existente() ?> <?= contaCheck($object->getSgt1_pttc_previsto(), $object->getSgt1_pttc_existente()); ?>
                         </td> <!-- 1º Sgt -->
                         <td class="<?= check($object->getSgt2_pttc_previsto(), $object->getSgt2_pttc_existente()) ?>">
-                            <?= $object->getSgt2_pttc_existente() ?> <?= contaCheck($object->getSgt2_pttc_previsto(), $object->getSgt2_pttc_existente()); ?>
+        <?= $object->getSgt2_pttc_existente() ?> <?= contaCheck($object->getSgt2_pttc_previsto(), $object->getSgt2_pttc_existente()); ?>
                         </td> <!-- 2º Sgt -->
                         <td>
-                            <?= $totalExistentePttc ?> <!--<small>+<?= $totalAdidoPttc ?> adidos</small> = <?= $totalExistentePttc + $totalAdidoPttc ?>-->
+        <?= $totalExistentePttc ?> <!--<small>+<?= $totalAdidoPttc ?> adidos</small> = <?= $totalExistentePttc + $totalAdidoPttc ?>-->
                         </td>
                     </tr>
         <!--                    <tr>                
@@ -507,7 +507,7 @@ function contaCheck($previsto, $existente) {
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getSgt1_pttc_adidoTexto() ?>"><?= $object->getSgt1_pttc_adido() ?></a></td>   1º Sgt  
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getTen2_pttc_adidoTexto() ?>"><?= $object->getTen2_pttc_adido() ?></a></td>   2º Sgt                          
                         <td>
-                    <?= $totalAdidoPttc ?>
+        <?= $totalAdidoPttc ?>
                         </td>
                     </tr>-->
                 </tbody>
@@ -519,7 +519,7 @@ function contaCheck($previsto, $existente) {
                             TOTAL EFETIVO
                         </th>                          
                         <td class="ultimaColuna">
-                            <?= $totalExistenteOficiais + $totalExistenteStsgt + $totalExistenteCbsd ?>
+        <?= $totalExistenteOficiais + $totalExistenteStsgt + $totalExistenteCbsd ?>
                             <small>+<?= $totalAdidoOficiais + $totalAdidoStsgt + $totalAdidoCbsd ?> adidos</small> = <?= $totalExistenteOficiais + $totalExistenteStsgt + $totalExistenteCbsd + $totalAdidoOficiais + $totalAdidoStsgt + $totalAdidoCbsd ?>
                         </td>
                     </tr>
@@ -561,7 +561,7 @@ function contaCheck($previsto, $existente) {
                                 <div class="col-4" align="left">                                                
                                 </div>
                                 <div class="col-8" align="left" style="padding-top: 7px;">   
-                                    <input type="radio" id="solucao" name="solucao" value="todos" onchange="update();" <?= $solucao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="solucao" name="solucao" value="concluido" onchange="update();" <?= $solucao == "concluido" ? " checked" : "" ?>> Concluídos  <input type="radio" id="solucao" name="solucao" value="emandamento" onchange="update();" <?= $solucao == "emandamento" ? " checked" : "" ?>> Em andamento 
+                                    <input type="radio" id="solucao" name="solucao" value="todos" onchange="update();" <?= $solucao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="solucao" name="solucao" value="concluido" onchange="update();" <?= $solucao == "concluido" ? " checked" : "" ?>> Concluídos  <input type="radio" id="solucao" name="solucao" value="emandamento" onchange="update();" <?= $solucao == "emandamento" ? " checked" : "" ?>> Em andamento <input type="radio" id="solucao" name="solucao" value="protocolado" onchange="update();" <?= $solucao == "protocolado" ? " checked" : "" ?>> Protocolados
                                 </div>
                             </div>                            
                         </form>
@@ -577,13 +577,13 @@ function contaCheck($previsto, $existente) {
                 <th>
                     <?php if (isAdminLevel($ADICIONAR_JURIDICO)) { ?>
                         <a href="../Controller/S1Controller.php?action=processo_insert"><img src='../include/imagens/adicionar.png' width='25' height='25' title='Adicionar'></a>
-                    <?php } ?>
+<?php } ?>
                 </th>                
             </tr>
         </thead>
         <tbody id="myTable">   
             <?php if (is_array($objectList) && isAdminLevel($LISTAR_JURIDICO)) { ?> 
-                <?php foreach ($objectList as $object): ?>
+    <?php foreach ($objectList as $object): ?>
                     <tr>
                         <td><a href="#" data-toggle="tooltip" data-placement="top" title="<?= $object->getAssunto(); ?>"><?= $object->getPortaria() ?></a> <sup><?= $object->getTipo() ?></sup></td>
                         <td><small><?= $object->getResponsavel() ?></small></td>
@@ -645,7 +645,7 @@ function contaCheck($previsto, $existente) {
                                     echo "<img src='../include/imagens/seta.png' width='25' title='PRORROGADO ATÉ'> " . $object->getProrrogacaoPrazo();
                                 }
                                 ?>
-                                <?= $alert ?>   
+        <?= $alert ?>   
                             </span>                  
                         </td>                                                
                         <td style="white-space: nowrap">
@@ -654,11 +654,11 @@ function contaCheck($previsto, $existente) {
                             <?php } ?>
                             <?php if (isAdminLevel($EXCLUIR_JURIDICO)) { ?>
                                 <a href="#" onclick="confirm('Confirma a remoção do processo?') ? document.location = '../Controller/S1Controller.php?action=processo_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
-                            <?php } ?>
+        <?php } ?>
                         </td>
                     </tr>                    
                 <?php endforeach; ?>    
-            <?php } ?>
+<?php } ?>
         </tbody>
     </table>    
 </div>
@@ -693,6 +693,6 @@ function contaCheck($previsto, $existente) {
 
     countRows();
 </script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="../include/js/bootstrap.min.js"></script>
 <?php
 require_once '../include/footer.php';

@@ -33,7 +33,8 @@ class AuditoriaPessoa {
             $dataEntrada,
             $dataSaida,
             $local,
-            $autorizacao;
+            $autorizacao,
+            $identidade;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
@@ -44,6 +45,7 @@ class AuditoriaPessoa {
             $this->dataSaida = $idOrRow["dataSaida"];
             $this->local = $idOrRow["local"];
             $this->autorizacao = $idOrRow["autorizacao"];
+            $this->identidade = $idOrRow["identidade"];
         }
     }
 
@@ -85,6 +87,14 @@ class AuditoriaPessoa {
 
     public function setAutorizacao($autorizacao) {
         $this->autorizacao = $autorizacao;
+    }
+
+    public function getIdentidade() {
+        return $this->identidade;
+    }
+
+    public function setIdentidade($identidade) {
+        $this->identidade = $identidade;
     }
 
     public function validate() {

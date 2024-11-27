@@ -106,10 +106,13 @@ require_once '../include/header.php';
                     } else if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 10 && $dateDif->format('%a') < 30) {
                         $colorClass = "warning";
                         $alert = $dateDif->format('%a') . " dia(s) restantes";
-                    } else if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 1 && $dateDif->format('%a') < 10) {
+                    } else if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 0 && $dateDif->format('%a') < 10) {
                         $colorClass = "danger";
                         $alert = $dateDif->format('%a') . " dia(s) restantes";
-                    } else if ($dateDif->format('%R') == "+") {
+                    } else if ($dateDif->format('%R') == "+" && $dateDif->format('%a') == 0) {
+                        $colorClass = "danger";
+                        $alert = "Expirando hoje";
+                    } else if ($dateDif->format('%R') == "+" && $dateDif->format('%a') > 0) {
                         $colorClass = "secondary";
                         $alert = "Expirado há " . $dateDif->format('%a') . " dia(s)";
                     }

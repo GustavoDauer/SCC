@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS `scc`.`Pessoa` (
   `dataCadastro` DATETIME NULL,
   `dataExpiracao` DATE NULL,
   PRIMARY KEY (`idPessoa`),
-  INDEX `fk_Pessoa_Posto1_idx` (`Posto_idPosto` ASC) VISIBLE,
-  INDEX `fk_Pessoa_Vinculo1_idx` (`Vinculo_idVinculo` ASC) VISIBLE,
+  INDEX `fk_Pessoa_Posto1_idx` (`Posto_idPosto` ASC) ,
+  INDEX `fk_Pessoa_Vinculo1_idx` (`Vinculo_idVinculo` ASC) ,
   CONSTRAINT `fk_Pessoa_Posto1`
     FOREIGN KEY (`Posto_idPosto`)
     REFERENCES `scc`.`Posto` (`idPosto`)
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `scc`.`Veiculo` (
   `tipo` VARCHAR(25) NULL,
   `Pessoa_idPessoa` INT NULL,
   PRIMARY KEY (`idVeiculo`),
-  INDEX `fk_Veiculo_Pessoa1_idx` (`Pessoa_idPessoa` ASC) VISIBLE,
+  INDEX `fk_Veiculo_Pessoa1_idx` (`Pessoa_idPessoa` ASC) ,
   CONSTRAINT `fk_Veiculo_Pessoa1`
     FOREIGN KEY (`Pessoa_idPessoa`)
     REFERENCES `scc`.`Pessoa` (`idPessoa`)
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `scc`.`AuditoriaVeiculo` (
   `preccp` VARCHAR(14) NULL,
   `placa` VARCHAR(8) NULL,
   `nome` VARCHAR(70) NULL,
-  INDEX `fk_AuditoriaVeiculo_Veiculo1_idx` (`Veiculo_idVeiculo` ASC) VISIBLE,
+  INDEX `fk_AuditoriaVeiculo_Veiculo1_idx` (`Veiculo_idVeiculo` ASC) ,
   PRIMARY KEY (`idAuditoriaVeiculo`),
   CONSTRAINT `fk_AuditoriaVeiculo_Veiculo1`
     FOREIGN KEY (`Veiculo_idVeiculo`)
@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS `scc`.`AuditoriaVeiculo` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `scc`.`AuditoriaPessoa` ;
+
 CREATE TABLE IF NOT EXISTS `scc`.`AuditoriaPessoa` (
   `idAuditoriaPessoa` INT NOT NULL AUTO_INCREMENT,
   `Pessoa_idPessoa` INT NULL,
@@ -88,8 +90,9 @@ CREATE TABLE IF NOT EXISTS `scc`.`AuditoriaPessoa` (
   `dataSaida` DATETIME NULL,
   `local` VARCHAR(25) NULL,
   `autorizacao` TINYINT(1) NULL,
+  `identidade` VARCHAR(25) NULL,
   PRIMARY KEY (`idAuditoriaPessoa`),
-  INDEX `fk_AuditoriaPessoa_Pessoa1_idx` (`Pessoa_idPessoa` ASC) VISIBLE,
+  INDEX `fk_AuditoriaPessoa_Pessoa1_idx` (`Pessoa_idPessoa` ASC),
   CONSTRAINT `fk_AuditoriaPessoa_Pessoa1`
     FOREIGN KEY (`Pessoa_idPessoa`)
     REFERENCES `scc`.`Pessoa` (`idPessoa`)

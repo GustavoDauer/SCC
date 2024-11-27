@@ -666,6 +666,7 @@ CREATE TABLE IF NOT EXISTS `scc`.`AuditoriaPessoa` (
   `dataSaida` DATETIME NULL,
   `local` VARCHAR(25) NULL,
   `autorizacao` TINYINT(1) NULL,
+  `identidade` VARCHAR(25) NULL,
   PRIMARY KEY (`idAuditoriaPessoa`),
   INDEX `fk_AuditoriaPessoa_Pessoa1_idx` (`Pessoa_idPessoa` ASC) VISIBLE,
   CONSTRAINT `fk_AuditoriaPessoa_Pessoa1`

@@ -146,6 +146,9 @@ class PessoaDAO {
     }
 
     public function getById($id) {
+        if (!($id > 0)) {
+            return null;
+        }
         try {
             $c = connect();
             $sql = "SELECT * "
@@ -192,8 +195,8 @@ class PessoaDAO {
             $c = connect();
             $sql = "SELECT * "
                     . " FROM Pessoa "
-                    . " WHERE identidadeMilitar = '$id'";
-            $result = $c->query($sql);
+                    . " WHERE identidadeMilitar = '$id' AND dataExpiracao >= CURRENT_DATE";            
+            $result = $c->query($sql);                 
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Pessoa($objectArray);

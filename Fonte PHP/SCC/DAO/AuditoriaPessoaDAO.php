@@ -36,13 +36,14 @@ class AuditoriaPessoaDAO {
         try {
             $c = connect();
             $sql = "INSERT INTO AuditoriaPessoa("
-                    . "Pessoa_idPessoa, dataEntrada, dataSaida, local"
+                    . "Pessoa_idPessoa, dataEntrada, local, identidade, autorizacao"
                     . ") "
                     . "VALUES("
                     . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : "NULL")
-                    . ", " . (!empty($object->getDataEntrada()) ? "'" . $object->getDataEntrada() . "'" : "NULL")
-                    . ", " . (!empty($object->getDataSaida()) ? "'" . $object->getDataSaida() . "'" : "NULL")
+                    . ", " . ($object->getAutorizacao() === 1 ? "CURRENT_TIME" : "NULL")                    
                     . ", '" . $object->getLocal() . "'"
+                    . ", '" . $object->getIdentidade() . "'"
+                    . ", " . $object->getAutorizacao() . ""
                     . ");";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
@@ -72,10 +73,13 @@ class AuditoriaPessoaDAO {
             $c = connect();
             $sql = "SELECT * "
                     . " FROM AuditoriaPessoa ";                   
-            if (isset($filtro["dataEntrada"])) {
-                $sql .= " WHERE dataEntrada >= " . $filtro["dataEntrada"];
-            }
-            $sql .= " ORDER BY dataEntrada";
+            $dataHoje = date('Y-m-d');
+            $dataAmanha = date('Y-m-d', strtotime(' +1 day'));
+            $inicio = !isset($filtro["inicio"]) ? $dataHoje : $filtro["inicio"];
+            $fim = !isset($filtro["fim"]) ? $dataAmanha : $filtro["fim"];
+            $sql .= " WHERE dataEntrada >= '" . $inicio . " 00:00'"
+                    . " AND dataEntrada <= '" . $fim . " 23:59'"
+                    . " ORDER BY dataEntrada"; 
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -93,7 +97,9 @@ class AuditoriaPessoaDAO {
             "idPessoa" => $row["Pessoa_idPessoa"],
             "dataEntrada" => $row["dataEntrada"],
             "dataSaida" => $row["dataSaida"],
-            "local" => $row["local"]            
+            "local" => $row["local"],                        
+            "autorizacao" => $row["autorizacao"] ,
+            "identidade" => $row["identidade"]
         );
     }
 }

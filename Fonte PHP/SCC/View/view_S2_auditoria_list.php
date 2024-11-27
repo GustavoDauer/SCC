@@ -83,61 +83,54 @@ require_once '../include/header.php';
                 </th>
             </tr>
             <tr>                
-                <th>P/G - Nome</th>                
-                <th>Vínculo</th>                         
-                <th>Documentos</th>     
-                <th>Expiração</th>
-                <th></th>                
+                <th>Usuário</th>                
+                <th>Data</th>                         
+                <th>Local</th>     
+                <th>Autorização</th>
+                <!--<th></th>                -->
             </tr>
         </thead>
         <tbody id="myTablePessoa">   
             <?php if (is_array($auditoriaPessoaList) && isAdminLevel($LISTAR_S2)) { ?> 
                 <?php
-                foreach ($auditoriaPessoaList as $pessoa):
-                    $alert = "";
-                    $colorClass = "";
-                    $dateDif = date_diff(new DateTime($pessoa->getDataExpiracao()), $hoje);
-                    if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 30) {
-                        $colorClass = "success";
-                        $alert = $dateDif->format('%a') . " dia(s) restantes";
-                    } else if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 10 && $dateDif->format('%a') < 30) {
-                        $colorClass = "warning";
-                        $alert = $dateDif->format('%a') . " dia(s) restantes";
-                    } else if ($dateDif->format('%R') == "-" && $dateDif->format('%a') >= 1 && $dateDif->format('%a') < 10) {
-                        $colorClass = "danger";
-                        $alert = $dateDif->format('%a') . " dia(s) restantes";
-                    } else if ($dateDif->format('%R') == "+") {
-                        $colorClass = "secondary";
-                        $alert = "Expirado há " . $dateDif->format('%a') . " dia(s)";
-                    }
+                foreach ($auditoriaPessoaList as $auditoriaPessoa):
+                    $pessoa = $auditoriaPessoa->getIdPessoa() > 0 ? $pessoaDAO->getById($auditoriaPessoa->getIdPessoa()) : new Pessoa();
                     ?>
                     <tr>                                           
                         <td style="text-align: center;">
-                            <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7"><br>
-                            <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?><br><?= $pessoa->getNome() ?>
-                        </td>
-                        <td>
-                            <?= $vinculoDAO->getById($pessoa->getIdVinculo())->getVinculo(); ?> 
-                        </td>         
-                        <td>
-                            CPF: <?= $pessoa->getCpf() ?><br>
-                            Identidade Militar: <?= $pessoa->getIdentidadeMilitar() ?><br>
-                            PREC-CP: <?= $pessoa->getPreccp() ?><br>
-                        </td>
-                        <td style="padding: 25px;">
-                            <span class="alert alert-<?= $colorClass ?>" style="font-weight: bold;">
-                                <?= (new DateTime($pessoa->getDataExpiracao()))->format("d/m/Y"); ?>
-                                <?= $alert ?>                                
-                            </span>                            
-                        </td>
-                        <td style="white-space: nowrap">
-                            <?php if (isAdminLevel($EDITAR_S2)) { ?>
-                                <a href="../Controller/S2Controller.php?action=pessoa_update&id=<?= $pessoa->getId() ?>"><img src='../include/imagens/editar.png' width='25' height='25' title='Editar'></a>
+                            <?php if ($auditoriaPessoa->getIdPessoa() > 0) { ?>
+                                <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7"><br>
+                                <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?> - <?= $pessoa->getNome() ?><br>
+                                <b>Vínculo:</b> <?= $vinculoDAO->getById($pessoa->getIdVinculo())->getVinculo(); ?> / <b>CPF:</b> <?= $pessoa->getCpf() ?><br>
+                                <b>Identidade Militar:</b> <?= $pessoa->getIdentidadeMilitar() ?> / <b>PREC-CP:</b> <?= $pessoa->getPreccp() ?><br>
+                            <?php } else { ?>
+                                Desconhecido                                
                             <?php } ?>
+                        </td>                                                         
+                        <td style="padding: 25px;vertical-align: middle;">                            
+                            <?= (new DateTime($auditoriaPessoa->getDataEntrada()))->format("d/m/Y"); ?>                                                             
+                        </td>
+                        <td>
+                            <?= $auditoriaPessoa->getLocal() === "batalhao" ? "Portão Lateral do Batalhão" : "Vila Militar"; ?>                     
+                        </td>
+                        <td style="white-space: nowrap;vertical-align: middle;">
+                            <?php
+                            if ($auditoriaPessoa->getAutorizacao() == 1) {
+                                ?>
+                                <span class="alert alert-success"><strong>Autorizado</strong></span>                                                                
+                                <?php
+                            } else {
+                                ?>
+                                <span class="alert alert-danger"><strong>Não Autorizado</strong></span>
+                                <?php
+                            }
+                            ?>
+                        </td>
+                        <!--<td style="white-space: nowrap">                            
                             <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                <a href="#" onclick="confirm('Confirma a remoção do item? Os veículos associados a essa pessoa também serão removidos!') ? document.location = '../Controller/S2Controller.php?action=pessoa_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=pessoa_auditoria_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                             <?php } ?>
-                        </td>
+                        </td>-->
                     </tr>                    
                 <?php endforeach; ?>    
             <?php } ?>
@@ -160,10 +153,10 @@ require_once '../include/header.php';
             </tr>
             <tr>                
                 <th>Usuário</th>                
-                <th>Entrada</th>                         
+                <th>Data</th>                         
                 <th>Local</th>
                 <th>Autorização</th>
-                <th></th>
+                <!--<th></th>-->
             </tr>
         </thead>
         <tbody id="myTableVeiculo">   
@@ -183,7 +176,7 @@ require_once '../include/header.php';
                         </td>
                         <td><?= date_format(new DateTime($object->getDataEntrada()), "d/m/Y H:i:s"); ?></td>         
                         <td><?= $object->getLocal() === "batalhao" ? "Estacionamento Batalhão" : "Vila Militar"; ?></td>
-                        <td>
+                        <td style="white-space: nowrap;vertical-align: middle;">
                             <?php
                             if ($object->getAutorizacao() == 1 && !empty($object->getPreccp())) {
                                 ?>
@@ -200,11 +193,11 @@ require_once '../include/header.php';
                             }
                             ?>
                         </td>
-                        <td style="white-space: nowrap">                            
+                        <!--<td style="white-space: nowrap">                            
                             <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_auditoria_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                             <?php } ?>
-                        </td>
+                        </td>-->
                     </tr>                    
                 <?php endforeach; ?>    
             <?php } ?>

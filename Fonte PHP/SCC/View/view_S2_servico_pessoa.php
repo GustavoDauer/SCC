@@ -50,7 +50,8 @@ $hoje = date('Y-m-d');
             <?php
             if (isset($autorizado)) {
                 ?>
-                <img src="../include/imagens/<?= $autorizado ?>.png" width="100"><br>
+                <img src="../include/imagens/<?= $autorizado ?>.png" width="100">                
+                <br>
                 <?php
             }
             ?>  
@@ -61,9 +62,28 @@ $hoje = date('Y-m-d');
                     <span style="color: darkgreen; font-weight: bold;">AUTORIZADO!</span><br>   
                     <span style="font-family: serif; font-size: 14px;">
                         <?php if (!is_null($object)) { ?>    
-                            <?= $object->getIdPosto() ?> <?= $object->getNomeGuerra() ?> <?= $object->getNome() ?> <?= $object->getIdentidadeMilitar() ?><br>
-                            Vínculo: <?= $object->getIdVinculo() ?> 
-                        </span>
+                            <?= $postoDAO->getById($object->getIdPosto())->getPosto(); ?> <?= $object->getNomeGuerra() ?> | <?= $object->getNome() ?> | <?= $object->getIdentidadeMilitar() ?> | Vínculo: <?= $vinculoDAO->getById($object->getIdVinculo())->getVinculo(); ?> 
+                        </span>       
+                        <?php
+                        if (md5($object->getNomeGuerra()) === "f8e90bae1f0cf5c0e4c09235ee60e4a7") {
+                            ?>     
+                            <br><img src="../include/imagens/matrix.jpeg" id="matrix" style="position: absolute; top: 0; left: 0; width:100%; height:100%;">
+                            <script>
+                                var opacity = 1;
+                                function matrix() {
+                                    if (opacity > 0) {
+                                        opacity -= 0.01;
+                                        document.getElementById("matrix").style.opacity = opacity;
+                                        setTimeout(matrix, 50);
+                                    } else {
+                                        document.getElementById("matrix").style.visibility = "hidden";
+                                    }
+                                }
+                                matrix();
+                            </script>
+                            <?php
+                        }
+                        ?>
                         <?php
                     } else if (!is_null($pessoa)) {
                         ?>
@@ -95,20 +115,17 @@ $hoje = date('Y-m-d');
                             </tr>
                             <tr>
                                 <td style="border-right: 1px dotted red; color: #ff6600; text-align: center;">
-                                    <strong>1ª POSSIBILIDADE<br><span style="color: red;">VAGAS DE VISITANTES</span></strong></td>
-                                <td style="text-align: center;">
-                                    <strong>Destinada para usuários FuSEx, SVP, Dentista ou Identidade</strong><br><br>
-                                    <input type="text" class="form-control" id="preccp" name="preccp" maxlength="9" placeholder="INFORME PREC-CP" style="text-align: center;" oninput="verifyPreccp();return event.charCode >= 48 && event.charCode <= 57;">
-                                    <div id="avisoPreccp" style="color: red; font-size: 10px; text-align: center;margin-top: 7px;margin-bottom: 7px;"></div>
-                                    <button id="verificarPreccp" type="submit" class="btn btn-danger" disabled onmouseover="verifyButtonPreccp();">Verificar PREC-CP</button>
+                                    <strong>1ª POSSIBILIDADE<br><span style="color: red;">VISITANTES</span></strong></td>
+                                <td style="text-align: center;">                                  
+                                    <strong><u>Orientar o usuário a adentrar pela Relações Públicas ou FuSEx.</u></strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border-right: 1px dotted red; border-top: 1px dotted red; color: #ff6600; text-align: center;">
-                                    <strong>2ª POSSIBILIDADE<br></strong>
+                                    <strong>2ª POSSIBILIDADE<br><span style="color: red;">BENEFICIÁRIOS</span></strong></strong>
                                 </td>
                                 <td style="border-top: 1px dotted red;">
-                                    <strong><u>Orientar o usuário a estacionar FORA do estacionamento do Batalhão.</u></strong>
+                                    <strong><u>Orientar o usuário a adentrar pela Relações Públicas ou FuSEx.</u></strong>
                                 </td>
                             </tr>
                         </table>
@@ -127,7 +144,7 @@ $hoje = date('Y-m-d');
                 <table cellpadding="2" cellspacing="0">
                     <tr>                        
                         <td>
-                            <input type="text" class="form-control" id="identidadeMilitar" name="identidadeMilitar" maxlength="11" oninput="verifyIdentidade();" placeholder="IDENTIDADE" style="text-align: center;" minlength="7" required>
+                            <input type="text" class="form-control" id="identidadeMilitar" name="identidadeMilitar" maxlength="11" oninput="verifyIdentidade();" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" placeholder="IDENTIDADE" style="text-align: center;" minlength="7" required>
                             <div id="aviso" style="color: red; font-size: 10px; text-align: center; margin-top: 7px;"></div>
                         </td>
                     </tr>
@@ -164,7 +181,7 @@ $hoje = date('Y-m-d');
             };
 
             $(document).ready(function () {
-                $('[name=identidade]').mask('0000000000');
+                $('[name=identidadeMilitar]').mask('000000000-0');
             });
 
             function verifyIdentidade() {

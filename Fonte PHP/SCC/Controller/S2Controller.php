@@ -348,7 +348,11 @@ class S2Controller {
             $this->getFormData();
             $pessoaDAO = new PessoaDAO();
             $auditoriaPessoaDAO = new AuditoriaPessoaDAO();
+            $vinculoDAO = new VinculoDAO();
+            $postoDAO = new PostoDAO();
             $autorizado = "";
+            $identidade = "";
+            $local = "";
             $object = null;
             if (!empty($this->pessoaInstance->getIdentidadeMilitar())) {
                 $object = $pessoaDAO->checkIdentidadeMilitar($this->pessoaInstance->getIdentidadeMilitar());
@@ -359,14 +363,13 @@ class S2Controller {
                     $identidade = $this->pessoaInstance->getIdentidadeMilitar();
                 }
                 $auditoriaPessoa = new AuditoriaPessoa();
-                $auditoriaPessoa->setAutorizacao($autorizado === "autorizado" ? 1 : 0);
+                $auditoriaPessoa->setAutorizacao($autorizado == "autorizado" ? 1 : 0);
                 $auditoriaPessoa->setLocal("batalhao");
                 $auditoriaPessoa->setIdPessoa(!is_null($object) ? $object->getId() : null);
+                $auditoriaPessoa->setIdentidade($identidade);
                 if (!$auditoriaPessoaDAO->insert($auditoriaPessoa)) {
                     throw new Exception("Erro no módulo de auditoria da 2ª Seção!");
                 }
-                require_once '../View/view_S2_servico_pessoa.php';
-            } else {
                 require_once '../View/view_S2_servico_pessoa.php';
             }
         } catch (Exception $e) {
@@ -379,6 +382,8 @@ class S2Controller {
             $this->getFormData(); // Used to get filters      
             $veiculoDAO = new VeiculoDAO();
             $pessoaDAO = new PessoaDAO();
+            $postoDAO = new PostoDAO();
+            $vinculoDAO = new VinculoDAO();
             $auditoriaVeiculoDAO = new AuditoriaVeiculoDAO();
             $auditoriaPessoaDAO = new AuditoriaPessoaDAO();
             $secaoDAO = new SecaoDAO();

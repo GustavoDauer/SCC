@@ -104,7 +104,7 @@ class VeiculoDAO {
             if (empty($filtro["dataExpiracao"]) || (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos")) {
                 $sql .= " WHERE dataExpiracao >= CURRENT_DATE ";
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
-                $sql .= " WHERE dataExpiracao < CURRENT_DATE ";
+                $sql .= " WHERE dataExpiracao < CURRENT_DATE OR dataExpiracao is NULL ";
             }
             $sql .= " ORDER BY DataExpiracao, Pessoa_idPessoa ";
             $result = $c->query($sql);
@@ -141,8 +141,9 @@ class VeiculoDAO {
         try {
             $c = connect();
             $sql = "SELECT * "
-                    . " FROM Veiculo "
-                    . " WHERE placa = '$placa'";
+                    . " FROM Veiculo "                    
+                    . " LEFT JOIN Pessoa ON Pessoa_idPessoa = idPessoa "
+                    . " WHERE placa = '$placa' AND dataExpiracao >= CURRENT_DATE";            
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);

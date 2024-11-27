@@ -14,8 +14,8 @@
                 /*padding-top: 1.45cm;
                 padding-right: 0.55cm;
                 padding-left: 0.55cm;
-                padding-bottom: 1.45cm;*/
-                border: 1px solid red;
+                padding-bottom: 1.45cm;
+                border: 1px solid red;*/
             }
             /* IDENTIDADE 1 */
             .nomePaiMae1 {

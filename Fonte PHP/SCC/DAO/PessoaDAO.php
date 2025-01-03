@@ -132,7 +132,7 @@ class PessoaDAO {
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
                 $sql .= " WHERE dataExpiracao < CURRENT_DATE ";
             }
-            $sql .= " ORDER BY dataExpiracao ";
+            $sql .= " ORDER BY dataExpiracao, Posto_idPosto DESC ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);

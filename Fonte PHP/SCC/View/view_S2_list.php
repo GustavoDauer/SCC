@@ -178,7 +178,10 @@ require_once '../include/header.php';
         </thead>
         <tbody id="myTableVeiculo">   
             <?php if (is_array($veiculoList) && isAdminLevel($LISTAR_S2)) { ?> 
-                <?php foreach ($veiculoList as $object): ?>
+                <?php 
+                foreach ($veiculoList as $object): 
+                    $idPosto = $pessoaDAO->getById($object->getIdPessoa())->getIdPosto();
+                    ?>
                     <tr>                                           
                         <td style="text-align: center;">
                             <?= $object->getMarca() ?> <?= $object->getModelo() ?> <?= $object->getAnoFabricacao() ?> / <?= $object->getAnoModelo() ?> <input type="color" value="<?= $object->getCor() ?>" disabled>
@@ -187,7 +190,7 @@ require_once '../include/header.php';
                             <?= $object->getPlaca() ?> 
                         </td>         
                         <td><?= $object->getTipo() ?></td>
-                        <td><?= ($object->getIdPessoa() > 0 ? $pessoaDAO->getById($object->getIdPessoa())->getNome() : ""); ?></td>                        
+                        <td><?= $postoDAO->getById($idPosto)->getPosto(); ?> <?= ($object->getIdPessoa() > 0 ? $pessoaDAO->getById($object->getIdPessoa())->getNome() : ""); ?></td>                        
                         <td style="white-space: nowrap">
                             <?php if (isAdminLevel($EDITAR_S2)) { ?>
                                 <a href="../Controller/S2Controller.php?action=veiculo_update&id=<?= $object->getId() ?>"><img src='../include/imagens/editar.png' width='25' height='25' title='Editar'></a>
@@ -227,6 +230,15 @@ require_once '../include/header.php';
     }
 
     countRows();
+    
+    if (getCookie("myTableVeiculo") === "1") {
+        minimize("myTableVeiculo");
+    }
+
+    if (getCookie("myTablePessoa") === "1") {
+        minimize("myTablePessoa");
+    }
+
 </script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <?php

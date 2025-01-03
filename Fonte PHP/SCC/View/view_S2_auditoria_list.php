@@ -54,7 +54,7 @@ require_once '../include/header.php';
     <h6 style="font-size: 16px;margin: 0;"><b>Data atualização:</b> <?= $secaoDAO->getBySecao("S2")->getDataAtualizacao(); ?> - <span style="font-weight: bold; color: <?= $color ?>;"><?= $alert ?></span></h6>
     <div style="text-align: center;">
         <span style="font-size: 10px; font-family: sans-serif;">   
-            <a href="../Controller/S2Controller.php?action=getAllList">
+            <a href="../Controller/S2Controller.php?action=getAllList&dataExpiracao=ativos">
                 <img src="../include/imagens/gerenciar_usuarios.png" width="25" height="25" hspace="2" vspace="2"> Cadastros
             </a> |                   
             <img src="../include/imagens/s2.png" width="25" height="25" hspace="2" vspace="2"> Auditorias
@@ -169,8 +169,8 @@ require_once '../include/header.php';
                         <td style="text-align: center;">                                                        
                             <?php if (!is_null($veiculo)) { ?>
                                 <?= $veiculo->getTipo() ?> 
-                                <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?> <input type="color" value="<?= $veiculo->getCor() ?>" disabled> <?= $veiculo->getPlaca() ?> - 
-                                <?= ($veiculo->getIdPessoa() > 0 ? $pessoaDAO->getById($veiculo->getIdPessoa())->getNome() : ""); ?>     
+                                <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <!--<?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?>--> <input type="color" value="<?= $veiculo->getCor() ?>" disabled> <?= $veiculo->getPlaca() ?> - 
+                                <?= ($veiculo->getIdPessoa() > 0 ? $postoDAO->getById($pessoaDAO->getById($veiculo->getIdPessoa())->getIdPosto())->getPosto() . " " . $pessoaDAO->getById($veiculo->getIdPessoa())->getNome() : ""); ?>     
                             <?php } ?>
                             <?= !empty($object->getPreccp()) ? "Nome: " . $object->getNome() . " PREC-CP: " . $object->getPreccp() . " - Placa: " . $object->getPlaca() : ""; ?>
                         </td>

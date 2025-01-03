@@ -85,7 +85,7 @@ $hoje = date('Y-m-d');
         </div>
         <div class="form-group">
             <div class="form-row">                 
-                <div class="col">                      
+                <!--<div class="col">                      
                     <div class="input-group-prepend">
                         <span class="input-group-text">Ano Fabricação</span>                                                
                         <input type="number" class="form-control" id="anoFabricacao" name="anoFabricacao" maxlength="4" value="<?= $object->getAnoFabricacao() ?>" min="1956" max="<?= date('Y') ?>">
@@ -96,7 +96,8 @@ $hoje = date('Y-m-d');
                         <span class="input-group-text">Ano Modelo</span>                                                
                         <input type="number" class="form-control" id="anoModelo" name="anoModelo" maxlength="4" value="<?= $object->getAnoModelo() ?>" min="1956" max="<?= date('Y') ?>">
                     </div>
-                </div>             
+                </div>  
+                -->
                 <div class="col">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Cor</span>
@@ -115,7 +116,7 @@ $hoje = date('Y-m-d');
                 </div>                
             </div>
         </div>                           
-        <div class="form-group">
+        <!--<div class="form-group">
             <div class="form-row"> 
                 <div class="col-4">
                     <div class="input-group-prepend">
@@ -129,7 +130,7 @@ $hoje = date('Y-m-d');
                     <span style="color: blue; font-size: 12px;">* Veículos Militares</span>                
                 </div>
             </div>
-        </div>
+        </div>-->
         <hr>
         <button type="submit" class="btn btn-primary">Salvar</button>
     </form>

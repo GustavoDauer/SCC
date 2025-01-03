@@ -122,7 +122,7 @@ require_once '../include/comum.php';
             <?php } ?>
             <?php if (isAdminLevel($LISTAR_S2)) { ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "S2Controller") > 0 ? "active" : ""; ?>" href='../Controller/S2Controller.php?action=getAllList'>
+                    <a class="nav-link <?= substr_count($address, "S2Controller") > 0 ? "active" : ""; ?>" href='../Controller/S2Controller.php?action=getAllList&dataExpiracao=ativos'>
                         <img src="../include/imagens/s2.png" height="35" hspace="2"> S2
                     </a>                        
                 </li>

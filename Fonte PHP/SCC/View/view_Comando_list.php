@@ -31,39 +31,7 @@ $resolvido = filter_input(INPUT_GET, "resolvido", FILTER_SANITIZE_FULL_SPECIAL_C
 $tipo = filter_input(INPUT_GET, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $hoje = new DateTime();
 ?>
-<script type="text/javascript">
-    function update() {
-        document.getElementById("filtro").submit();
-    }
-
-    function getCookie(cname) {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function minimize(id) {
-        var object = document.getElementById(id);
-        object.style.display = "none";
-        document.cookie = id + "=1";
-    }
-
-    function maximize(id) {
-        var object = document.getElementById(id);
-        object.style.display = "";
-        document.cookie = id + "=0";
-    }
-</script>
+<script type="text/javascript" src="../include/js/common.js"></script>
 <div class="conteudo">   
     <form accept-charset="UTF-8" id="filtro" action="../Controller/ComandoController.php?action=getAllList" method="get">
         <input type="hidden" name="action" value="getAllList">            

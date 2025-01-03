@@ -31,41 +31,14 @@ require_once '../include/header.php';
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="../include/js/jquery-mask/jquery.mask.min.js"></script>
+<script type="text/javascript" src="../include/js/common.js"></script>
 <script type="text/javascript">
     function excluir(id, idRequisicao) {
         if (confirm('Tem certeza que deseja excluir esse item?\n\nAo prosseguir, os dados editados nesse formulário não serão salvos. A página irá recarregar com a exclusão do item, exibindo os últimos dados salvos ao clicar no botão Salvar. Atentar para correção de valores que deve ser feita manualmente após a exclusão do item.')) {
             document.location = 'FiscalizacaoController.php?action=delete_item&idItem=' + id + "&id=" + idRequisicao;
         }
         return false;
-    }
-
-    function getCookie(cname) {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function minimize(id) {
-        var object = document.getElementById(id);
-        object.style.display = "none";
-        document.cookie = id + "=1";
-    }
-
-    function maximize(id) {
-        var object = document.getElementById(id);
-        object.style.display = "";
-        document.cookie = id + "=0";
-    }
+    }    
 
     function minimizeByDefault() {
         minimize('requisitante');

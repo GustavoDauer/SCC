@@ -104,9 +104,9 @@ class VeiculoDAO {
             if (empty($filtro["dataExpiracao"]) || (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos")) {
                 $sql .= " WHERE dataExpiracao >= CURRENT_DATE ";
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
-                $sql .= " WHERE dataExpiracao < CURRENT_DATE OR dataExpiracao is NULL ";
+                $sql .= " WHERE dataExpiracao <= CURRENT_DATE OR dataExpiracao is NULL ";
             }
-            $sql .= " ORDER BY DataExpiracao, Pessoa_idPessoa ";
+            $sql .= " ORDER BY dataExpiracao, Posto_idPosto DESC ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -166,8 +166,7 @@ class VeiculoDAO {
             "cor" => $row["cor"],
             "placa" => $row["placa"],
             "placaEB" => $row["placaEB"],
-            "tipo" => $row["tipo"],
-            "dataCadastro" => $row["dataCadastro"],
+            "tipo" => $row["tipo"],            
             "idPessoa" => $row["Pessoa_idPessoa"]
         );
     }

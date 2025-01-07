@@ -104,7 +104,7 @@ require_once '../include/header.php';
                                 <b>Vínculo:</b> <?= $vinculoDAO->getById($pessoa->getIdVinculo())->getVinculo(); ?> / <b>CPF:</b> <?= $pessoa->getCpf() ?><br>
                                 <b>Identidade Militar:</b> <?= $pessoa->getIdentidadeMilitar() ?> / <b>PREC-CP:</b> <?= $pessoa->getPreccp() ?><br>
                             <?php } else { ?>
-                                Desconhecido                                
+                                <sup><span style='font-weight: bold; color: red;'>Militar não cadastrado</span></sup> <b>Identidade:</b> <?= $auditoriaPessoa->getIdentidade(); ?>
                             <?php } ?>
                         </td>                                                         
                         <td style="padding: 25px;vertical-align: middle;">                            
@@ -128,7 +128,7 @@ require_once '../include/header.php';
                         </td>
                         <!--<td style="white-space: nowrap">                            
                         <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=pessoa_auditoria_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                                                            <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=pessoa_auditoria_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                         <?php } ?>
                         </td>-->
                     </tr>                    
@@ -168,11 +168,15 @@ require_once '../include/header.php';
                     <tr>                                           
                         <td style="text-align: center;">                                                        
                             <?php if (!is_null($veiculo)) { ?>
-                                <?= $veiculo->getTipo() ?> 
-                                <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <!--<?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?>--> <input type="color" value="<?= $veiculo->getCor() ?>" disabled> <?= $veiculo->getPlaca() ?> - 
+                                <input type="color" value="<?= $veiculo->getCor() ?>" disabled>
+                                <sup><?= $veiculo->getTipo() ?></sup> 
+                                <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <!--<?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?>--> <?= $veiculo->getPlaca() ?> - 
                                 <?= ($veiculo->getIdPessoa() > 0 ? $postoDAO->getById($pessoaDAO->getById($veiculo->getIdPessoa())->getIdPosto())->getPosto() . " " . $pessoaDAO->getById($veiculo->getIdPessoa())->getNomeGuerra() : ""); ?>     
-                            <?php } ?>
-                            <?= !empty($object->getPreccp()) ? "Nome: " . $object->getNome() . " PREC-CP: " . $object->getPreccp() . " - Placa: " . $object->getPlaca() : ""; ?>
+                            <?php } else { ?>
+                                <?=
+                                !empty($object->getPreccp()) ? "Nome: " . $object->getNome() . " PREC-CP: " . $object->getPreccp() . " - <b>Placa:</b> " . $object->getPlaca() : "<sup><span style='font-weight: bold; color: red;'>Veículo não cadastrado</span></sup> <b>Placa:</b> " . $object->getPlaca();
+                            }
+                            ?>                         
                         </td>
                         <td><?= date_format(new DateTime($object->getDataEntrada()), "d/m/Y H:i:s"); ?></td>         
                         <td><?= $object->getLocal() === "batalhao" ? "Estacionamento Batalhão" : "Vila Militar"; ?></td>
@@ -195,7 +199,7 @@ require_once '../include/header.php';
                         </td>
                         <!--<td style="white-space: nowrap">                            
                         <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_auditoria_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                                                            <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_auditoria_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                         <?php } ?>
                         </td>-->
                     </tr>                    

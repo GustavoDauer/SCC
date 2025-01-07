@@ -40,7 +40,7 @@ class AuditoriaPessoaDAO {
                     . ") "
                     . "VALUES("
                     . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : "NULL")
-                    . ", " . ($object->getAutorizacao() === 1 ? "CURRENT_TIME" : "NULL")                    
+                    . ", " . "CURRENT_TIME"                    
                     . ", '" . $object->getLocal() . "'"
                     . ", '" . $object->getIdentidade() . "'"
                     . ", " . $object->getAutorizacao() . ""

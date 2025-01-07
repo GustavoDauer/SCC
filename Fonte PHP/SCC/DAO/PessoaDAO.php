@@ -127,12 +127,12 @@ class PessoaDAO {
                     . " FROM Pessoa "
                     . " INNER JOIN Posto ON idPosto = Posto_idPosto "
                     . " INNER JOIN Vinculo ON idVinculo = Vinculo_idVinculo ";
-            if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos") {
+            if (empty($filtro["dataExpiracao"]) || (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "ativos")) {
                 $sql .= " WHERE dataExpiracao >= CURRENT_DATE ";
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
                 $sql .= " WHERE dataExpiracao < CURRENT_DATE ";
             }
-            $sql .= " ORDER BY dataExpiracao, Posto_idPosto DESC ";
+            $sql .= " ORDER BY Posto_idPosto DESC, nomeGuerra ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);

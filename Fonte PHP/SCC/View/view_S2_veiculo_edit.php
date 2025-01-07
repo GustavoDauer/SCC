@@ -44,8 +44,8 @@ $hoje = date('Y-m-d');
                         <span class="input-group-text">Proprietário</span>
                         <select name="idPessoa" class="form-control">
                             <option disabled selected>Selecione uma pessoa como proprietário</option>                            
-                            <?php foreach ($pessoaList as $pessoa): ?>                                
-                                <option value="<?= $pessoa->getId() ?>" <?= $object->getIdPessoa() == $pessoa->getId() ? "selected" : "" ?>><?= $pessoa->getNome() ?></option>
+                            <?php foreach ($pessoaList as $pessoa): ?>                         
+                            <option value="<?= $pessoa->getId() ?>" <?= $object->getIdPessoa() == $pessoa->getId() ? "selected" : "" ?>><?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?></option>
                             <?php endforeach; ?>                           
                         </select>
                         <div class="valid-feedback">&nbsp;</div>

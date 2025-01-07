@@ -106,7 +106,7 @@ class VeiculoDAO {
             } else if (isset($filtro["dataExpiracao"]) && $filtro["dataExpiracao"] == "expirados") {
                 $sql .= " WHERE dataExpiracao <= CURRENT_DATE OR dataExpiracao is NULL ";
             }
-            $sql .= " ORDER BY dataExpiracao, Posto_idPosto DESC ";
+            $sql .= " ORDER BY Posto_idPosto DESC, Pessoa_idPessoa ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);

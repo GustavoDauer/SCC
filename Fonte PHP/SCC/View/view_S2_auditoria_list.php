@@ -50,6 +50,7 @@ require_once '../include/header.php';
         $color = "darkgreen";
         $alert = $dateDif->format('%a') . " dia(s) atrás";
     }
+    $autorizacao = filter_input(INPUT_GET, "autorizacao", FILTER_VALIDATE_INT);
     ?>    
     <h6 style="font-size: 16px;margin: 0;"><b>Data atualização:</b> <?= $secaoDAO->getBySecao("S2")->getDataAtualizacao(); ?> - <span style="font-weight: bold; color: <?= $color ?>;"><?= $alert ?></span></h6>
     <div style="text-align: center;">
@@ -57,16 +58,15 @@ require_once '../include/header.php';
             <a href="../Controller/S2Controller.php?action=getAllList&dataExpiracao=ativos">
                 <img src="../include/imagens/gerenciar_usuarios.png" width="25" height="25" hspace="2" vspace="2"> Cadastros
             </a> |                   
-            <img src="../include/imagens/s2.png" width="25" height="25" hspace="2" vspace="2"> Auditorias
-            |
-        </span>
-        <!--<hr style="margin: 0px;">-->
+            <img src="../include/imagens/s2.png" width="25" height="25" hspace="2" vspace="2"> Auditorias | 
+        </span>        
     </div>
     <div align="center">
         <form action="../Controller/S2Controller.php" method="get" id="filtro">        
             <input type="hidden" name="action" value="auditoriaList">
             Entrada entre <input type="date" id="inicio" name="inicio" value="<?= $inicio ?>" onchange="update();"> 
-            | <input type="date" id="fim" name="fim" value="<?= $fim ?>" onchange="update();">
+            <input type="date" id="fim" name="fim" value="<?= $fim ?>" onchange="update();">      
+            | <input type="radio" id="autorizacao" name="autorizacao" value="1" onchange="update();" <?= $autorizacao == "1" ? " checked" : "" ?>> Autorizados  <input type="radio" id="autorizacao" name="autorizacao" value="0" onchange="update();" <?= $autorizacao == "0" || empty($autorizacao) ? " checked" : "" ?>> Todos registros 
         </form>
     </div>
     <div style="border: 1px dashed lightskyblue; padding: 7px;">
@@ -99,7 +99,7 @@ require_once '../include/header.php';
                     <tr>                                           
                         <td style="text-align: center;">
                             <?php if ($auditoriaPessoa->getIdPessoa() > 0) { ?>
-                                <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7"><br>
+                                <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7">
                                 <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?> - <?= $pessoa->getNome() ?><br>
                                 <b>Vínculo:</b> <?= $vinculoDAO->getById($pessoa->getIdVinculo())->getVinculo(); ?> / <b>CPF:</b> <?= $pessoa->getCpf() ?><br>
                                 <b>Identidade Militar:</b> <?= $pessoa->getIdentidadeMilitar() ?> / <b>PREC-CP:</b> <?= $pessoa->getPreccp() ?><br>
@@ -127,9 +127,9 @@ require_once '../include/header.php';
                             ?>
                         </td>
                         <!--<td style="white-space: nowrap">                            
-                            <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=pessoa_auditoria_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
-                            <?php } ?>
+                        <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
+                                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=pessoa_auditoria_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                        <?php } ?>
                         </td>-->
                     </tr>                    
                 <?php endforeach; ?>    
@@ -170,7 +170,7 @@ require_once '../include/header.php';
                             <?php if (!is_null($veiculo)) { ?>
                                 <?= $veiculo->getTipo() ?> 
                                 <?= $veiculo->getMarca() ?> <?= $veiculo->getModelo() ?> <!--<?= $veiculo->getAnoFabricacao() ?> / <?= $veiculo->getAnoModelo() ?>--> <input type="color" value="<?= $veiculo->getCor() ?>" disabled> <?= $veiculo->getPlaca() ?> - 
-                                <?= ($veiculo->getIdPessoa() > 0 ? $postoDAO->getById($pessoaDAO->getById($veiculo->getIdPessoa())->getIdPosto())->getPosto() . " " . $pessoaDAO->getById($veiculo->getIdPessoa())->getNome() : ""); ?>     
+                                <?= ($veiculo->getIdPessoa() > 0 ? $postoDAO->getById($pessoaDAO->getById($veiculo->getIdPessoa())->getIdPosto())->getPosto() . " " . $pessoaDAO->getById($veiculo->getIdPessoa())->getNomeGuerra() : ""); ?>     
                             <?php } ?>
                             <?= !empty($object->getPreccp()) ? "Nome: " . $object->getNome() . " PREC-CP: " . $object->getPreccp() . " - Placa: " . $object->getPlaca() : ""; ?>
                         </td>
@@ -194,9 +194,9 @@ require_once '../include/header.php';
                             ?>
                         </td>
                         <!--<td style="white-space: nowrap">                            
-                            <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_auditoria_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
-                            <?php } ?>
+                        <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
+                                                <a href="#" onclick="confirm('Confirma a remoção do item?') ? document.location = '../Controller/S2Controller.php?action=veiculo_auditoria_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                        <?php } ?>
                         </td>-->
                     </tr>                    
                 <?php endforeach; ?>    
@@ -209,7 +209,7 @@ require_once '../include/header.php';
         $("#myInputVeiculo").on("keyup", function () {
             var value = $(this).val().toLowerCase();
             $("#myTableVeiculo tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
                 countRows();
             });
         });

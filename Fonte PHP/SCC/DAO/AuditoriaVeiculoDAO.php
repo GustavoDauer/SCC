@@ -40,7 +40,7 @@ class AuditoriaVeiculoDAO {
                     . ") "
                     . "VALUES("
                     . "" . ($object->getIdVeiculo() > 0 ? $object->getIdVeiculo() : "NULL")
-                    . ", " . ($object->getAutorizacao() === 1 ? "CURRENT_TIME" : "NULL")
+                    . ", " . "CURRENT_TIME"
                     . ", '" . $object->getLocal() . "'"
                     . ", " . $object->getAutorizacao() . ""
                     . ", '" . $object->getPreccp() . "'"
@@ -79,9 +79,12 @@ class AuditoriaVeiculoDAO {
             $dataAmanha = date('Y-m-d', strtotime(' +1 day'));
             $inicio = !isset($filtro["inicio"]) ? $dataHoje : $filtro["inicio"];
             $fim = !isset($filtro["fim"]) ? $dataAmanha : $filtro["fim"];
-            $sql .= " WHERE dataEntrada >= '" . $inicio . " 00:00'"
-                    . " AND dataEntrada <= '" . $fim . " 23:59'"
-                    . " ORDER BY dataEntrada";
+            $autorizacao = isset($filtro["autorizacao"]) && $filtro["autorizacao"] == 1 ? 1 : "";
+            $sql .= " WHERE (dataEntrada >= '" . $inicio . " 00:00' AND dataEntrada <= '" . $fim . " 23:59') ";
+            if (!empty($autorizacao)) {
+                $sql .= "AND autorizacao = $autorizacao";
+            }
+            $sql .= " ORDER BY dataEntrada";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);

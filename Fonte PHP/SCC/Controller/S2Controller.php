@@ -55,10 +55,12 @@ class S2Controller {
         $dataExpiracao = filter_input(INPUT_GET, "dataExpiracao", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
         $inicio = filter_input(INPUT_GET, "inicio", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
         $fim = filter_input(INPUT_GET, "fim", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
+        $autorizacao = filter_input(INPUT_GET, "autorizacao", FILTER_VALIDATE_INT);
         $this->filtro = array(
             "dataExpiracao" => $dataExpiracao,
             "inicio" => $inicio,
             "fim" => $fim,
+            "autorizacao" => $autorizacao
         );
         $this->getFormDataVeiculo();
         $this->getFormDataPessoa();

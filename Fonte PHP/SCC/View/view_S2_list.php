@@ -119,18 +119,18 @@ require_once '../include/header.php';
                     ?>
                     <tr>                                           
                         <td style="text-align: center;">
-                            <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7"><br>
-                            <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?><br><?= $pessoa->getNome() ?>
+                            <img src="<?= $pessoa->getUploadedPhoto() ?>" width="70" height="70" vspace="7">
+                            <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?> <?= $pessoa->getNomeGuerra() ?> <sup><?= $pessoa->getNome() ?></sup>
                         </td>
                         <td>
                             <?= $vinculoDAO->getById($pessoa->getIdVinculo())->getVinculo(); ?> 
                         </td>         
                         <td>
                             CPF: <?= $pessoa->getCpf() ?><br>
-                            Identidade Militar: <?= $pessoa->getIdentidadeMilitar() ?><br>
-                            PREC-CP: <?= $pessoa->getPreccp() ?><br>
+                            Identidade Militar: <?= $pessoa->getIdentidadeMilitar() ?>
+                            <!--PREC-CP: <?= $pessoa->getPreccp() ?><br>-->
                         </td>
-                        <td style="padding: 25px;">
+                        <td style="padding: 25px; white-space: nowrap;">
                             <span class="alert alert-<?= $colorClass ?>" style="font-weight: bold;">
                                 <?= (new DateTime($pessoa->getDataExpiracao()))->format("d/m/Y"); ?>
                                 <?= $alert ?>                                

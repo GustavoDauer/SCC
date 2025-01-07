@@ -204,10 +204,10 @@ $hoje = date('Y-m-d');
             }
         </script>
         <hr>
-        <div style="font-size: 10px; font-family: sans-serif; text-align: center;">
+        <!--<div style="font-size: 10px; font-family: sans-serif; text-align: center;">
             <br><br><img src="../include/imagens/logo_2becmb.png" width="50"><br><br>
             Sistema de Controle do Comando (SCC) - (<a href="https://github.com/GustavoDauer/SCC" target="_blank">GitHub</a>)<br>SecInfo - 2º BECmb
-        </div>
+        </div>-->
         <br><br>
     </body>
 </html>        

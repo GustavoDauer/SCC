@@ -30,18 +30,20 @@
 require_once '../include/global.php';
 require_once '../include/comum.php';
 require_once '../DAO/SecaoDAO.php';
-require_once '../Model/Identidade.php';
+require_once '../DAO/ExameDePagamentoDAO.php';
+require_once '../Model/ExameDePagamento.php';
 
-class IdentidadeController {
+class SPPController {
 
-    private $identidadeInstance;
+    private $exameDePagamento;
 
     /**
      * Responsible to receive all input form data
      */
     public function getFormData() {
-        $this->identidadeInstance = new Identidade();
-        $this->identidadeInstance->setLinha(filter_input(INPUT_POST, "linha", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->exameDePagamento = new ExameDePagamento();
+        $this->exameDePagamento->setEfetivo(filter_input(INPUT_POST, "efetivo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->exameDePagamento->setCPEX(filter_input(INPUT_POST, "cpex", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
     }
 
     /**
@@ -50,54 +52,57 @@ class IdentidadeController {
     public function getAllList() {
         try {
             $this->getFormData();
-            require_once '../View/view_Identidade_list.php';
+            $exameDAO = new ExameDePagamentoDAO();
+            require_once '../View/view_SPP_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
         }
     }
 
     public function generate() {
-        $this->getFormData();        
-        $strings = explode(";", $this->identidadeInstance->getLinha());
-        $linha = $this->identidadeInstance->getLinha();
-        $id1 = $id2 = $id3 = $id4 = "";
-        if (isset($linha)) {                        
-            $resultado = explode("SEPARADOR", $linha);
-            $id1 = $resultado[0];
-            $id1 = explode("\t", $id1);            
-            //echo var_dump($id1) . "<hr>";
-            $this->identidadeInstance->setId1($id1);
-            $id2 = $resultado[1];
-            $id2 = explode("\t", $id2);            
-            //echo var_dump($id2) . "<hr>";
-            $this->identidadeInstance->setId2($id2);
-            $id3 = $resultado[2];
-            $id3 = explode("\t", $id3);            
-            //echo var_dump($id3) . "<hr>";
-            $this->identidadeInstance->setId3($id3);
-            $id4 = $resultado[3];
-            $id4 = explode("\t", $id4);
-            //echo var_dump($id4) . "<hr>";   
-            $this->identidadeInstance->setId4($id4);
-//            if (count($resultado) != 80) {
-//                echo "Deu ruim: " . count($resultado) . " colunas";
-//            } else {
-//                
-//            }
+        $this->getFormData();
+        $exameDAO = new ExameDePagamentoDAO();
+        $exameDAO->reset();
+        $this->insert($this->exameDePagamento->getEfetivo(), "Efetivo");
+        $this->insert($this->exameDePagamento->getCpex(), "CPEX");
+        $exameCPEXList = $exameDAO->getAllList("CPEX");
+        $exameEfetivoList = $exameDAO->getAllList("Efetivo");
+        $exameEfetivoNotInCPEXList = $exameDAO->getAllListNotIn("Efetivo", "CPEX");
+        $exameCPEXNotInEfetivoList = $exameDAO->getAllListNotIn("CPEX", "Efetivo");
+        require_once '../View/view_SPP_list.php';
+    }
+
+    public function insert($input, $table) {
+        try {
+            $exameDAO = new ExameDePagamentoDAO();
+            $textarea = explode("\n", $input);
+            $nomesInseridos = "";
+            foreach ($textarea as $line) {
+                $line = $this->tirarAcentos(trim($line));
+                $line = trim(preg_replace('/\s+/', ' ', $line));
+                if ($line != "" && !empty($line)) {
+                    $exameDAO->insert($line, $table);
+                }
+            }
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
         }
-        require_once '../View/view_Identidade_impressao.php';                     
+    }
+
+    function tirarAcentos($string) {
+        return preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $string);
     }
 }
 
 // POSSIBLE ACTIONS
 $action = $_REQUEST["action"];
-$controller = new IdentidadeController();
+$controller = new SPPController();
 switch ($action) {
     case "getAllList":
-        !isAdminLevel($LISTAR_IDENTIDADE) ? redirectToLogin() : $controller->getAllList();
+        !isAdminLevel($LISTAR_SPP) ? redirectToLogin() : $controller->getAllList();
         break;
     case "gerar":
-        !isAdminLevel($LISTAR_IDENTIDADE) ? redirectToLogin() : $controller->generate();
+        !isAdminLevel($LISTAR_SPP) ? redirectToLogin() : $controller->generate();
         break;
     default:
         break;

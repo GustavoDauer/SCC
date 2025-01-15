@@ -28,19 +28,34 @@
  * @author gustavodauer
  */
 require_once '../include/comum.php';
-require_once '../Model/Posto.php';
+require_once '../Model/ExameDePagamento.php';
 
-class PostoDAO {
+class ExameDePagamentoDAO {
 
-    public function getAllList() {
+    public function getAllList($table) {
         try {
-            $c = connect();
+            $c = connectSAEP();
             $sql = "SELECT * "
-                    . " FROM Posto ";
+                    . " FROM ExamePagamento$table ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
-                $objectArray = $this->fillArray($row);
-                $lista[] = new Posto($objectArray);
+                $lista[] = $row["nome"];
+            }
+            $c->close();
+            return isset($lista) ? $lista : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+    
+    public function getAllListNotIn($table, $notInTable) {
+        try {
+            $c = connectSAEP();
+            $sql = "SELECT nome FROM ExamePagamento$table WHERE nome NOT IN ( "
+                              . "SELECT nome FROM ExamePagamento$notInTable );";
+            $result = $c->query($sql);
+            while ($row = $result->fetch_assoc()) {
+                $lista[] = $row["nome"];
             }
             $c->close();
             return isset($lista) ? $lista : null;
@@ -49,29 +64,36 @@ class PostoDAO {
         }
     }
 
-    public function getById($id) {
+    public function insert($nome, $table) {
         try {
-            $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Posto "
-                    . " WHERE idPosto = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                $objectArray = $this->fillArray($row);
-                $instance = new Posto($objectArray);
-            }
+            $c = connectSAEP();
+            $stmt = $c->prepare("INSERT INTO ExamePagamento$table (nome) VALUES (?)");
+            $stmt->bind_param("s", $nome);
+            $sqlOk = $stmt ? $stmt->execute() : false;
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $sqlOk;
         } catch (Exception $e) {
             throw($e);
         }
     }
 
-    public function fillArray($row) {
-        return array(
-            "id" => $row["idPosto"],
-            "posto" => $row["posto"]
-        );
+    public function reset() {
+        try {
+            $c = connectSAEP();
+            $sql = "DELETE FROM ExamePagamentoCPEX;";
+            $stmt = $c->prepare($sql);
+            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$sqlOk) {
+                $c->close();
+                return false;
+            }
+            $sql = "DELETE FROM ExamePagamentoEfetivo;";
+            $stmt = $c->prepare($sql);
+            $sqlOk = $stmt ? $stmt->execute() : false;
+            $c->close();
+            return $sqlOk;
+        } catch (Exception $e) {
+            throw($e);
+        }
     }
-
 }

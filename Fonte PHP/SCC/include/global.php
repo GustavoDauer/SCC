@@ -97,6 +97,8 @@ $ADICIONAR_IDENTIDADE = array_merge(array("Identidade"), $ADMINISTRADORES);
 $EDITAR_IDENTIDADE = array_merge(array("Identidade"), $ADMINISTRADORES);
 $EXCLUIR_IDENTIDADE = array_merge(array("Identidade"), $ADMINISTRADORES);
 
+$LISTAR_SPP = array_merge(array("SPP"), $ADMINISTRADORES);
+
 // INEXISTENTES
 $LISTAR_SECINFO = array("SecInfo");
 $ADICIONAR_SECINFO = array("SecInfo");

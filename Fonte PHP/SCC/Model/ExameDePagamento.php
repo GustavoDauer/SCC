@@ -27,55 +27,27 @@
  *
  * @author gustavodauer
  */
-class Identidade {
+class ExameDePagamento {
 
-    private $linha, $id1, $id2, $id3, $id4;
+    private $efetivo, $cpex;
 
-    function __construct($linha = "") {
-        $this->linha = $linha;
+    function __construct() {
+        
     }
 
-    function getLinha() {
-        return $this->linha;
+    public function getEfetivo() {
+        return $this->efetivo;
     }
 
-    function setLinha($linha) {
-        $this->linha = $linha;
+    public function getCpex() {
+        return $this->cpex;
     }
 
-    public function getId1() {
-        return $this->id1;
+    public function setEfetivo($efetivo) {
+        $this->efetivo = $efetivo;
     }
 
-    public function getId2() {
-        return $this->id2;
-    }
-
-    public function getId3() {
-        return $this->id3;
-    }
-
-    public function getId4() {
-        return $this->id4;
-    }
-
-    public function setId1($id1) {
-        $this->id1 = $id1;
-    }
-
-    public function setId2($id2) {
-        $this->id2 = $id2;
-    }
-
-    public function setId3($id3) {
-        $this->id3 = $id3;
-    }
-
-    public function setId4($id4) {
-        $this->id4 = $id4;
-    }
-
-    function validate() {
-        return $this->linha != null && !empty($this->linha);
+    public function setCpex($cpex) {
+        $this->cpex = $cpex;
     }
 }

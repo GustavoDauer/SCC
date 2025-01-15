@@ -161,5 +161,12 @@ require_once '../include/comum.php';
                         <img src="../include/imagens/identidade.png" height="35" hspace="2">Identidade
                     </a>
                 </li>
-            <?php } ?>                  
+            <?php } ?>   
+            <?php if (isAdminLevel($LISTAR_IDENTIDADE)) { ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= substr_count($address, "SPPController") > 0 ? "active" : ""; ?>" href='../Controller/SPPController.php?action=getAllList'>
+                        <img src="../include/imagens/spp.png" height="35" hspace="2"> SPP
+                    </a>
+                </li>
+            <?php } ?>
         </ul>

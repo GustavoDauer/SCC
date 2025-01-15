@@ -124,3 +124,22 @@ function connectSCFEx() {
         require_once '../View/view_error.php';
     }
 }
+
+function connectSAEP() {
+    $dbConfig = parse_ini_file('/var/www/saep.ini');
+    $servername = $dbConfig['servername'];
+    $username = $dbConfig['username'];
+    $password = $dbConfig['password'];
+    $database = $dbConfig['dbname'];
+    try {
+        $conexao = new mysqli($servername, $username, $password, $database);
+        if ($conexao->connect_errno) {
+            throw new Exception('Erro na conexão ao banco de dados! O sistema pode estar em manutenção para realização de correções ou backup dos dados.');
+        } else {
+            $conexao->set_charset("utf8");
+        }
+        return $conexao;
+    } catch (Exception $e) {
+        require_once '../View/view_error.php';
+    }
+}

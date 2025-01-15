@@ -42,7 +42,8 @@ class S2Controller {
 
     private $veiculoInstance, $pessoaInstance, // Model instance to be used by Controller and DAO  
             $foto;                             // Photo              
-    private $filtro;
+    private $filtro,
+            $importLog;
 
     /**
      * Responsible to receive all input form data
@@ -111,6 +112,7 @@ class S2Controller {
             $vinculoDAO = new VinculoDAO();
             $pessoaList = $pessoaDAO->getAllList($this->filtro);
             $veiculoList = $veiculoDAO->getAllList($this->filtro);
+            $importLog = $this->importLog;
             require_once '../View/view_S2_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
@@ -396,6 +398,96 @@ class S2Controller {
             require_once '../View/view_error.php';
         }
     }
+
+    public function import() {
+        try {
+            $secaoDAO = new SecaoDAO();
+            $this->importLog = $this->importDataSheet();
+            $this->getAllList();
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
+        }
+    }
+
+    public function importDataSheet() {
+        $result = "";
+        $planilha = $_FILES["planilhaPessoas"];
+        $pessoaDAO = new PessoaDAO();
+        $postoDAO = new PostoDAO();
+        $vinculoDAO = new VinculoDAO();
+        $row = 1;
+        $colOk = true; // Verifica se o título das colunas estão na ordem correta
+        if (($handle = fopen($_FILES['planilhaPessoas']['tmp_name'], "r")) !== false) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                if ($row <= 2) {
+                    $row++;
+                    continue;
+                } else if ($row === 3) {
+                    $ordCol = isset($data[0]) ? $data[0] : null;
+                    $identidadeCol = isset($data[1]) ? $data[1] : null;
+                    $pgradCol = isset($data[2]) ? $data[2] : null;
+                    $nomeCol = isset($data[3]) ? $data[3] : null;
+                    $nomeGuerraCol = isset($data[4]) ? $data[4] : null;
+                    $cpfCol = isset($data[5]) ? $data[5] : null;
+                    $preccpCol = isset($data[6]) ? $data[6] : null;
+                    if (
+                            $ordCol === "ORD" &&
+                            $identidadeCol === "IDENTIDADE" &&
+                            $pgradCol === "PGRAD" &&
+                            $nomeCol === "NOME" &&
+                            $nomeGuerraCol === "NOME_GUERRA" &&
+                            $cpfCol === "CPF" &&
+                            $preccpCol === "PREC_CP"
+                    ) {
+                        $row++;
+                        continue;
+                    } else {
+                        $result .= "<span style='color: red;font-weight: bold;'>Erro ao importar os dados.</span>";
+                        $result .= "<br><br><span style='color: red;'>A planilha deve estar no seguinte formato:<br><br>"
+                                . "<img src='../include/imagens/s2_import_exemplo_colunas.png' width='770'><br><br>"
+                                . "Ao abrir o arquivo no LibreOffice, deve-se optar pelas opções padrões da versão 7.4.7.2, conforme imagem a seguir:<br><br><img src='../include/imagens/s2_import_exemplo_opcoes_CSV.png' width='770'><br><br></span>";
+                        break;
+                    }
+                }
+                $num = count($data);
+                $row++;
+                $identidade = $data[1];
+                if (strlen($identidade) === 9) {
+                    $identidade = "0" . $data[1];
+                }
+                $identidade = substr_replace($identidade, "-", 9, 0);
+                $result .= $identidade . " ";
+                $pessoa = $pessoaDAO->getByIddentidadeMilitar($identidade);
+                if (!is_null($pessoa)) {
+                    $result .= $pessoa->getNome();
+                } else {
+                    $result .= "<b><span style='color: red';'>Não encontrado</span> - preparando novo cadastro no BD - </b>";
+                    $idPosto = 1;
+                    $posto = $postoDAO->getByPosto($data[2]);
+                    $expiracao = (date('Y') + 1) . '-03-01';
+                    if (!is_null($posto)) {
+                        $idPosto = $posto->getId();
+                    } else {
+                        $idPosto = $data[2] === "Ten Cel" ? 13 : 1;
+                    }
+                    $pessoa = new Pessoa();
+                    $pessoa->setCpf($data[5]);
+                    $pessoa->setDataExpiracao($expiracao);
+                    $pessoa->setFoto("S2-Pessoa-365.jpg");
+                    $pessoa->setIdPosto($idPosto);
+                    $pessoa->setIdVinculo(1); // ATIVA
+                    $pessoa->setIdentidadeMilitar($identidade);
+                    $pessoa->setNome($data[3]);
+                    $pessoa->setNomeGuerra($data[4]);
+                    $pessoa->setPreccp($data[6]);
+                    $result .= $pessoaDAO->insert($pessoa) ? "<span style='color: darkgreen; font-weight: bold;'>Cadastro efetuado com sucesso!</span>" : "<span style='color: red; font-weight: bold;'>Erro ao efetuar o cadastro!</span>";
+                }
+                $result .= "<br>";
+            }
+            fclose($handle);
+        }
+        return $result;
+    }
 }
 
 // POSSIBLE ACTIONS
@@ -434,6 +526,9 @@ switch ($action) {
         break;
     case "auditoriaList":
         !isAdminLevel($LISTAR_S2) ? redirectToLogin() : $controller->auditoriaList();
+        break;
+    case "import":
+        !isAdminLevel($ADICIONAR_S2) ? redirectToLogin() : $controller->import();
         break;
     default:
         break;

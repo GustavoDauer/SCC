@@ -165,6 +165,27 @@ class PessoaDAO {
             throw($e);
         }
     }
+    
+    public function getByIddentidadeMilitar($id) {
+        if (empty($id)) {
+            return null;
+        }
+        try {
+            $c = connect();
+            $sql = "SELECT * "
+                    . " FROM Pessoa "
+                    . " WHERE identidadeMilitar = '$id'";
+            $result = $c->query($sql);
+            while ($row = $result->fetch_assoc()) {
+                $objectArray = $this->fillArray($row);
+                $instance = new Pessoa($objectArray);
+            }
+            $c->close();
+            return isset($instance) ? $instance : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
 
     public function getSCFExByPreccp($preccp) {
         try {

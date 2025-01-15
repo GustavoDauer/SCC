@@ -66,12 +66,16 @@ require_once '../include/header.php';
         <form action="../Controller/S2Controller.php" method="get" id="filtro">        
             <input type="hidden" name="action" value="getAllList">
             <input type="radio" id="dataExpiracao" name="dataExpiracao" value="todos" onchange="update();" <?= $dataExpiracao == "todos" ? " checked" : "" ?>> Exibir todos <input type="radio" id="dataExpiracao" name="dataExpiracao" value="ativos" onchange="update();" <?= $dataExpiracao == "ativos" || empty($dataExpiracao) ? " checked" : "" ?>> Ativos  <input type="radio" id="dataExpiracao" name="dataExpiracao" value="expirados" onchange="update();" <?= $dataExpiracao == "expirados" ? " checked" : "" ?>> Expirados 
-        </form>
+        </form> 
     </div>
     <div style="border: 1px dashed lightskyblue; padding: 7px;">
-        <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTablePessoa');"> 
-        <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTablePessoa');">        
-        <span style="margin-left: 14px; font-weight: bold;">CADASTRO DE PESSOAS</span> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
+        <form action="../Controller/S2Controller.php" method="post" id="importar" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="import">
+            <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTablePessoa');"> 
+            <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTablePessoa');">  
+            <span style="margin-left: 14px; font-weight: bold;">CADASTRO DE PESSOAS</span> 
+            <input type="file" name="planilhaPessoas" accept=".csv" onchange="importar();"> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
+        </form>
     </div>
     <br>    
     <table class="table table-bordered">
@@ -178,8 +182,8 @@ require_once '../include/header.php';
         </thead>
         <tbody id="myTableVeiculo">   
             <?php if (is_array($veiculoList) && isAdminLevel($LISTAR_S2)) { ?> 
-                <?php 
-                foreach ($veiculoList as $object): 
+                <?php
+                foreach ($veiculoList as $object):
                     $idPosto = $pessoaDAO->getById($object->getIdPessoa())->getIdPosto();
                     ?>
                     <tr>                                           
@@ -204,6 +208,23 @@ require_once '../include/header.php';
             <?php } ?>
         </tbody>
     </table>    
+</div>
+<div class="modal fade" id="editarMensagem" tabindex="-1" role="dialog" aria-labelledby="mensagemLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 800px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mensagemLabel">Relatório do processo de importação</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                  
+                <span style='font-size: 14px;'><?= $importLog ?></span><hr><b>Fim</b>
+            </div>
+            <div class="modal-footer">                                
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     $(document).ready(function () {
@@ -230,7 +251,7 @@ require_once '../include/header.php';
     }
 
     countRows();
-    
+
     if (getCookie("myTableVeiculo") === "1") {
         minimize("myTableVeiculo");
     }
@@ -238,6 +259,18 @@ require_once '../include/header.php';
     if (getCookie("myTablePessoa") === "1") {
         minimize("myTablePessoa");
     }
+
+    function importar() {
+        document.getElementById("importar").submit();
+    }
+
+<?php
+if (isset($importLog)) {
+    ?>
+        $("#editarMensagem").modal()
+    <?php
+}
+?>
 
 </script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>

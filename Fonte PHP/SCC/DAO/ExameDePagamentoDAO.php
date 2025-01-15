@@ -66,24 +66,6 @@ class PostoDAO {
             throw($e);
         }
     }
-    
-    public function getByPosto($posto) {
-        try {
-            $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Posto "
-                    . " WHERE posto LIKE '%$posto%'";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                $objectArray = $this->fillArray($row);
-                $instance = new Posto($objectArray);
-            }
-            $c->close();
-            return isset($instance) ? $instance : null;
-        } catch (Exception $e) {
-            throw($e);
-        }
-    }
 
     public function fillArray($row) {
         return array(

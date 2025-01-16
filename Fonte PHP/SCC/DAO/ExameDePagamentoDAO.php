@@ -34,7 +34,7 @@ class ExameDePagamentoDAO {
 
     public function getAllList($table) {
         try {
-            $c = connectSAEP();
+            $c = connect();
             $sql = "SELECT * "
                     . " FROM ExamePagamento$table ";
             $result = $c->query($sql);
@@ -50,7 +50,7 @@ class ExameDePagamentoDAO {
     
     public function getAllListNotIn($table, $notInTable) {
         try {
-            $c = connectSAEP();
+            $c = connect();
             $sql = "SELECT nome FROM ExamePagamento$table WHERE nome NOT IN ( "
                               . "SELECT nome FROM ExamePagamento$notInTable );";
             $result = $c->query($sql);
@@ -66,7 +66,7 @@ class ExameDePagamentoDAO {
 
     public function insert($nome, $table) {
         try {
-            $c = connectSAEP();
+            $c = connect();
             $stmt = $c->prepare("INSERT INTO ExamePagamento$table (nome) VALUES (?)");
             $stmt->bind_param("s", $nome);
             $sqlOk = $stmt ? $stmt->execute() : false;
@@ -79,7 +79,7 @@ class ExameDePagamentoDAO {
 
     public function reset() {
         try {
-            $c = connectSAEP();
+            $c = connect();
             $sql = "DELETE FROM ExamePagamentoCPEX;";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;

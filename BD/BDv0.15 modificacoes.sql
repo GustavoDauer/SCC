@@ -11,3 +11,17 @@ ADD CONSTRAINT `fk_Pessoa_Vinculo1`
 ALTER TABLE `scc`.`Veiculo` 
 DROP COLUMN `dataCadastro`;
 
+DROP TABLE IF EXISTS `scc`.`ExamePagamentoEfetivo` ;
+
+CREATE TABLE IF NOT EXISTS `scc`.`ExamePagamentoEfetivo` (
+  `nome` VARCHAR(125) NOT NULL,
+  PRIMARY KEY (`nome`))
+ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `scc`.`ExamePagamentoCPEX` ;
+
+CREATE TABLE IF NOT EXISTS `scc`.`ExamePagamentoCPEX` (
+  `nome` VARCHAR(125) NOT NULL,
+  PRIMARY KEY (`nome`))
+ENGINE = InnoDB;
+

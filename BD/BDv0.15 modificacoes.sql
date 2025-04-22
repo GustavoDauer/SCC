@@ -25,3 +25,4 @@ CREATE TABLE IF NOT EXISTS `scc`.`ExamePagamentoCPEX` (
   PRIMARY KEY (`nome`))
 ENGINE = InnoDB;
 
+INSERT INTO Secao(secao) VALUES('SPP');

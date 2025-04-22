@@ -29,7 +29,7 @@
 require_once '../include/comum.php';
 require_once '../include/global.php';
 
-$erro = isset($_REQUEST["erro"]) ? $_REQUEST["erro"] : "";
+$erro = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
 ?>
 <!DOCTYPE html>
 <html>
@@ -78,7 +78,7 @@ $erro = isset($_REQUEST["erro"]) ? $_REQUEST["erro"] : "";
     <body style="margin: 0px; padding: 0px; background: #c5f9d0; background-image: url('../include/imagens/fundo_pagina.jpg'); background-repeat: no-repeat; background-size: 100% 100%;">
         <?php if ($erro == 1) { ?>
             <div class="alert alert-danger">
-                <strong>ERRO!</strong> Usuário sem seção válida! Entre em contato com o administrador do sistema. O administrador deve adicionar o usuário na seção "pai" e nas subseções para corrigir o problema. 
+                <strong>ERRO!</strong> Usuário ou senha incorretos ou usuário sem seção válida! O administrador deve adicionar o usuário na seção "pai" e nas subseções para corrigir o problema. 
             </div>
         <?php } ?>
         <div align="center" style="color: white;">

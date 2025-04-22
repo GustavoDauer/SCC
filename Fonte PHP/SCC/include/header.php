@@ -54,8 +54,35 @@ require_once '../include/comum.php';
                 font-family: sans-serif;
             }
         </style>
+        <script type="text/javascript">
+            function permissionError() {
+                $("#erroPermissao").modal();
+                return false;
+            }
+        </script>
     </head>
     <body style="margin-top: 7px;">
+        <div class="modal fade" id="erroPermissao" tabindex="-1" role="dialog" aria-labelledby="mensagemLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document" style="width: 800px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mensagemLabel" style="color: red;">Acesso Negado</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                  
+                        <span style='font-size: 14px;'>
+                            Você não possui permissão para acessar este setor.<br>
+                            Caso haja necessidade de acesso, procure o administrador do sistema.
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <span style='font-size: 14px; font-weight: bold;'>Seção de Informática</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <a name="topo"></a>
         <div class="container-fluid">
             <div class="row">
@@ -106,67 +133,50 @@ require_once '../include/comum.php';
         $secoes = $_SESSION["sccsecoes"];
         ?>        
         <ul class="nav nav-tabs" style="margin-top: 2px;">  
-            <?php if (isAdminLevel($LISTAR_COMANDO)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "ComandoController") > 0 ? "active" : ""; ?>" href='../Controller/ComandoController.php?action=getAllList&resolvido=0'>
-                        <img src="../include/imagens/comando.png" height="35" hspace="2"> Comando
-                    </a>                        
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_S1) || isAdminLevel($LISTAR_JURIDICO)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "S1Controller") > 0 ? "active" : ""; ?>" href='../Controller/S1Controller.php?action=getAllList'>
-                        <img src="../include/imagens/s1.png" height="35" hspace="2"> S1
-                    </a>                        
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_S2)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "S2Controller") > 0 ? "active" : ""; ?>" href='../Controller/S2Controller.php?action=getAllList&dataExpiracao=ativos'>
-                        <img src="../include/imagens/s2.png" height="35" hspace="2"> S2
-                    </a>                        
-                </li>
-            <?php } ?>            
-            <?php if (isAdminLevel($LISTAR_S4)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "S4Controller") > 0 ? "active" : ""; ?>" href='../Controller/S4Controller.php?action=getAllList'>
-                        <img src="../include/imagens/s4.jpg" height="35" hspace="2"> S4
-                    </a>                        
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_FS)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "FSController") > 0 ? "active" : ""; ?>" href='../Controller/FSController.php?action=getAllList'>
-                        <img src="../include/imagens/fs.png" height="35" hspace="2"> FS
-                    </a>                        
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_RP)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "RPController") > 0 ? "active" : ""; ?>" href='../Controller/RPController.php?action=getAllList'>
-                        <img src="../include/imagens/rp.png" height="35" hspace="2"> RP
-                    </a>
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_FISCALIZACAO)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 || substr_count($address, "CategoriaController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>'>
-                        <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2">Fiscalização
-                    </a>
-                </li>
-            <?php } ?>
-            <?php if (isAdminLevel($LISTAR_IDENTIDADE)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "IdentidadeController") > 0 ? "active" : ""; ?>" href='../Controller/IdentidadeController.php?action=getAllList'>
-                        <img src="../include/imagens/identidade.png" height="35" hspace="2">Identidade
-                    </a>
-                </li>
-            <?php } ?>   
-            <?php if (isAdminLevel($LISTAR_IDENTIDADE)) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= substr_count($address, "SPPController") > 0 ? "active" : ""; ?>" href='../Controller/SPPController.php?action=getAllList'>
-                        <img src="../include/imagens/spp.png" height="35" hspace="2"> SPP
-                    </a>
-                </li>
-            <?php } ?>
+
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "ComandoController") > 0 ? "active" : ""; ?>" href='../Controller/ComandoController.php?action=getAllList&resolvido=0' <?php if (!isAdminLevel($LISTAR_COMANDO)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/comando.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_COMANDO)) { ?> style="filter: grayscale(1);" <?php } ?>> Comando
+                </a>                        
+            </li>                                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "S1Controller") > 0 ? "active" : ""; ?>" href='../Controller/S1Controller.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_S1) && !isAdminLevel($LISTAR_JURIDICO)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/s1.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_S1) && !isAdminLevel($LISTAR_JURIDICO)) { ?> style="filter: grayscale(1);" <?php } ?>> S1
+                </a>                        
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "S2Controller") > 0 ? "active" : ""; ?>" href='../Controller/S2Controller.php?action=getAllList&dataExpiracao=ativos' <?php if (!isAdminLevel($LISTAR_S2)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/s2.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_S2)) { ?> style="filter: grayscale(1);" <?php } ?>> S2
+                </a>                        
+            </li>                                 
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "S4Controller") > 0 ? "active" : ""; ?>" href='../Controller/S4Controller.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_S4)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/s4.jpg" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_S4)) { ?> style="filter: grayscale(1);" <?php } ?>> S4
+                </a>                        
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "FSController") > 0 ? "active" : ""; ?>" href='../Controller/FSController.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_FS)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/fs.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_FS)) { ?> style="filter: grayscale(1);" <?php } ?>> FS
+                </a>                        
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "RPController") > 0 ? "active" : ""; ?>" href='../Controller/RPController.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_RP)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/rp.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_RP)) { ?> style="filter: grayscale(1);" <?php } ?>> RP
+                </a>
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "FiscalizacaoController") > 0 || substr_count($address, "CategoriaController") > 0 ? "active" : ""; ?>" href='../Controller/FiscalizacaoController.php?action=getAllList&ano=<?= date('Y'); ?>' <?php if (!isAdminLevel($LISTAR_FISCALIZACAO)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/fiscalizacao.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_FISCALIZACAO)) { ?> style="filter: grayscale(1);" <?php } ?>>Fiscalização
+                </a>
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "IdentidadeController") > 0 ? "active" : ""; ?>" href='../Controller/IdentidadeController.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_IDENTIDADE)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/identidade.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_IDENTIDADE)) { ?> style="filter: grayscale(1);" <?php } ?>>Identidade
+                </a>
+            </li>                        
+            <li class="nav-item">
+                <a class="nav-link <?= substr_count($address, "SPPController") > 0 ? "active" : ""; ?>" href='../Controller/SPPController.php?action=getAllList' <?php if (!isAdminLevel($LISTAR_SPP)) { ?> onclick="return permissionError();" <?php } ?>>
+                    <img src="../include/imagens/spp.png" height="35" hspace="2" <?php if (!isAdminLevel($LISTAR_SPP)) { ?> style="filter: grayscale(1);" <?php } ?>> SPP
+                </a>
+            </li>            
         </ul>

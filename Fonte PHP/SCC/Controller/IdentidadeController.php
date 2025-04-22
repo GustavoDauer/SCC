@@ -79,11 +79,6 @@ class IdentidadeController {
             $id4 = explode("\t", $id4);
             //echo var_dump($id4) . "<hr>";   
             $this->identidadeInstance->setId4($id4);
-//            if (count($resultado) != 80) {
-//                echo "Deu ruim: " . count($resultado) . " colunas";
-//            } else {
-//                
-//            }
         }
         require_once '../View/view_Identidade_impressao.php';                     
     }

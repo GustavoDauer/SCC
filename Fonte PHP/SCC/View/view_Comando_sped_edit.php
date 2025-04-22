@@ -33,9 +33,10 @@ if ($action === "sped_update" || $action === "sped_insert") {
 } else {
     $button = "<button type='button' class='btn btn-primary' onclick='document.location = history.back();'>Voltar</button>";
 }
+$pessoaList = $pessoaDAO->getAllList();
 ?>
 <div class="container">     
-    <form accept-charset="UTF-8" action="../Controller/ComandoController.php?action=sped_<?= $object->getId() > 0 ? "update" : "insert" ?>&id=<?= $object->getId() ?>" class="needs-validation" novalidate method="post">
+    <form accept-charset="UTF-8" action="../Controller/ComandoController.php?action=sped_<?= $object->getId() > 0 ? "update" : "insert" ?>&id=<?= $object->getId() ?>" class="needs-validation" novalidate method="post" onsubmit="dataListSwitch();" enctype="multipart/form-data">
         <h2><?= $object->getId() > 0 ? "Editar" : "Inserir" ?> Documento | <a href="#" onclick="history.back(-1);">Voltar</a> | <?= $button ?></h2>    
         <hr>    
         <input type="hidden" name="lastURL" value="<?= $_SERVER["HTTP_REFERER"] ?>"> 
@@ -71,6 +72,18 @@ if ($action === "sped_update" || $action === "sped_insert") {
             </div>
         </div>
         <div class="form-group">
+            <div class="form-row">                
+                <div class="col">                    
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Assunto</span>
+                        <input type="text" class="form-control" id="assunto" name="assunto" value="<?= $object->getAssunto() ?>" maxlength="1150">
+                        <div class="valid-feedback">&nbsp;</div>
+                        <div class="invalid-feedback">&nbsp;Informar assunto.</div>
+                    </div>                    
+                </div>   
+            </div>
+        </div>
+        <div class="form-group">
             <div class="form-row">            
                 <div class="col">                    
                     <div class="input-group-prepend">
@@ -80,43 +93,63 @@ if ($action === "sped_update" || $action === "sped_insert") {
                         <div class="invalid-feedback">&nbsp;</div>
                     </div>                    
                 </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-row">                
                 <div class="col">                    
                     <div class="input-group-prepend">
-                        <span class="input-group-text">Responsável</span>
-                        <input type="text" class="form-control" id="responsavel" placeholder="Digite o nome de guerra do responsável..." name="responsavel" oninput="this.value = this.value.toUpperCase()" value="<?= $object->getResponsavel() ?>" maxlength="250">
+                        <span class="input-group-text">Responsável</span>  
+                        <?php
+                        $pessoa = "";
+                        $posto = "";
+                        $nomeGuerra = "";
+                        if ($object->getIdResponsavel() > 0) {
+                            $pessoa = $pessoaDAO->getById($object->getIdResponsavel());
+                            $posto = $postoDAO->getById($pessoa->getIdPosto())->getPosto();
+                            $nomeGuerra = $pessoa->getNomeGuerra();
+                        }
+                        ?>
+                        <input class="form-control" list="idResponsavel" name="idResponsavel" id="responsavelInput" value="<?= $posto . " " . $nomeGuerra ?>">                        
+                        <datalist id="idResponsavel">
+                            <?php
+                            if (is_array($pessoaList)) {
+                                foreach ($pessoaList as $pessoa):
+                                    ?>
+                                    <option data-id="<?= $pessoa->getId(); ?>" value="<?= $postoDAO->getById($pessoa->getIdPosto())->getPosto() . " " . $pessoa->getNomeGuerra(); ?>"><?= $postoDAO->getById($pessoa->getIdPosto())->getPosto() . " " . $pessoa->getNomeGuerra(); ?>                
+                                        <?php
+                                    endforeach;
+                                }
+                                ?>
+                        </datalist>
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;Informar responsável.</div>
                     </div>                    
-                </div>                    
+                </div>
             </div>
-        </div>                      
-        <!--        <div class="form-group">
-                    <div class="form-row">                                            
-                        <div class="col">                    
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Data de recebimento</span>
-                                <input type="date" class="form-control" id="data" name="data" value="<?= $object->getData() ?>">
-                                <div class="valid-feedback">&nbsp;</div>
-                                <div class="invalid-feedback">&nbsp;Informar data de recebimento.</div>
-                            </div>
-                        </div>                
-                    </div>
-                </div>-->
+        </div>  
         <div class="form-group">
             <div class="form-row">                                            
-                <div class="col">                    
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="resolvido" name="resolvido" <?= $object->getResolvido() == 1 ? "checked" : "" ?> value="1" onclick="labelResolvido();">
-                        <label class="custom-control-label" for="resolvido" id="labelResolvido"><span style="color: red;font-weight: bold;">Não resolvido</span></label>
-                    </div>                    
-                </div>                
+                <div class="col">  
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Arquivo</span>
+                        <div class="custom-control custom-switch">
+                            <?php if (!str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo")) { ?>
+                            <a href="../include/arquivos/<?= $object->getId(); ?>.pdf" target="_blank"><img src="../include/imagens/pdf.jpg" width="70"> <?=$object->getTitulo();?></a>
+                            <?php } ?>
+                            <input type="file" class="form-control" id="arquivo" name="arquivo">                        
+                        </div>                    
+                    </div>                
+                </div>
             </div>
-        </div>   
-        <button type="submit" class="btn btn-primary">Salvar</button>
+            <br>
+            <div class="form-group">
+                <div class="form-row">                                            
+                    <div class="col">                    
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="resolvido" name="resolvido" <?= $object->getResolvido() == 1 ? "checked" : "" ?> value="1" onclick="labelResolvido();">
+                            <label class="custom-control-label" for="resolvido" id="labelResolvido"><span style="color: red;font-weight: bold;">Não resolvido</span></label>
+                        </div>                    
+                    </div>                
+                </div>
+            </div>   
+            <button type="submit" class="btn btn-primary">Salvar</button>
     </form>
 </div>
 <script>
@@ -153,6 +186,18 @@ if ($action === "sped_update" || $action === "sped_insert") {
             resolvido = 0;
         }
     }
+
+    function dataListSwitch() {
+        const datalist = document.getElementById("idResponsavel");
+        const value = document.getElementById("responsavelInput").value;
+        const options = datalist.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === value) {
+                document.getElementById("responsavelInput").value = options[i].dataset.id;
+            }
+        }
+    }
+
     labelResolvido();
 </script>
 <?php

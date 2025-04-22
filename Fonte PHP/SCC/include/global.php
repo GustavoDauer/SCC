@@ -27,22 +27,17 @@
  *
  * @author gustavodauer
  */
-$VERSAO = "20.15";
+$VERSAO = "20.16";
 $SOFTWARE = "SCC";
-$TODAS_SECOES = array("SALC", "Conformidade", "Almoxarifado", "Tesouraria", "S1", "S2", "S4", "FS", "Juridico", "Fiscalizacao", "RP", "SecInfo", "Comando", "Identidade");
+$TODAS_SECOES = array("S1", "S2", "S4", "FS", "Juridico", "Fiscalizacao", "RP", "SecInfo", "Comando", "Identidade", "SPP");
 $ADMINISTRADORES = array("S2", "SecInfo", "Comando");
-$REQUISITANTES = $TODAS_SECOES; // Referenciar seções que podem adicionar requisições
-$SALC = array("SALC"); // Referenciar seções que podem administrar informações da SALC (caso haja)
-$CONFORMIDADE = array("Conformidade"); // Referenciar seções que podem administrar informações da Conformidade (caso haja)
-$ALMOXARIFADO = array("Almoxarifado"); // Referenciar seções que podem administrar informações do Almoxarifado (caso haja)
-$TESOURARIA = array("Tesouraria"); // Referenciar seções que podem administrar informações da Tesouraria (caso haja)
 
 $LISTAR_USUARIO = $ADMINISTRADORES;
 $ADICIONAR_USUARIO = array("SecInfo");
 $EDITAR_USUARIO = array("SecInfo");
 $EXCLUIR_USUARIO = array("SecInfo");
 
-$LISTAR_S1 = array_merge(array("S1", "Juridico", "Identidade"), $ADMINISTRADORES);
+$LISTAR_S1 = array_merge(array("S1", "Juridico"), $ADMINISTRADORES);
 $ADICIONAR_S1 = array_merge(array("S1"), $ADMINISTRADORES);
 $EDITAR_S1 = array_merge(array("S1"), $ADMINISTRADORES);
 $EXCLUIR_S1 = $ADMINISTRADORES;
@@ -52,7 +47,7 @@ $ADICIONAR_S2 = array_merge(array("S2"), $ADMINISTRADORES);
 $EDITAR_S2 = array_merge(array("S2"), $ADMINISTRADORES);
 $EXCLUIR_S2 = $ADMINISTRADORES;
 
-$LISTAR_JURIDICO = array_merge(array("S1", "Juridico", "Identidade"), $ADMINISTRADORES);
+$LISTAR_JURIDICO = array_merge(array("S1", "Juridico"), $ADMINISTRADORES);
 $ADICIONAR_JURIDICO = array_merge(array("Juridico"), $ADMINISTRADORES);
 $EDITAR_JURIDICO = array_merge(array("Juridico"), $ADMINISTRADORES);
 $EXCLUIR_JURIDICO = array_merge(array("Juridico"), $ADMINISTRADORES);
@@ -73,18 +68,18 @@ $EDITAR_FISCALIZACAO = $TODAS_SECOES;
 $EXCLUIR_FISCALIZACAO = array_merge(array("Fiscalizacao"), $ADMINISTRADORES);
 
 $LISTAR_FISCALIZACAO_NC = $ADMINISTRADORES;
-$ADICIONAR_FISCALIZACAO_NC = array_merge(array("SALC"), $ADMINISTRADORES);
-$EDITAR_FISCALIZACAO_NC = array_merge(array("SALC"), $ADMINISTRADORES);
-$EXCLUIR_FISCALIZACAO_NC = array_merge(array("Fiscalizacao"), $ADMINISTRADORES);
+$ADICIONAR_FISCALIZACAO_NC = $ADMINISTRADORES;
+$EDITAR_FISCALIZACAO_NC = $ADMINISTRADORES;
+$EXCLUIR_FISCALIZACAO_NC = $ADMINISTRADORES;
 
 $LISTAR_RP = array_merge(array("RP"), $ADMINISTRADORES);
 $ADICIONAR_RP = array_merge(array("RP"), $ADMINISTRADORES);
 $EDITAR_RP = array_merge(array("RP"), $ADMINISTRADORES);
 $EXCLUIR_RP = array_merge(array("RP"), $ADMINISTRADORES);
 
-$LISTAR_CATEGORIA = array_merge(array("Almoxarifado"), $ADMINISTRADORES);
-$ADICIONAR_CATEGORIA = array_merge(array("Almoxarifado"), $ADMINISTRADORES);
-$EDITAR_CATEGORIA = array_merge(array("Almoxarifado"), $ADMINISTRADORES);
+$LISTAR_CATEGORIA = $ADMINISTRADORES;
+$ADICIONAR_CATEGORIA = $ADMINISTRADORES;
+$EDITAR_CATEGORIA = $ADMINISTRADORES;
 $EXCLUIR_CATEGORIA = $ADMINISTRADORES;
 
 $LISTAR_COMANDO = array_merge(array("Comando"), $ADMINISTRADORES);

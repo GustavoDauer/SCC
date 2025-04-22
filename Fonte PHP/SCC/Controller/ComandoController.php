@@ -31,13 +31,15 @@ require_once '../include/global.php';
 require_once '../include/comum.php';
 require_once '../DAO/PostoDAO.php';
 require_once '../DAO/SecaoDAO.php';
+require_once '../DAO/PessoaDAO.php';
 require_once '../DAO/SpedDAO.php';
 require_once '../Model/Sped.php';
 
 class ComandoController {
 
     private $spedInstance, // Model instance to be used by Controller and DAO
-            $spedDAO;           // DAO instance for database operations    
+            $spedDAO,      // DAO instance for database operations    
+            $arquivo;           
     private $mensagem;              // Simple string to hold input value to be used by DAO
     private $filtro;                // Array of filters to be used by DAO object
 
@@ -46,17 +48,21 @@ class ComandoController {
      */
     public function getFormData() {
         $this->filtro = array(
-            //"resolvido" => filter_input(INPUT_GET, "resolvido", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES),
+            "resolvido" => filter_input(INPUT_GET, "resolvido", FILTER_VALIDATE_INT),
             "tipo" => filter_input(INPUT_GET, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES)
         );
         $this->spedInstance = new Sped();
         $this->spedInstance->setId(filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT));
         $this->spedInstance->setResolvido(filter_input(INPUT_POST, "resolvido", FILTER_VALIDATE_INT));
-        $this->spedInstance->setResponsavel(filter_input(INPUT_POST, "responsavel", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->spedInstance->setIdResponsavel(filter_input(INPUT_POST, "idResponsavel", FILTER_VALIDATE_INT));
         $this->spedInstance->setTitulo(filter_input(INPUT_POST, "titulo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->spedInstance->setAssunto(filter_input(INPUT_POST, "assunto", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->spedInstance->setPrazo(filter_input(INPUT_POST, "prazo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->spedInstance->setData(filter_input(INPUT_POST, "data", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));        
-        $this->spedInstance->setTipo(filter_input(INPUT_POST, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));        
+        $this->spedInstance->setTipo(filter_input(INPUT_POST, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->arquivo = isset($_FILES["arquivo"]) ? $_FILES["arquivo"] : "";
+        $this->spedInstance->setArquivoNome($this->spedInstance->getId() . ".pdf");
+        $this->spedInstance->setArquivoPDF($this->arquivo);
         $this->mensagem = filter_input(INPUT_POST, "mensagem", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
     }
 
@@ -70,6 +76,9 @@ class ComandoController {
             $this->spedDAO = new SpedDAO();
             $secaoDAO = new SecaoDAO();
             $objectList = $this->spedDAO->getAllList($this->filtro);
+            $pessoaDAO = new PessoaDAO();   
+            $postoDAO = new PostoDAO();
+            $arquivoDAO = new ArquivoDAO();
             require_once '../View/view_Comando_list.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
@@ -85,6 +94,8 @@ class ComandoController {
             $this->spedDAO = new SpedDAO();
             $postoDAO = new PostoDAO();
             $secaoDAO = new SecaoDAO();
+            $pessoaDAO = new PessoaDAO();
+            $arquivoDAO = new ArquivoDAO();
             $postoList = $postoDAO->getAllList();
             if ($this->spedInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form
                 if ($this->spedDAO->insert($this->spedInstance)) {
@@ -110,6 +121,9 @@ class ComandoController {
             $this->getFormData();
             $this->spedDAO = new SpedDAO();
             $secaoDAO = new SecaoDAO();
+            $pessoaDAO = new PessoaDAO();
+            $postoDAO = new PostoDAO();
+            $arquivoDAO = new ArquivoDAO();
             if ($this->spedInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form               
                 if ($this->spedDAO->update($this->spedInstance)) {
                     $secaoDAO->updateDataAtualizacao("Comando");
@@ -135,6 +149,8 @@ class ComandoController {
             $this->getFormData();
             $this->spedDAO = new SpedDAO();
             $secaoDAO = new SecaoDAO();
+            $pessoaDAO = new PessoaDAO(); 
+            $postoDAO = new PostoDAO();
             // Require the view of the form            
             $this->spedInstance = $this->spedInstance->getId() > 0 ? $this->spedDAO->getById($this->spedInstance->getId()) : null;
             $object = $this->spedInstance;

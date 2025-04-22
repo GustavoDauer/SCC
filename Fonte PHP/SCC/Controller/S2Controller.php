@@ -93,6 +93,7 @@ class S2Controller {
         $this->pessoaInstance->setFoto(filter_input(INPUT_POST, "foto", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->pessoaInstance->setIdVinculo(filter_input(INPUT_POST, "idVinculo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->pessoaInstance->setDataExpiracao(filter_input(INPUT_POST, "dataExpiracao", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
+        $this->pessoaInstance->setTelefone(filter_input(INPUT_POST, "telefone", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->foto = isset($_FILES["arquivoFoto"]) ? $_FILES["arquivoFoto"] : "";
         $this->pessoaInstance->setFoto("S2-Pessoa-" . $this->pessoaInstance->getId() . ".jpg");
         $this->pessoaInstance->setArquivoFoto($this->foto);
@@ -416,7 +417,7 @@ class S2Controller {
         $postoDAO = new PostoDAO();
         $vinculoDAO = new VinculoDAO();
         $row = 1;
-        $colOk = true; // Verifica se o título das colunas estão na ordem correta
+        $colOk = true; // Verifica se o título das colunas estão na ordem correta             
         if (($handle = fopen($_FILES['planilhaPessoas']['tmp_name'], "r")) !== false) {
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                 if ($row <= 2) {
@@ -440,6 +441,7 @@ class S2Controller {
                             $preccpCol === "PREC_CP"
                     ) {
                         $row++;
+                        $pessoaDAO->expireAll(); //Expirar todos os registros antes de executar
                         continue;
                     } else {
                         $result .= "<span style='color: red;font-weight: bold;'>Erro ao importar os dados.</span>";
@@ -458,8 +460,11 @@ class S2Controller {
                 $identidade = substr_replace($identidade, "-", 9, 0);
                 $result .= $identidade . " ";
                 $pessoa = $pessoaDAO->getByIddentidadeMilitar($identidade);
-                if (!is_null($pessoa)) {
+                if (!is_null($pessoa)) { // Já existe no sistema                    
+                    $pessoa->setDataExpiracao(date('Y') + 1 . "-03-01"); // Renovar data de expiração para 1 ano a frente
+                    $pessoaDAO->update($pessoa);
                     $result .= $pessoa->getNome();
+                    $result .= " <b><span style='color: darkgreen';'>Encontrado</span> - atualizando cadastro no BD - </b>";
                 } else {
                     $result .= "<b><span style='color: red';'>Não encontrado</span> - preparando novo cadastro no BD - </b>";
                     $idPosto = 1;

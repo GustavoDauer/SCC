@@ -31,11 +31,14 @@ class Sped {
 
     private $id,
             $titulo,
+            $assunto,
             $prazo,
             $data,
-            $responsavel,
+            $idResponsavel,
             $resolvido,
-            $tipo;
+            $tipo,
+            $arquivoNome,
+            $arquivoPDF;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
@@ -43,11 +46,14 @@ class Sped {
         } else if (is_array($idOrRow)) {
             $this->id = $idOrRow["id"];
             $this->titulo = $idOrRow["titulo"];
+            $this->assunto = $idOrRow["assunto"];
             $this->prazo = $idOrRow["prazo"];
             $this->data = $idOrRow["data"];
-            $this->responsavel = $idOrRow["responsavel"];
+            $this->idResponsavel = $idOrRow["idResponsavel"];
             $this->resolvido = $idOrRow["resolvido"];
             $this->tipo = $idOrRow["tipo"];
+            $this->arquivoNome = $idOrRow["arquivoNome"];
+            $this->arquivoPDF = $idOrRow["arquivoPDF"];
         }
     }
 
@@ -65,10 +71,6 @@ class Sped {
 
     public function getData() {
         return $this->data;
-    }
-
-    public function getResponsavel() {
-        return $this->responsavel;
     }
 
     public function getResolvido() {
@@ -91,10 +93,6 @@ class Sped {
         $this->data = $data;
     }
 
-    public function setResponsavel($responsavel) {
-        $this->responsavel = $responsavel;
-    }
-
     public function setResolvido($resolvido) {
         $this->resolvido = $resolvido;
     }
@@ -107,8 +105,39 @@ class Sped {
         $this->tipo = $tipo;
     }
 
+    public function getAssunto() {
+        return $this->assunto;
+    }
+
+    public function setAssunto($assunto) {
+        $this->assunto = $assunto;
+    }
+
+    public function getIdResponsavel() {
+        return $this->idResponsavel;
+    }
+
+    public function setIdResponsavel($idResponsavel) {
+        $this->idResponsavel = $idResponsavel;
+    }
+
+    public function getArquivoNome() {
+        return $this->arquivoNome;
+    }
+
+    public function getArquivoPDF() {
+        return $this->arquivoPDF;
+    }
+
+    public function setArquivoNome($arquivoNome) {
+        $this->arquivoNome = $arquivoNome;
+    }
+
+    public function setArquivoPDF($arquivoPDF) {
+        $this->arquivoPDF = $arquivoPDF;
+    }
+
     public function validate() {
         return $this->titulo != null && $this->prazo != null;
     }
-
 }

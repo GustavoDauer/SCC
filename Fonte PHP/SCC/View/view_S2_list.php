@@ -145,7 +145,7 @@ require_once '../include/header.php';
                                 <a href="../Controller/S2Controller.php?action=pessoa_update&id=<?= $pessoa->getId() ?>"><img src='../include/imagens/editar.png' width='25' height='25' title='Editar'></a>
                             <?php } ?>
                             <?php if (isAdminLevel($EXCLUIR_S2)) { ?>
-                                <a href="#" onclick="confirm('Confirma a remoção do item? Os veículos associados a essa pessoa também serão removidos!') ? document.location = '../Controller/S2Controller.php?action=pessoa_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
+                                <a href="#" onclick="confirm('A data de expiração do militar será configurada para o ano anterior.') ? document.location = '../Controller/S2Controller.php?action=pessoa_delete&id=<?= $pessoa->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                             <?php } ?>
                         </td>
                     </tr>                    
@@ -267,7 +267,7 @@ require_once '../include/header.php';
 <?php
 if (isset($importLog)) {
     ?>
-        $("#editarMensagem").modal()
+        $("#editarMensagem").modal();
     <?php
 }
 ?>

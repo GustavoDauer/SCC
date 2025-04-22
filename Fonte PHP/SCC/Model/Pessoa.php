@@ -41,7 +41,8 @@ class Pessoa {
             $dataCadastro,
             $idFoto,
             $arquivoFoto,
-            $dataExpiracao;
+            $dataExpiracao,
+            $telefone;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
@@ -58,6 +59,7 @@ class Pessoa {
             $this->idVinculo = $idOrRow["idVinculo"];
             $this->dataCadastro = $idOrRow["dataCadastro"];
             $this->dataExpiracao = $idOrRow["dataExpiracao"];
+            $this->telefone = $idOrRow["telefone"];
         }
     }
 
@@ -167,6 +169,14 @@ class Pessoa {
 
     public function setDataExpiracao($dataExpiracao) {
         $this->dataExpiracao = $dataExpiracao;
+    }
+
+    public function getTelefone() {
+        return $this->telefone;
+    }
+
+    public function setTelefone($telefone) {
+        $this->telefone = $telefone;
     }
 
     function getUploadedPhoto() {

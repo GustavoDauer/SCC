@@ -37,7 +37,7 @@ class PessoaDAO {
         try {
             $c = connect();
             $sql = "INSERT INTO Pessoa("
-                    . "nome, nomeGuerra, Posto_idPosto, cpf, identidadeMilitar, preccp, Vinculo_idVinculo, dataCadastro, dataExpiracao "
+                    . "nome, nomeGuerra, Posto_idPosto, cpf, identidadeMilitar, preccp, Vinculo_idVinculo, dataCadastro, dataExpiracao, telefone "
                     . ") "
                     . "VALUES("
                     . "'" . $object->getNome() . "'"
@@ -49,6 +49,7 @@ class PessoaDAO {
                     . ", " . $object->getIdVinculo() . ""
                     . ", CURRENT_DATE "
                     . ", " . (!empty($object->getDataExpiracao()) ? "'" . $object->getDataExpiracao() . "'" : "NULL")
+                    . ", '" . $object->getTelefone() . "'"
                     . ");";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
@@ -88,6 +89,7 @@ class PessoaDAO {
                     . ", foto = 'S2-Pessoa-" . $object->getId() . ".jpg' "
                     . ", Vinculo_idVinculo = " . $object->getIdVinculo() . ""
                     . ", dataExpiracao = " . (!empty($object->getDataExpiracao()) ? "'" . $object->getDataExpiracao() . "'" : "NULL") . ""
+                    . ", telefone = '" . $object->getTelefone() . "'"
                     . " WHERE idPessoa = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
@@ -105,14 +107,18 @@ class PessoaDAO {
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Pessoa "
+//            $sql = "DELETE FROM Pessoa "
+//                    . " WHERE idPessoa = " . $object->getId() . ";";
+//            $stmt = $c->prepare($sql);
+            $sql = "UPDATE Pessoa SET "
+                    . " dataExpiracao = '" . date('Y') - 1 . "-03-01'"
                     . " WHERE idPessoa = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
-            if ($sqlOk) {
-                $fotoDAO = new FotoDAO();
-                $sqlOk = $fotoDAO->deleteFoto("S2-Pessoa-" . $object->getId());
-            }
+//            if ($sqlOk) {
+//                $fotoDAO = new FotoDAO();
+//                $sqlOk = $fotoDAO->deleteFoto("S2-Pessoa-" . $object->getId());
+//            }
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -165,7 +171,7 @@ class PessoaDAO {
             throw($e);
         }
     }
-    
+
     public function getByIddentidadeMilitar($id) {
         if (empty($id)) {
             return null;
@@ -216,8 +222,8 @@ class PessoaDAO {
             $c = connect();
             $sql = "SELECT * "
                     . " FROM Pessoa "
-                    . " WHERE identidadeMilitar = '$id' AND dataExpiracao >= CURRENT_DATE";            
-            $result = $c->query($sql);                 
+                    . " WHERE identidadeMilitar = '$id' AND dataExpiracao >= CURRENT_DATE";
+            $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Pessoa($objectArray);
@@ -228,7 +234,22 @@ class PessoaDAO {
             throw($e);
         }
     }
-    
+
+    public function expireAll() {
+        $dataExpiracao = date('Y') . "-01-01"; // Configura a data de expiração para o primeiro dia do ano corrente para expirar todas pessoas
+        try {
+            $c = connect();
+            $sql = "UPDATE Pessoa SET "
+                    . " dataExpiracao = '$dataExpiracao';";
+            $stmt = $c->prepare($sql);
+            $sqlOk = $stmt ? $stmt->execute() : false;
+            $c->close();
+            return $sqlOk;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+
     public function fillArray($row) {
         return array(
             "id" => $row["idPessoa"],
@@ -241,7 +262,8 @@ class PessoaDAO {
             "foto" => $row["foto"],
             "idVinculo" => $row["Vinculo_idVinculo"],
             "dataCadastro" => $row["dataCadastro"],
-            "dataExpiracao" => $row["dataExpiracao"]
+            "dataExpiracao" => $row["dataExpiracao"],
+            "telefone" => $row["telefone"]
         );
     }
 }

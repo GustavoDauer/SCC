@@ -29,50 +29,46 @@
  */
 require_once '../include/comum.php';
 
-class FotoDAO {
+class ArquivoDAO {
 
-    function getFoto($id) {
+    function getArquivo($id) {
         try {
-            $foto = "../include/fotos/$id";
-            if (file_exists($foto . ".jpg")) {
-                return $foto . ".jpg";
-            }
-            if (file_exists($foto . ".png")) {
-                return $foto . ".png";
-            }
-            return "../include/imagens/semfoto.jpg";
+            $arquivo = "../include/arquivos/$id";
+            if (file_exists($arquivo . ".pdf")) {
+                return $arquivo . ".pdf";
+            }            
+            return "../include/imagens/semarquivo.pdf";
         } catch (Exception $e) {
             throw($e);
         }
     }
 
-    function uploadFoto($foto, $id, $prefix = "") {
+    function uploadArquivo($arquivo, $id) {
         try {
-            if (is_array($foto) && !empty($foto["name"])) {
-                $tamanho = filesize($foto["tmp_name"]);
-                if ($tamanho / 1024 > 40) {
-                    throw new Exception("Tamanho do arquivo deve ser de no máximo 40 KB.<br>O arquivo selecionado possui " . round($tamanho / 1024, 2) . "KB.");
+            if (is_array($arquivo) && !empty($arquivo["name"])) {
+                $tamanho = filesize($arquivo["tmp_name"]);
+                $tamanhoMaximo = 25 * 1024 * 1024; // 25 MB em bytes
+
+                if ($tamanho > $tamanhoMaximo) {
+                    throw new Exception("Tamanho do arquivo deve ser de no máximo 25 MB.<br>O arquivo selecionado possui " . round($tamanho / (1024 * 1024), 2) . " MB.");
                     return false;
                 }
-                $this->deleteFoto($id);
+                $this->deleteArquivo($id);
                 $nome = "$id";
-                $tipo = strtolower($foto["type"]);
+                $tipo = strtolower($arquivo["type"]);
                 switch ($tipo) {
-                    case "image/jpeg":
-                        $extensao = ".jpg";
-                        break;
-                    case "image/png":
-                        $extensao = ".png";
-                        break;
+                    case "application/pdf":
+                        $extensao = ".pdf";
+                        break;                    
                     default:
                         return false;
                 }
                 if (!empty($nome)) {
-                    if (move_uploaded_file($foto["tmp_name"], "../include/fotos/" . $prefix . $nome . $extensao)) {
+                    if (move_uploaded_file($arquivo["tmp_name"], "../include/arquivos/" . $nome . $extensao)) {
                         return true;
                     }
                 } else {
-                    throw new Exception("Erro na geração do nome do arquivo.<br><i>O arquivo apresentou o nome $prefix.$nome.$extensao");
+                    throw new Exception("Erro na geração do nome do arquivo.<br><i>O arquivo apresentou o nome $nome.$extensao");
                 }
                 throw new Exception("Erro desconhecido ao tentar salvar o arquivo. É possível que haja erro na configuração do diretório. Informe a Seção de Informática.");
                 return false;
@@ -83,25 +79,15 @@ class FotoDAO {
         }
     }
 
-    function deleteFoto($id) {
+    function deleteArquivo($id) {
         try {
-            $foto = "../include/fotos/$id.jpg";
-            if (file_exists($foto)) {
-                $delete = unlink($foto);
+            $arquivo = "../include/arquivos/$id.pdf";
+            if (file_exists($arquivo)) {
+                $delete = unlink($arquivo);
                 if ($delete) {
                     return true;
                 } else {
                     return false;
-                }
-            } else {
-                $foto = "../include/fotos/$id.png";
-                if (file_exists($foto)) {
-                    $delete = unlink($foto);
-                    if ($delete) {
-                        return true;
-                    } else {
-                        return false;
-                    }
                 }
             }
             return true;

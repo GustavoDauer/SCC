@@ -105,7 +105,12 @@ $hoje = date('Y-m-d');
                         <span class="input-group-text">Data Expiração</span>                                                
                         <input type="date" class="form-control" id="dataExpiracao" name="dataExpiracao" value="<?= $object->getDataExpiracao() ?>">
                     </div> 
-                    <br>                    
+                    <br>  
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Telefone</span>                                                
+                        <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(XX) X XXXX-XXXX" value="<?= $object->getTelefone() ?>">
+                    </div> 
+                    <br>
                 </div>                
             </div>
         </div>        
@@ -145,6 +150,7 @@ $hoje = date('Y-m-d');
         $('[name=cpf]').mask('000.000.000-00');
         $('[name=identidadeMilitar]').mask('000000000-0');
         $('[name=preccp]').mask('000000000-00');
+        $('[name=telefone]').mask('00 0 0000 0000');
     });
 </script>
 <?php

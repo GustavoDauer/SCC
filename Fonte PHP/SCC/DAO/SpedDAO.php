@@ -29,6 +29,7 @@
  */
 require_once '../include/comum.php';
 require_once '../Model/Sped.php';
+require_once '../DAO/ArquivoDAO.php';
 
 class SpedDAO {
 
@@ -36,18 +37,23 @@ class SpedDAO {
         try {
             $c = connect();
             $sql = "INSERT INTO Sped("
-                    . "titulo, responsavel, resolvido, prazo, data, tipo "
+                    . "titulo, Pessoa_idPessoa, resolvido, prazo, data, tipo, assunto "
                     . ") "
                     . "VALUES("
-                    . "'" . $object->getTitulo() . "', "
-                    . "'" . $object->getResponsavel() . "', "
-                    . (empty($object->getResolvido()) ? "0, " : $object->getResolvido() . ", ")
-                    . (empty($object->getPrazo()) ? "NULL, " : "'" . $object->getPrazo() . "', ")
-                    . (empty($object->getData()) ? "NULL, " : "'" . $object->getData() . "', ")
-                    . (empty($object->getTipo()) ? "NULL " : "'" . $object->getTipo() . "' ")
+                    . "'" . $object->getTitulo() . "' "
+                    . ", " . $object->getIdResponsavel()
+                    . ", " . (empty($object->getResolvido()) ? "0 " : $object->getResolvido())
+                    . ", " . (empty($object->getPrazo()) ? "NULL" : "'" . $object->getPrazo() . "'")
+                    . ", " . (empty($object->getData()) ? "NULL" : "'" . $object->getData() . "'")
+                    . ", " . (empty($object->getTipo()) ? "NULL" : "'" . $object->getTipo() . "'")
+                    . ", '" . $object->getAssunto() . "'"
                     . ");";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
+            if ($sqlOk && is_array($object->getArquivoPDF())) {
+                $arquivoDAO = new ArquivoDAO();
+                $sqlOk = $arquivoDAO->uploadArquivo($object->getArquivoPDF(), $c->insert_id);
+            }
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -59,15 +65,20 @@ class SpedDAO {
         try {
             $c = connect();
             $sql = "UPDATE Sped SET "
-                    . "titulo = '" . $object->getTitulo() . "', "
-                    . "responsavel = '" . $object->getResponsavel() . "', "
-                    . "resolvido = " . (empty($object->getResolvido()) ? "0, " : $object->getResolvido() . ", ")
-                    . "prazo = " . (empty($object->getPrazo()) ? "NULL, " : "'" . $object->getPrazo() . "', ")
-                    . "data = " . (empty($object->getData()) ? "NULL, " : "'" . $object->getData() . "', ")
-                    . "tipo = '" . $object->getTipo() . "' "
+                    . "titulo = '" . $object->getTitulo() . "'"
+                    . ", Pessoa_idPessoa = " . (empty($object->getIdResponsavel()) ? "NULL" : $object->getIdResponsavel())
+                    . ", resolvido = " . (empty($object->getResolvido()) ? "0" : $object->getResolvido())
+                    . ", prazo = " . (empty($object->getPrazo()) ? "NULL" : "'" . $object->getPrazo() . "'")
+                    . ", data = " . (empty($object->getData()) ? "NULL" : "'" . $object->getData() . "'")
+                    . ", tipo = '" . $object->getTipo() . "'"
+                    . ", assunto = '" . $object->getAssunto() . "'"
                     . " WHERE idSped = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
+            if ($sqlOk && is_array($object->getArquivoPDF())) {
+                $arquivoDAO = new ArquivoDAO();
+                $sqlOk = $arquivoDAO->uploadArquivo($object->getArquivoPDF(), $object->getId());
+            }
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -94,18 +105,21 @@ class SpedDAO {
             $c = connect();
             $sql = "SELECT * "
                     . " FROM Sped ";
-            if (/*$filtro["resolvido"] != "todos" ||*/ $filtro["tipo"] != "todos") {                              
-//                if ($filtro["resolvido"] === 1 || $filtro["resolvido"] === 0) {
-//                    $sql .= " resolvido = " . $filtro["resolvido"];
-//                }
-                if ($filtro["tipo"] == "Documento" || $filtro["tipo"] == "Missao") {
-//                    if ($filtro["resolvido"] !== "") {
-//                        $sql .= " AND ";
-//                    }
-                    $sql .= " WHERE tipo = '" . $filtro["tipo"] . "'";
+            if (!empty($filtro["resolvido"]) || !empty($filtro["tipo"])) {
+                $sql .= " WHERE ";
+                if ($filtro["resolvido"] === 0 || $filtro["resolvido"] === 1) {
+                    $sql .= " resolvido = " . $filtro["resolvido"];
                 }
+                if ($filtro["tipo"] == "Documento" || $filtro["tipo"] == "Missao") {
+                    if ($filtro["resolvido"] === 0 || $filtro["resolvido"] === 1) {
+                        $sql .= " AND ";
+                    }
+                    $sql .= " tipo = '" . $filtro["tipo"] . "'";
+                }
+            } else {
+                $sql .= " WHERE resolvido = 0";
             }
-            $sql .= " ORDER BY prazo ";             
+            $sql .= " ORDER BY prazo ";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -140,12 +154,14 @@ class SpedDAO {
         return array(
             "id" => $row["idSped"],
             "resolvido" => $row["resolvido"],
-            "responsavel" => $row["responsavel"],
+            "idResponsavel" => $row["Pessoa_idPessoa"],
             "titulo" => $row["titulo"],
+            "assunto" => $row["assunto"],
             "prazo" => $row["prazo"],
             "data" => $row["data"],
-            "tipo" => $row["tipo"]
+            "tipo" => $row["tipo"],
+            "arquivoNome" => $row["arquivo"],
+            "arquivoPDF" => ""
         );
     }
-
 }

@@ -27,7 +27,7 @@
  *
  * @author gustavodauer
  */
-$VERSAO = "20.16";
+$VERSAO = "21.17";
 $SOFTWARE = "SCC";
 $TODAS_SECOES = array("S1", "S2", "S4", "FS", "Juridico", "Fiscalizacao", "RP", "SecInfo", "Comando", "Identidade", "SPP");
 $ADMINISTRADORES = array("S2", "SecInfo", "Comando");
@@ -54,10 +54,10 @@ $EXCLUIR_JURIDICO = array_merge(array("Juridico"), $ADMINISTRADORES);
 
 $LISTAR_S4 = array_merge(array("S4"), $ADMINISTRADORES);
 $ADICIONAR_S4 = array_merge(array("S4"), $ADMINISTRADORES);
-$EDITAR_S4 = array_merge(array("S4"), $ADMINISTRADORES); // Comando para visualizar providências
+$EDITAR_S4 = array_merge(array("S4"), $ADMINISTRADORES);
 $EXCLUIR_S4 = $ADMINISTRADORES;
 
-$LISTAR_FS = array_merge(array("FS"), $ADMINISTRADORES); // Informação semi-confidencial relevante apenas a FS e aos administradores
+$LISTAR_FS = array_merge(array("FS"), $ADMINISTRADORES);
 $ADICIONAR_FS = array_merge(array("FS"), $ADMINISTRADORES);
 $EDITAR_FS = array_merge(array("FS"), $ADMINISTRADORES);
 $EXCLUIR_FS = array_merge(array("FS"), $ADMINISTRADORES);

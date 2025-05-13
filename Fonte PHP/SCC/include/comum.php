@@ -50,11 +50,6 @@ function redirectToLogin() {
     header("Location: ../View/view_usuario_login.php?error=1");
 }
 
-function dateFormat($date) {
-    $dateExploded = explode("-", $date);
-    return count($dateExploded) === 3 ? "$dateExploded[2]/$dateExploded[1]/$dateExploded[0]" : $date;
-}
-
 function ip_in_range($ip, $range) {
     if (strpos($range, '/') == false) {
         $range .= '/32';
@@ -123,4 +118,65 @@ function connectSCFEx() {
     } catch (Exception $e) {
         require_once '../View/view_error.php';
     }
+}
+
+function format($mes) {
+    if (intval($mes) < 10) {
+        return "0" . intval($mes);
+    }
+    return intval($mes);
+}
+
+function anterior($mes) {
+    if (intval($mes) == 1) {
+        return 12;
+    }
+    return intval($mes) - 1;
+}
+
+function posterior($mes) {
+    if (intval($mes) == 12) {
+        return 1;
+    }
+    return intval($mes) + 1;
+}
+
+function mesPorExtenso($mes) {
+    switch ($mes) {
+        case 1: return "Janeiro";
+            break;
+        case 2: return "Fevereiro";
+            break;
+        case 3: return "Março";
+            break;
+        case 4: return "Abril";
+            break;
+        case 5: return "Maio";
+            break;
+        case 6: return "Junho";
+            break;
+        case 7: return "Julho";
+            break;
+        case 8: return "Agosto";
+            break;
+        case 9: return "Setembro";
+            break;
+        case 10: return "Outubro";
+            break;
+        case 11: return "Novembro";
+            break;
+        case 12: return "Dezembro";
+            break;
+        default: return "";
+            break;
+    }
+}
+
+function dateFormat($date) {
+    return date_format(new DateTime($date), "d/m/Y");
+}
+
+function equalizeYear($date) {
+    $dateExploded = explode("-", $date);
+    return count($dateExploded) === 3 ? date('Y') . "-$dateExploded[1]-$dateExploded[2]" : $date;
 }

@@ -74,7 +74,7 @@ require_once '../include/header.php';
             <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTablePessoa');"> 
             <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTablePessoa');">  
             <span style="margin-left: 14px; font-weight: bold;">CADASTRO DE PESSOAS</span> 
-            <input type="file" name="planilhaPessoas" accept=".csv" onchange="importar();"> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
+            <!--<input type="file" name="planilhaPessoas" accept=".csv" onchange="importar();">--> <a href="../View/view_S2_servico_pessoa.php" target="_blank">Módulo Serviço</a>
         </form>
     </div>
     <br>    
@@ -132,7 +132,9 @@ require_once '../include/header.php';
                         <td>
                             CPF: <?= $pessoa->getCpf() ?><br>
                             Identidade Militar: <?= $pessoa->getIdentidadeMilitar() ?>
-                            <!--PREC-CP: <?= $pessoa->getPreccp() ?><br>-->
+                            <!--PREC-CP: <?= $pessoa->getPreccp() ?>-->
+                            <br><?= !empty($pessoa->getTelefone()) ? "<img src='../include/imagens/telefone.jpg' width='25'>" : ""; ?>  
+                            <?= $pessoaDAO->hasVeiculo($pessoa->getId()) ? "<img src='../include/imagens/carro.png' width='25'>" : ""; ?>  
                         </td>
                         <td style="padding: 25px; white-space: nowrap;">
                             <span class="alert alert-<?= $colorClass ?>" style="font-weight: bold;">

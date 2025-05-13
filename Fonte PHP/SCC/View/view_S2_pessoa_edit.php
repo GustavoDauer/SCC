@@ -111,6 +111,11 @@ $hoje = date('Y-m-d');
                         <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(XX) X XXXX-XXXX" value="<?= $object->getTelefone() ?>">
                     </div> 
                     <br>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Data Nascimento</span>                                                
+                        <input type="date" class="form-control" id="dataNascimento" name="dataNascimento" value="<?= $object->getDataNascimento() ?>">
+                    </div> 
+                    <br>
                 </div>                
             </div>
         </div>        

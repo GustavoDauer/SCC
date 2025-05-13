@@ -126,6 +126,32 @@ $hoje = new DateTime();
             <?php } ?>
         </tbody>
     </table>
+    <br>
+    <div style="border: 1px dashed lightskyblue; padding: 7px;">
+        <form action="../Controller/RPController.php" method="post" id="importar" enctype="multipart/form-data">
+            <img src="../include/imagens/minimizar.png" width="25" height="25" onclick="minimize('myTableAniversariantes');"> 
+            <img src="../include/imagens/maximizar.png" width="25" height="25" onclick="maximize('myTableAniversariantes');">        
+            <span style="margin-left: 14px; font-weight: bold;">ANIVERSARIANTES</span>        
+            <input type="hidden" name="action" value="import">
+            <input type="file" name="planilhaPessoas" accept=".csv" onchange="importar();">
+        </form>  
+    </div>
+    <table border="0" cellpadding="0" cellspacing="0" id="myTableAniversariantes" width="100%">
+        <tr>
+            <td>
+                <div class="alert alert-warning">
+                    <b>Atenção!</b> Para importação, o arquivo extraído do SiCaPEx deve estar salvo em .CSV
+                </div>    
+                <div id="importLog">
+                    <?php if (!empty($importLog)) { ?>            
+                        <?= $importLog ?>
+                    <?php } ?>
+                </div>
+                <hr>
+                <iframe src="../Controller/RPController.php?action=aniversariantes" width="100%" height="1024" style="border: 0"></iframe>   
+            </td>
+        </tr>    
+    </table>
 </div>
 <div class="modal fade" id="editarMensagem" tabindex="-1" role="dialog" aria-labelledby="mensagemLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document" style="width: 800px">
@@ -154,7 +180,7 @@ $hoje = new DateTime();
                 <h6 style="font-size: 16px;"><b>Mensagem:</b> <?= $secaoDAO->getBySecao("RP")->getMensagem(); ?></h6>
             </div>
             <div class="modal-footer">                
-                <form accept-charset="UTF-8" id="formMapaDaForca" action="../Controller/RPController.php?action=mensagem_update" method="post">                    
+                <form accept-charset="UTF-8" id="formMapaDaForca" action="../Controller/RPController.php?action=mensagem_update" method="post">                   
                     <?php if (isAdminLevel($EDITAR_RP)) { ?>                        
                         <textarea name="mensagem" cols="81" placeholder="Mensagem opcional para o Comandante" maxlength="700"><?= $secaoDAO->getBySecao("RP")->getMensagem(); ?></textarea><br>
                         <input type="submit" class="btn btn-primary" value="Atualizar">
@@ -186,7 +212,12 @@ $hoje = new DateTime();
     }
 
     countRows();
+
+    function importar() {
+        document.getElementById("importar").submit();
+    }
 </script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <?php
 require_once '../include/footer.php';
+?>

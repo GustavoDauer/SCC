@@ -32,12 +32,17 @@ require_once '../include/comum.php';
 require_once '../DAO/VisitanteDAO.php';
 require_once '../DAO/SecaoDAO.php';
 require_once '../DAO/FotoDAO.php';
+require_once '../DAO/PessoaDAO.php';
+require_once '../DAO/PostoDAO.php';
 
 class RPController {
 
-    private $visitanteInstance,     // Model instance to be used by Controller and DAO
-            $visitanteDAO,          // DAO instance for database operations            
-            $foto;                  
+    private $visitanteInstance, // Model instance to be used by Controller and DAO
+            $visitanteDAO, // DAO instance for database operations                        
+            $foto;
+    private $mes;
+    private $importLog;
+    private $datasheet;             // Datasheet import from SiCaPEx    
     private $filtro;                // Array of filters to be used by DAO object
 
     /**
@@ -64,10 +69,12 @@ class RPController {
         $this->visitanteInstance->setHoraSaida(filter_input(INPUT_POST, "horaSaida", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->visitanteInstance->setCracha(filter_input(INPUT_POST, "cracha", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->visitanteInstance->setTemporario(filter_input(INPUT_POST, "temporario", FILTER_VALIDATE_INT));
-        $this->foto = isset($_FILES["arquivoFoto"]) ? $_FILES["arquivoFoto"] : "";        
+        $this->foto = isset($_FILES["arquivoFoto"]) ? $_FILES["arquivoFoto"] : "";
         $this->visitanteInstance->setFoto($this->visitanteInstance->getId() . ".jpg");
         $this->visitanteInstance->setArquivoFoto($this->foto);
-        $this->mensagem = filter_input(INPUT_POST, "mensagem", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);        
+        $this->mensagem = filter_input(INPUT_POST, "mensagem", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
+        $this->datasheet = isset($_FILES["planilhaPessoas"]) ? $_FILES["planilhaPessoas"] : "";
+        $this->mes = !empty(filter_input(INPUT_GET, "mes", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES)) ? filter_input(INPUT_GET, "mes", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES) : "";
     }
 
     /**
@@ -79,8 +86,31 @@ class RPController {
             $this->visitanteDAO = new VisitanteDAO();
             $secaoDAO = new SecaoDAO();
             $fotoDAO = new FotoDAO();
+            $pessoaDAO = new PessoaDAO();
+            $postoDAO = new PostoDAO();
+            $importLog = $this->importLog;
             $objectList = $this->visitanteDAO->getAllList($this->filtro);
             require_once '../View/view_RP_list.php';
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
+        }
+    }
+
+    /**
+     * Generate list of everything on database calling the view
+     */
+    public function aniversariantesList($importLog = "") {
+        try {
+            $this->getFormData(); // Used to get filters            
+            $pessoaDAO = new PessoaDAO();
+            $postoDAO = new PostoDAO();
+            $mes = $this->mes;
+            $mes = empty($mes) ? date('m') : format($mes);
+            $mesAnterior = anterior($mes);
+            $mesPosterior = posterior($mes);
+            $hoje = new DateTime();
+            $pessoaList = $pessoaDAO->getByMesList($mes);
+            require_once '../View/view_RP_aniversariantes_iframe.php';
         } catch (Exception $e) {
             require_once '../View/view_error.php';
         }
@@ -116,13 +146,13 @@ class RPController {
      */
     public function visitanteUpdate() {
         try {
-            $this->getFormData();            
+            $this->getFormData();
             $this->visitanteDAO = new VisitanteDAO();
             $secaoDAO = new SecaoDAO();
             $fotoDAO = new FotoDAO();
             if ($this->visitanteInstance->validate()) { // Check if the input form was filled correctly and proceed to DAO or Require de view of the form
                 if ($this->visitanteDAO->update($this->visitanteInstance)) {
-                    $secaoDAO->updateDataAtualizacao("RP");                    
+                    $secaoDAO->updateDataAtualizacao("RP");
                     header("Location: " . filter_input(INPUT_POST, "lastURL"));
                 } else {
                     throw new Exception("Problema na atualização de dados no banco de dados!<br>O tamanho do arquivo deve ser de no máximo 40 KB e a extensão deve ser .jpg ou .png.");
@@ -175,10 +205,132 @@ class RPController {
         }
     }
 
+    public function import() {
+        try {
+            $this->importLog = $this->importDataSheet();
+            $this->getAllList();
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
+        }
+    }
+
+    /**
+     * Import SiCaPEx datasheet to database
+     */
+    function importDataSheet() {
+        $this->getFormData();
+        $result = "";
+        $planilha = $this->datasheet;
+        $pessoaDAO = new PessoaDAO();
+        $postoDAO = new PostoDAO();
+        $secaoDAO = new SecaoDAO();
+        $secaoDAO->updateDataAtualizacao("RP");
+        $row = 1;
+        if (($handle = fopen($planilha['tmp_name'], "r")) !== false) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+                if ($row <= 2) {
+                    $row++;
+                    continue;
+                } else if ($row === 3) {
+                    $ordCol = isset($data[0]) ? $data[0] : null;
+                    $identidadeCol = isset($data[1]) ? $data[1] : null;
+                    $pgradCol = isset($data[2]) ? $data[2] : null;
+                    $nomeCol = isset($data[3]) ? $data[3] : null;
+                    $nomeGuerraCol = isset($data[4]) ? $data[4] : null;
+                    $dataNascimentoCol = isset($data[5]) ? $data[5] : null;
+                    $cpfCol = isset($data[6]) ? $data[6] : null;
+                    $preccpCol = isset($data[7]) ? $data[7] : null;
+                    if (
+                            $ordCol === "ORD" &&
+                            $identidadeCol === "IDENTIDADE" &&
+                            $pgradCol === "PGRAD" &&
+                            $nomeCol === "NOME" &&
+                            $nomeGuerraCol === "NOME_GUERRA" &&
+                            $cpfCol === "CPF" &&
+                            $preccpCol === "PREC_CP" &&
+                            $dataNascimentoCol === "DT_NASCIMENTO"
+                    ) {
+                        $row++;
+                        $pessoaDAO->expireAll(); // Caso as colunas estejam corretas, expira todos registros do banco para novos cadastros atualizados
+                        continue;
+                    } else {
+                        $result .= '<div class="alert alert-danger">
+                <b>Atenção! </b> O arquivo deve seguir o seguinte padrão conforme imagens abaixo:    
+            </div>
+            <div class="form-row">
+                <div class="col">
+                    <div class="alert alert-primary">Ao abrir em uma suíte Office</div>            
+                    <img src="../include/imagens/exemplo.png" width="500">
+                </div>
+                <div class="col">
+                    <div class="alert alert-primary">Ao abrir em um bloco de notas</div>            
+                    <img src="../include/imagens/exemplo2.png" width="500">
+                </div>
+            </div>'
+                                . "<span style='color: red;font-weight: bold;'>Erro ao importar os dados.</span>";
+                        break;
+                    }
+                }
+                $num = count($data);
+                $row++;
+                $identidade = $data[1];
+                if (strlen($identidade) === 9) {
+                    $identidade = "0" . $data[1];
+                }
+                $identidade = substr_replace($identidade, "-", 9, 0);
+                $result .= $identidade . " ";
+                $pessoa = $pessoaDAO->getByIdentidadeMilitar($identidade);
+                if (!is_null($pessoa)) { // Já existe no sistema                    
+                    $pessoa->setDataExpiracao(date('Y') + 1 . "-03-01"); // Renovar data de expiração para 1 ano a frente
+                    $idPosto = 1;
+                    $posto = $postoDAO->getByPosto($data[2]); // Tenta identificar o posto do militar pelo nome do posto
+                    if (!is_null($posto)) {
+                        $idPosto = $posto->getId();
+                    } else {
+                        $idPosto = $data[2] === "Ten Cel" ? 13 : 1; // Verifica se é o posto de Ten Cel, se não for, assume que é um recruta (Sd Recr), pois até a presente data, esses são os únicos postos divergentes dos cadastros desse sistema
+                    }
+                    $pessoa->setIdPosto($idPosto);
+                    $dataNascimento = explode("/", $data[5]); // Atualiza a data de nascimento, pois nas versões antigas desse sistema, esse campo estará vazio
+                    $dataNascimentoFormatted = $dataNascimento[2] . "-" . $dataNascimento[1] . "-" . $dataNascimento[0];
+                    $pessoa->setDataNascimento($dataNascimentoFormatted);
+                    $pessoaDAO->update($pessoa);
+                    $result .= $pessoa->getNome();
+                    $result .= " <b><span style='color: darkgreen';'>Encontrado</span> - atualizando cadastro no BD - </b>";
+                } else {
+                    $result .= "<b><span style='color: red';'>Não encontrado</span> - preparando novo cadastro no BD - </b>";
+                    $idPosto = 1;
+                    $posto = $postoDAO->getByPosto($data[2]);
+                    $expiracao = (date('Y') + 1) . '-03-01';
+                    if (!is_null($posto)) {
+                        $idPosto = $posto->getId();
+                    } else {
+                        $idPosto = $data[2] === "Ten Cel" ? 13 : 1;
+                    }
+                    $pessoa = new Pessoa();
+                    $pessoa->setCpf($data[6]);
+                    $pessoa->setDataExpiracao($expiracao);
+                    //$pessoa->setFoto("S2-Pessoa-365.jpg");
+                    $pessoa->setIdPosto($idPosto);
+                    $pessoa->setIdVinculo(1); // ATIVA
+                    $pessoa->setIdentidadeMilitar($identidade);
+                    $pessoa->setNome($data[3]);
+                    $pessoa->setNomeGuerra($data[4]);
+                    $pessoa->setPreccp($data[7]);
+                    $dataNascimento = explode("/", $data[5]);
+                    $dataNascimentoFormatted = $dataNascimento[2] . "-" . $dataNascimento[1] . "-" . $dataNascimento[0];
+                    $pessoa->setDataNascimento($dataNascimentoFormatted);
+                    $result .= $pessoaDAO->insert($pessoa) ? "<span style='color: darkgreen; font-weight: bold;'>Cadastro efetuado com sucesso!</span>" : "<span style='color: red; font-weight: bold;'>Erro ao efetuar o cadastro!</span>";
+                }
+                $result .= "<br>";
+            }
+            fclose($handle);
+        }
+        return $result;
+    }
 }
 
 // POSSIBLE ACTIONS
-$action = $_REQUEST["action"];
+$action = isset($_REQUEST["action"]) ? $_REQUEST["action"] : "";
 $controller = new RPController();
 switch ($action) {
     case "getAllList":
@@ -196,7 +348,14 @@ switch ($action) {
     case "mensagem_update":
         !isAdminLevel($EDITAR_RP) ? redirectToLogin() : $controller->mensagemUpdate();
         break;
+    case "import":
+        !isAdminLevel($EDITAR_RP) ? redirectToLogin() : $controller->import();
+        break;
+    case "aniversariantes":
+        $controller->aniversariantesList();
+        break;
     default:
+        !isAdminLevel($LISTAR_RP) ? redirectToLogin() : $controller->getAllList();
         break;
 }
 ?>

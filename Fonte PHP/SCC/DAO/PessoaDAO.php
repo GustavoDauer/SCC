@@ -86,15 +86,17 @@ class PessoaDAO {
                     . ", cpf = '" . $object->getCpf() . "'"
                     . ", identidadeMilitar = '" . $object->getIdentidadeMilitar() . "'"
                     . ", preccp = '" . $object->getPreccp() . "'"
-                    . ", foto = 'S2-Pessoa-" . $object->getId() . ".jpg' "
+                    . ", foto = 'S2-Pessoa-" . $object->getId() . "." . $object->getArquivoExtensao() . "'"
                     . ", Vinculo_idVinculo = " . $object->getIdVinculo() . ""
                     . ", dataExpiracao = " . (!empty($object->getDataExpiracao()) ? "'" . $object->getDataExpiracao() . "'" : "NULL") . ""
                     . ", telefone = '" . $object->getTelefone() . "'"
+                    . ", dataNascimento = " . (!empty($object->getDataNascimento()) ? "'" . $object->getDataNascimento() . "'" : "NULL") . ""
                     . " WHERE idPessoa = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
             if ($sqlOk && !empty($object->getArquivoFoto()["name"])) {
                 $fotoDAO = new FotoDAO();
+                $fotoDAO->deleteFoto($object->getId());
                 $sqlOk = $fotoDAO->uploadFoto($object->getArquivoFoto(), $object->getId(), "S2-Pessoa-");
             }
             $c->close();
@@ -172,7 +174,7 @@ class PessoaDAO {
         }
     }
 
-    public function getByIddentidadeMilitar($id) {
+    public function getByIdentidadeMilitar($id) {
         if (empty($id)) {
             return null;
         }
@@ -250,6 +252,45 @@ class PessoaDAO {
         }
     }
 
+    public function hasVeiculo($id) {
+        try {
+            $c = connect();
+            $sql = "SELECT * "
+                    . " FROM Veiculo "
+                    . " WHERE Pessoa_idPessoa = $id";
+            $result = $c->query($sql);
+            $c->close();
+            return $result->num_rows;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+
+    public function getByMesList($mes) {
+        try {
+            $c = connect();            
+            $sql = "SELECT *, DATE_FORMAT(dataNascimento, '%m-%d') AS Day "
+                    . " FROM Pessoa "
+                    . " WHERE dataNascimento LIKE ? AND Posto_idPosto > 1"
+                    . " ORDER BY Day";
+            $stmt = $c->prepare($sql);
+            if ($stmt) {
+                $likeMes = '%-' . $mes . '-%';
+                $stmt->bind_param("s", $likeMes);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $objectArray = $this->fillArray($row);
+                    $lista[] = new Pessoa($objectArray);
+                }
+            }
+            $c->close();
+            return isset($lista) ? $lista : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+    
     public function fillArray($row) {
         return array(
             "id" => $row["idPessoa"],
@@ -263,7 +304,8 @@ class PessoaDAO {
             "idVinculo" => $row["Vinculo_idVinculo"],
             "dataCadastro" => $row["dataCadastro"],
             "dataExpiracao" => $row["dataExpiracao"],
-            "telefone" => $row["telefone"]
+            "telefone" => $row["telefone"],
+            "dataNascimento" => $row["dataNascimento"]
         );
     }
 }

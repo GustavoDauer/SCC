@@ -41,8 +41,10 @@ class Pessoa {
             $dataCadastro,
             $idFoto,
             $arquivoFoto,
+            $arquivoExtensao,
             $dataExpiracao,
-            $telefone;
+            $telefone,
+            $dataNascimento;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
@@ -60,6 +62,7 @@ class Pessoa {
             $this->dataCadastro = $idOrRow["dataCadastro"];
             $this->dataExpiracao = $idOrRow["dataExpiracao"];
             $this->telefone = $idOrRow["telefone"];
+            $this->dataNascimento = $idOrRow["dataNascimento"];
         }
     }
 
@@ -179,10 +182,30 @@ class Pessoa {
         $this->telefone = $telefone;
     }
 
+    public function getArquivoExtensao() {
+        return $this->arquivoExtensao;
+    }
+
+    public function setArquivoExtensao($arquivoExtensao) {
+        $this->arquivoExtensao = $arquivoExtensao;
+    }
+
+    public function getDataNascimento() {
+        return $this->dataNascimento;
+    }
+
+    public function setDataNascimento($dataNascimento) {
+        $this->dataNascimento = $dataNascimento;
+    }
+
     function getUploadedPhoto() {
         try {
             if (file_exists("../include/fotos/" . $this->getFoto())) {
                 return "../include/fotos/" . $this->getFoto();
+            } else if (file_exists("../include/fotos/" . $this->getFoto() . "jpg")) {
+                return "../include/fotos/" . $this->getFoto() . "jpg";
+            } else if (file_exists("../include/fotos/" . $this->getFoto() . ".png")) {
+                return "../include/fotos/" . $this->getFoto() . "png";
             }
             return "../include/imagens/semfoto.jpg";
         } catch (Exception $e) {

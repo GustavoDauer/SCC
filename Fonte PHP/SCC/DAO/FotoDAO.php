@@ -50,32 +50,40 @@ class FotoDAO {
         try {
             if (is_array($foto) && !empty($foto["name"])) {
                 $tamanho = filesize($foto["tmp_name"]);
-                if ($tamanho / 1024 > 40) {
-                    throw new Exception("Tamanho do arquivo deve ser de no máximo 40 KB.<br>O arquivo selecionado possui " . round($tamanho / 1024, 2) . "KB.");
-                    return false;
+                if ($tamanho / 1024 > 500) {
+                    throw new Exception("Tamanho do arquivo deve ser de no máximo 500 KB. Seu arquivo tem " . round($tamanho / 1024, 2) . "KB.");
                 }
+
                 $this->deleteFoto($id);
                 $nome = "$id";
-                $tipo = strtolower($foto["type"]);
+
+                $imageInfo = getimagesize($foto["tmp_name"]);
+                $tipo = $imageInfo['mime'];
+
                 switch ($tipo) {
                     case "image/jpeg":
+                    case "image/jpg":
                         $extensao = ".jpg";
                         break;
                     case "image/png":
+                    case "image/x-png":
                         $extensao = ".png";
                         break;
                     default:
-                        return false;
+                        throw new Exception("Tipo de imagem não suportado: $tipo");
                 }
-                if (!empty($nome)) {
-                    if (move_uploaded_file($foto["tmp_name"], "../include/fotos/" . $prefix . $nome . $extensao)) {
-                        return true;
-                    }
+
+                $destino = "../include/fotos/" . $prefix . $nome . $extensao;
+
+                if (!file_exists(dirname($destino))) {
+                    throw new Exception("Diretório de destino não existe: " . dirname($destino));
+                }
+
+                if (move_uploaded_file($foto["tmp_name"], $destino)) {
+                    return true;
                 } else {
-                    throw new Exception("Erro na geração do nome do arquivo.<br><i>O arquivo apresentou o nome $prefix.$nome.$extensao");
+                    throw new Exception("Erro ao mover o arquivo para $destino");
                 }
-                throw new Exception("Erro desconhecido ao tentar salvar o arquivo. É possível que haja erro na configuração do diretório. Informe a Seção de Informática.");
-                return false;
             }
             return true;
         } catch (Exception $e) {
@@ -85,7 +93,7 @@ class FotoDAO {
 
     function deleteFoto($id) {
         try {
-            $foto = "../include/fotos/$id.jpg";
+            $foto = "../include/fotos/S2-Pessoa-$id.jpg";
             if (file_exists($foto)) {
                 $delete = unlink($foto);
                 if ($delete) {
@@ -94,7 +102,7 @@ class FotoDAO {
                     return false;
                 }
             } else {
-                $foto = "../include/fotos/$id.png";
+                $foto = "../include/fotos/S2-Pessoa-$id.png";
                 if (file_exists($foto)) {
                     $delete = unlink($foto);
                     if ($delete) {

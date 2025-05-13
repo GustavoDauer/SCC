@@ -17,3 +17,46 @@ and open the template in the editor.
 .conteudo h2 {
     font-size: 16px;
 }
+
+.botao {
+    font-size: 52px;
+    font-weight: bold;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.titulo {
+    font-family: sans-serif;
+}
+
+.subtitulo {
+    font-size: 16px;
+    font-weight: bold;
+    color: #cc0000;
+    text-align: center;
+}
+
+.painel {
+    display: flex;
+    flex-wrap: wrap;
+    list-style-type: none;
+    margin: 0;
+    padding: 14px;
+    width: 800px;
+}
+
+.linhaPainel {
+    margin-right: 7px;
+    text-align: center;
+    width: 125px;
+    font-size: 12px;
+}
+
+.botaoLink {
+    text-decoration: none;
+    color: darkgreen;
+}
+
+.footer {
+    font-size: 8px;
+}

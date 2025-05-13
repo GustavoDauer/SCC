@@ -34,9 +34,10 @@ if ($action === "sped_update" || $action === "sped_insert") {
     $button = "<button type='button' class='btn btn-primary' onclick='document.location = history.back();'>Voltar</button>";
 }
 $pessoaList = $pessoaDAO->getAllList();
+$secaoList = $secaoDAO->getAllList();
 ?>
 <div class="container">     
-    <form accept-charset="UTF-8" action="../Controller/ComandoController.php?action=sped_<?= $object->getId() > 0 ? "update" : "insert" ?>&id=<?= $object->getId() ?>" class="needs-validation" novalidate method="post" onsubmit="dataListSwitch();" enctype="multipart/form-data">
+    <form accept-charset="UTF-8" action="../Controller/ComandoController.php?action=sped_<?= $object->getId() > 0 ? "update" : "insert" ?>&id=<?= $object->getId() ?>" class="needs-validation" novalidate method="post" onsubmit="dataListSwitch();" enctype="multipart/form-data" id="formSped">
         <h2><?= $object->getId() > 0 ? "Editar" : "Inserir" ?> Documento | <a href="#" onclick="history.back(-1);">Voltar</a> | <?= $button ?></h2>    
         <hr>    
         <input type="hidden" name="lastURL" value="<?= $_SERVER["HTTP_REFERER"] ?>"> 
@@ -88,42 +89,81 @@ $pessoaList = $pessoaDAO->getAllList();
                 <div class="col">                    
                     <div class="input-group-prepend">
                         <span class="input-group-text">Prazo</span>
-                        <input type="date" class="form-control" id="prazo" name="prazo" required value="<?= $object->getPrazo() ?>">
+                        <input type="date" class="form-control" id="prazo" name="prazo" value="<?= !empty($object->getPrazo()) ? $object->getPrazo() : date('Y-m-d', strtotime("+8 days")); ?>">
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;</div>
                     </div>                    
-                </div>
+                </div>                
+            </div>
+        </div>  
+        <div class="form-group">
+            <div class="form-row">
                 <div class="col">                    
                     <div class="input-group-prepend">
-                        <span class="input-group-text">Responsável</span>  
-                        <?php
-                        $pessoa = "";
-                        $posto = "";
-                        $nomeGuerra = "";
-                        if ($object->getIdResponsavel() > 0) {
-                            $pessoa = $pessoaDAO->getById($object->getIdResponsavel());
-                            $posto = $postoDAO->getById($pessoa->getIdPosto())->getPosto();
-                            $nomeGuerra = $pessoa->getNomeGuerra();
-                        }
-                        ?>
-                        <input class="form-control" list="idResponsavel" name="idResponsavel" id="responsavelInput" value="<?= $posto . " " . $nomeGuerra ?>">                        
-                        <datalist id="idResponsavel">
+                        <span class="input-group-text">Seção Responsável</span>                                                                      
+                        <select class="form-control" name="idSecao" id="idSecao" onchange="removerSelecionado()">
+                            <option value="">Nenhuma</option>
                             <?php
-                            if (is_array($pessoaList)) {
-                                foreach ($pessoaList as $pessoa):
+                            if (is_array($secaoList)) {
+                                foreach ($secaoList as $secao):
                                     ?>
-                                    <option data-id="<?= $pessoa->getId(); ?>" value="<?= $postoDAO->getById($pessoa->getIdPosto())->getPosto() . " " . $pessoa->getNomeGuerra(); ?>"><?= $postoDAO->getById($pessoa->getIdPosto())->getPosto() . " " . $pessoa->getNomeGuerra(); ?>                
-                                        <?php
-                                    endforeach;
-                                }
-                                ?>
-                        </datalist>
+                                    <option value="<?= $secao->getId(); ?>" <?= $secao->getId() == $object->getIdSecao() ? "selected" : "" ?>><?= $secao->getSecao(); ?></option>
+                                    <?php
+                                endforeach;
+                            }
+                            ?>
+                        </select>
                         <div class="valid-feedback">&nbsp;</div>
                         <div class="invalid-feedback">&nbsp;Informar responsável.</div>
                     </div>                    
+                </div>                
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col">                    
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Seções Envolvidas</span>                                                                      
+                        <select class="form-control" size="7" multiple name="secoesEnvolvidasSelect[]" id="secoesEnvolvidasSelect">                            
+                            <?php
+                            $idSecoes = $object->getIdSecoes();
+                            if (is_array($secaoList)) {
+                                foreach ($secaoList as $secao):
+                                    if (!in_array($secao->getId(), $idSecoes) && $secao->getId() != $object->getIdSecao()) {
+                                        ?>
+                                        <option value="<?= $secao->getId(); ?>"><?= $secao->getSecao(); ?></option>
+                                        <?php
+                                    }
+                                endforeach;
+                            }
+                            ?>
+                        </select>
+                        <div class="valid-feedback">&nbsp;</div>
+                        <div class="invalid-feedback">&nbsp;Informar envolvidos.</div>
+                    </div>                    
+                </div>
+                <div class="col" style="text-align: center;">
+                    <input class="btn btn-primary" style="font-size: 25px; font-weight: bold; height: 70px;" type="button" value=">"><br><br>
+                    <input class="btn btn-danger" style="font-size: 25px; font-weight: bold; height: 70px;" type="button" value="<">
+                </div>
+                <div class="col">
+                    <select class="form-control" size="7" multiple name="secoesEnvolvidas[]" id="secoesEnvolvidas">
+                        <?php
+                        $idSecoes = $object->getIdSecoes();
+                        if (is_array($secaoList)) {
+                            foreach ($secaoList as $secao):
+                                if (in_array($secao->getId(), $idSecoes) && $secao->getId() != $object->getIdSecao()) {
+                                    ?>
+                                    <option value="<?= $secao->getId(); ?>"><?= $secao->getSecao(); ?></option>
+                                    <?php
+                                }
+                            endforeach;
+                        }
+                        ?>
+                    </select>
                 </div>
             </div>
-        </div>  
+        </div>
         <div class="form-group">
             <div class="form-row">                                            
                 <div class="col">  
@@ -131,9 +171,10 @@ $pessoaList = $pessoaDAO->getAllList();
                         <span class="input-group-text">Arquivo</span>
                         <div class="custom-control custom-switch">
                             <?php if (!str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo")) { ?>
-                            <a href="../include/arquivos/<?= $object->getId(); ?>.pdf" target="_blank"><img src="../include/imagens/pdf.jpg" width="70"> <?=$object->getTitulo();?></a>
+                                <a href="../include/arquivos/<?= $object->getId(); ?>.pdf" target="_blank"><img src="../include/imagens/pdf.jpg" width="70"> <?= $object->getTitulo(); ?></a> <input class="btn btn-danger" type="button" onclick="deleteArquivo();" value="Remover"><br>
                             <?php } ?>
-                            <input type="file" class="form-control" id="arquivo" name="arquivo">                        
+                            <span style ="color: red; font-size: 14px;"><b>ATENÇÃO:</b>Somente serão aceitos arquivos do tipo PDF!</span>
+                            <input type="file" class="form-control" id="arquivo" name="arquivo" accept=".pdf">                        
                         </div>                    
                     </div>                
                 </div>
@@ -171,11 +212,9 @@ $pessoaList = $pessoaDAO->getAllList();
             });
         }, false);
     })();
-
     String.prototype.reverse = function () {
         return this.split('').reverse().join('');
     };
-
     function labelResolvido() {
         var resolvido = document.getElementById('resolvido').checked;
         if (resolvido === true) {
@@ -187,18 +226,60 @@ $pessoaList = $pessoaDAO->getAllList();
         }
     }
 
-    function dataListSwitch() {
-        const datalist = document.getElementById("idResponsavel");
-        const value = document.getElementById("responsavelInput").value;
-        const options = datalist.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].value === value) {
-                document.getElementById("responsavelInput").value = options[i].dataset.id;
-            }
+    labelResolvido();
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnDireita = document.querySelector('input[value=">"]');
+        const btnEsquerda = document.querySelector('input[value="<"]');
+        const selectOrigem = document.getElementById('secoesEnvolvidasSelect');
+        const selectDestino = document.getElementById('secoesEnvolvidas');
+        const formulario = document.getElementById("formSped"); // Ajuste o seletor se necessário
+
+        function moverSelecionados(origem, destino) {
+            const optionsSelecionadas = Array.from(origem.selectedOptions);
+            optionsSelecionadas.forEach(option => {
+                destino.appendChild(option);
+            });
         }
+
+        // Botão ">"
+        btnDireita.addEventListener('click', function () {
+            moverSelecionados(selectOrigem, selectDestino);
+        });
+        // Botão "<"
+        btnEsquerda.addEventListener('click', function () {
+            moverSelecionados(selectDestino, selectOrigem);
+        });
+        // Antes de enviar o formulário, seleciona todos os options do select de destino
+        formulario.addEventListener('submit', function () {
+            const options = selectDestino.options;
+            for (let i = 0; i < options.length; i++) {
+                options[i].selected = true;
+            }
+        });
+    });
+    function removerSelecionado() {
+        const idSelecionado = document.getElementById('idSecao').value;
+        const selects = [document.getElementById('secoesEnvolvidas'), document.getElementById('secoesEnvolvidasSelect')];
+        selects.forEach(select => {
+            // Reinsere todas as opções ocultadas anteriormente
+            Array.from(select.options).forEach(opt => {
+                opt.hidden = false;
+            });
+            // Oculta a opção correspondente à seção responsável
+            if (idSelecionado !== "") {
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value === idSelecionado) {
+                        opt.hidden = true;
+                        opt.selected = false; // também desmarca, caso esteja selecionado
+                    }
+                });
+            }
+        });
     }
 
-    labelResolvido();
+    function deleteArquivo() {
+        confirm('Excluir arquivo?') ? document.location = './ComandoController.php?action=sped_delete_arquivo&id=<?= $object->getId(); ?>' : false;
+    }
 </script>
 <?php
 require_once '../include/footer.php';

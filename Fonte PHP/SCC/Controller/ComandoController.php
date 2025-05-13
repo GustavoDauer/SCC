@@ -38,8 +38,8 @@ require_once '../Model/Sped.php';
 class ComandoController {
 
     private $spedInstance, // Model instance to be used by Controller and DAO
-            $spedDAO,      // DAO instance for database operations    
-            $arquivo;           
+            $spedDAO, // DAO instance for database operations    
+            $arquivo;
     private $mensagem;              // Simple string to hold input value to be used by DAO
     private $filtro;                // Array of filters to be used by DAO object
 
@@ -58,11 +58,21 @@ class ComandoController {
         $this->spedInstance->setTitulo(filter_input(INPUT_POST, "titulo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->spedInstance->setAssunto(filter_input(INPUT_POST, "assunto", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->spedInstance->setPrazo(filter_input(INPUT_POST, "prazo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
-        $this->spedInstance->setData(filter_input(INPUT_POST, "data", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));        
+        $this->spedInstance->setData(filter_input(INPUT_POST, "data", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->spedInstance->setTipo(filter_input(INPUT_POST, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES));
         $this->arquivo = isset($_FILES["arquivo"]) ? $_FILES["arquivo"] : "";
         $this->spedInstance->setArquivoNome($this->spedInstance->getId() . ".pdf");
         $this->spedInstance->setArquivoPDF($this->arquivo);
+        $this->spedInstance->setIdSecao(filter_input(INPUT_POST, "idSecao", FILTER_VALIDATE_INT));
+        $ids = filter_input(INPUT_POST, 'secoesEnvolvidas', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        if (is_array($ids)) {
+            $ids = array_filter($ids, function ($id) {
+                return filter_var($id, FILTER_VALIDATE_INT) !== false;
+            });
+            $this->spedInstance->setIdSecoes($ids);
+        } else {
+            $this->spedInstance->setIdSecoes([]);
+        }
         $this->mensagem = filter_input(INPUT_POST, "mensagem", FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_SANITIZE_ADD_SLASHES);
     }
 
@@ -76,7 +86,7 @@ class ComandoController {
             $this->spedDAO = new SpedDAO();
             $secaoDAO = new SecaoDAO();
             $objectList = $this->spedDAO->getAllList($this->filtro);
-            $pessoaDAO = new PessoaDAO();   
+            $pessoaDAO = new PessoaDAO();
             $postoDAO = new PostoDAO();
             $arquivoDAO = new ArquivoDAO();
             require_once '../View/view_Comando_list.php';
@@ -106,6 +116,7 @@ class ComandoController {
                 }
             } else { // Require the view of the form
                 $object = $this->spedInstance;
+                $secaoList = $secaoDAO->getAllList();
                 require_once '../View/view_Comando_sped_edit.php';
             }
         } catch (Exception $e) {
@@ -134,6 +145,7 @@ class ComandoController {
             } else { // Require the view of the form            
                 $this->spedInstance = $this->spedInstance->getId() > 0 ? $this->spedDAO->getById($this->spedInstance->getId()) : null;
                 $object = $this->spedInstance;
+                $secaoList = $secaoDAO->getAllList();
                 if ($object == null) {
                     throw new Exception("Problema na obtenção de dados no controlador!");
                 }
@@ -149,7 +161,7 @@ class ComandoController {
             $this->getFormData();
             $this->spedDAO = new SpedDAO();
             $secaoDAO = new SecaoDAO();
-            $pessoaDAO = new PessoaDAO(); 
+            $pessoaDAO = new PessoaDAO();
             $postoDAO = new PostoDAO();
             // Require the view of the form            
             $this->spedInstance = $this->spedInstance->getId() > 0 ? $this->spedDAO->getById($this->spedInstance->getId()) : null;
@@ -184,6 +196,23 @@ class ComandoController {
         }
     }
 
+    /**
+     * Delete object on the database
+     */
+    public function spedDeleteArquivo() {        
+        try {
+            $this->getFormData();
+            $this->spedDAO = new SpedDAO();            
+            if ($this->spedInstance->getId() != null) {
+                if ($this->spedDAO->deleteArquivo($this->spedInstance->getId())) {
+                    header("Location: ComandoController.php?action=sped_update&id=" . $this->spedInstance->getId());
+                }
+            }
+            throw new Exception("Problema na remoção de arquivos!");
+        } catch (Exception $e) {
+            require_once '../View/view_error.php';
+        }
+    }
 }
 
 // POSSIBLE ACTIONS
@@ -204,6 +233,9 @@ switch ($action) {
         break;
     case "sped_delete":
         !isAdminLevel($EXCLUIR_COMANDO) ? redirectToLogin() : $controller->spedDelete();
+        break;
+    case "sped_delete_arquivo":
+        !isAdminLevel($EXCLUIR_COMANDO) ? redirectToLogin() : $controller->spedDeleteArquivo();
         break;
     default:
         break;

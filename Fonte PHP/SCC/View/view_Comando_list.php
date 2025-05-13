@@ -30,15 +30,11 @@ require_once '../include/header.php';
 $resolvido = filter_input(INPUT_GET, "resolvido", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $tipo = filter_input(INPUT_GET, "tipo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $hoje = new DateTime();
-$saudacao = "";
-if (date('H') >= 4 && date('H') < 12) {
-    $saudacao = "Bom dia, ";
-} else if (date('H') >= 12 && date('H') < 18) {
-    $saudacao = "Boa tarde, ";
-} else {
-    $saudacao = "Boa noite, ";
-}
-$mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromissos pendentes*\n____________________\n");
+$scmt = $pessoaDAO->getById(4);
+$mensagem = "";
+$mensagemClara = "";
+$mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos pendentes*\n____________________________________________\n");
+$mensagemGeralClara = '*ATENÇÃO - Mensagem diária de documentos pendentes*\n____________________________________________\n';
 ?>
 <script type="text/javascript" src="../include/js/common.js"></script>
 <div class="conteudo">   
@@ -72,8 +68,7 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
             <tr>                
                 <th><sup>PDF</sup> Título <sub>Assunto</sub></th>
                 <th>Prazo</th>
-                <th>Responsável</th> 
-                <!--<th>Data</th>-->
+                <th>Seção Responsável<br><sub><span style="background-color: lightgreen; padding: 5px;">Seções Envolvidas</span></sub></th>                 
                 <th>Situação</th>    
                 <th>
                     <?php if (isAdminLevel($ADICIONAR_COMANDO)) { ?>
@@ -87,28 +82,35 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
             <?php if (is_array($objectList) && isAdminLevel($LISTAR_COMANDO)) { ?> 
                 <?php foreach ($objectList as $object): ?>    
                     <?php
-                    $pessoa = null;
-                    $posto = "";
-                    $nomeGuerra = "";
-                    if ($object->getIdResponsavel() > 0) {
-                        $pessoa = $pessoaDAO->getById($object->getIdResponsavel());
-                        $nomeGuerra = $pessoa->getNomeGuerra();
-                        $telefone = trim(str_replace(' ', '', $pessoa->getTelefone()));
-                    }
-                    if ($pessoa != null) {
-                        $posto = $pessoa->getIdPosto() > 0 ? $postoDAO->getById($pessoa->getIdPosto())->getPosto() : "";
-                    }
+                    $secao = $object->getIdSecao() > 0 ? $secaoDAO->getById($object->getIdSecao()) : null;
+                    $secaoNome = !is_null($secao) ? $secao->getSecao() : "";
+                    $telefoneScmt = !is_null($scmt) ? $scmt->getTelefone() : null;
+                    $telefone = trim(str_replace(' ', '', !is_null($telefoneScmt) ? $telefoneScmt : ""));
                     ?>            
                     <tr>
-                        <td width="50%">
+                        <td width="40%">
                             <?php if (!str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo")) { ?>
                                 <a href="../include/arquivos/<?= $object->getId(); ?>.pdf" target="_blank"><img src="../include/imagens/pdf.jpg" width="34"></a>
                             <?php } ?>
                                 <?= $object->getTitulo() ?><br>
                             <i><?= $object->getAssunto() ?></i></td>
                         <td style="text-align: center;"><b><?= dateFormat($object->getPrazo()) ?></b></td>                        
-                        <td><?= $posto . " " . $nomeGuerra ?></td>
-                        <!--<td><?= dateFormat($object->getData()) ?></td>-->
+                        <td>
+                            <b><?= $secaoNome ?></b><br>
+                            <sub>
+                                <?php
+                                $secoes = "";
+                                $mensagemSecoes = "";
+                                if (!is_null($object->getIdSecoes())) {
+                                    foreach ($object->getIdSecoes() as $idSecao):
+                                        $secoes .= "<span style='font-size: 10px; font-weight: bold; background-color: lightgreen;padding: 5px;'>" . $secaoDAO->getById($idSecao)->getSecao() . "</span> ";
+                                        $mensagemSecoes .= (empty($mensagemSecoes) ? " " : ", ") . $secaoDAO->getById($idSecao)->getSecao();
+                                    endforeach;
+                                }
+                                ?>
+                                <?= $secoes ?>
+                            </sub>
+                        </td>                        
                         <td style="white-space: nowrap;">
                             <?php
                             $class = "dark";
@@ -118,16 +120,16 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
                             $dias = $dateDif->format('%a');
                             if ($object->getResolvido() != 1) {
                                 if ($dias == 0) {
-                                    $class = "warning";
-                                    $alert = "Vencendo";
+                                    $class = !empty($object->getPrazo()) ? "warning" : "info";
+                                    $alert = !empty($object->getPrazo()) ? "Vencendo" : "Sem prazo";
                                     $htmlAlert = "<strong>$alert</strong>";
                                 } else if ($dateDif->format('%R') == "+") {
                                     $class = "danger";
-                                    $alert = $dateDif->format('%a') . " dia(s) atrasada";
-                                    $htmlAlert = "<strong>$alert dia(s) atrasada</strong>";
+                                    $alert = $dateDif->format('%a');
+                                    $htmlAlert = "<strong>$alert dia" . ($dias > 1 ? "s" : "") . " atrasada</strong>";
                                 } else if ($dateDif->format('%R') == "-" && $dias > 0) {
                                     $class = "success";
-                                    $alert = "$dias dia(s) restantes";
+                                    $alert = "$dias dia" . ($alert > 1 ? "s" : "") . " restantes";
                                     $htmlAlert = "<strong> $alert</strong>";
                                 }
                             }
@@ -138,14 +140,26 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
                         </td>
                         <?php
                         $situacao = urldecode(html_entity_decode($alert, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-                        $mensagem = urlencode($saudacao . " " . html_entity_decode($object->getTitulo(), ENT_QUOTES | ENT_HTML5, 'UTF-8') . " com prazo " . dateFormat($object->getPrazo()) . ". Qual andamento?");
-                        $mensagemGeral .= html_entity_decode($posto . " " . $nomeGuerra, ENT_QUOTES | ENT_HTML5, 'UTF-8') .
-                                urlencode("\n") .
-                                urlencode(html_entity_decode($object->getTitulo(), ENT_QUOTES | ENT_HTML5, 'UTF-8') . "\n*Prazo " .
-                                        dateFormat($object->getPrazo()) . " (" . $situacao . ")*\n");
-                        $mensagemGeral .= !str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo") ?
+
+                        $mensagem = html_entity_decode(
+                                $secaoNome . urlencode("\n") .
+                                "Envolvidos: " . $mensagemSecoes . urlencode("\n") .
+                                $object->getTitulo() .
+                                urlencode("\n") . "*Prazo " . dateFormat($object->getPrazo()) . " (" . $situacao . ")*" . urlencode("\n") .
+                                (
+                                !str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo") ?
                                 urlencode("Anexo: http://intranet.2becmb.eb.mil.br/sistemas/SCC/include/arquivos/" . $object->getId() . ".pdf\n\n") :
-                                urlencode("\n");
+                                urlencode("\n")
+                                )
+                                , ENT_QUOTES | ENT_HTML5, 'UTF-8'
+                        );
+                        $mensagemClara = '*' . $secaoNome . '*\nEnvolvidos: ' . $mensagemSecoes . '\n*' . $object->getTitulo() . '*\n*Assunto:* ' . $object->getAssunto() . '\n*Prazo:* ' . dateFormat($object->getPrazo()) . ' (' . $situacao . ')\n';
+                        $mensagemClara .= (!str_contains($arquivoDAO->getArquivo($object->getId()), "semarquivo")) ?
+                                "Anexo: http://intranet.2becmb.eb.mil.br/sistemas/SCC/include/arquivos/" . $object->getId() . '.pdf\n\n' :
+                                '\n';
+                        $mensagemGeral .= $mensagem;
+                        $mensagemGeralClara .= $mensagemClara;
+                        $link = "https://wa.me/" . $telefone . "?text=" . $mensagem;
                         ?>
                         <td style="white-space: nowrap">
                             <?php if (isAdminLevel($EDITAR_COMANDO)) { ?>
@@ -154,7 +168,8 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
                             <?php if (isAdminLevel($EXCLUIR_COMANDO)) { ?>
                                 <a href="#" onclick="confirm('Confirma a remoção do documento?') ? document.location = '../Controller/ComandoController.php?action=sped_delete&id=<?= $object->getId() ?>' : '';"><img src='../include/imagens/excluir.png' width='25' height='25' title='Excluir'></a>
                             <?php } ?>
-                            <a href="https://wa.me/<?= $telefone ?>?text=<?= $mensagem ?>" target="whatsapp"><img src="../include/imagens/whatsapp.png" width="34"></a>
+                            <a href="<?= $link ?>" target="whatsapp"><img src="../include/imagens/whatsapp.png" width="34"></a>
+                            <a href="#" onclick="copiarParaClipboardMensagem('<?= $mensagemClara ?>');"><img src="../include/imagens/copiar.png" width="25"></a>
                         </td>
                     </tr>                      
                 <?php endforeach; ?>    
@@ -163,7 +178,21 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
     </table>    
 </div>
 <div id="mensagemOculta" style="visibility: hidden;">
-    <a href="https://wa.me/?text=<?= $mensagemGeral ?>" target="whatsapp"><img src="../include/imagens/whatsapp.png" width="34"></a>
+    <?php $linkGeral = "https://wa.me/?text=" . $mensagemGeral; ?>    
+    <a href="<?= $linkGeral ?>" target="whatsapp"><img src="../include/imagens/whatsapp.png" width="34"></a>
+    <a href="#" onclick="copiarParaClipboardMensagem('<?= $mensagemGeralClara ?>');"><img src="../include/imagens/copiar.png" width="25"></a>
+</div>
+<div class="modal fade" id="mensagem" tabindex="-1" role="dialog" aria-labelledby="mensagemLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 800px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mensagemLabel">Mensagem copiada!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>                    
+        </div>
+    </div>
 </div>
 <script>
     $(document).ready(function () {
@@ -184,6 +213,23 @@ $mensagemGeral = urlencode("*ATENÇÃO - Mensagem diária de documentos/compromi
 
     countRows();
     document.getElementById("mensagemGeral").innerHTML = document.getElementById("mensagemOculta").innerHTML;
+
+    function copiarParaClipboardMensagem(mensagem) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(mensagem)
+                    .then(() => {
+                        $("#mensagem").modal();
+                        setTimeout(() => {
+                            $("#mensagem").modal('hide');
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error("Erro ao copiar texto: ", err);
+                    });
+        } else {
+            console.warn("Clipboard API não está disponível neste navegador.");
+        }
+    }
 </script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <?php

@@ -38,7 +38,9 @@ class Sped {
             $resolvido,
             $tipo,
             $arquivoNome,
-            $arquivoPDF;
+            $arquivoPDF,
+            $idSecao,
+            $idSecoes;
 
     function __construct($idOrRow = 0) {
         if (is_int($idOrRow)) {
@@ -54,6 +56,8 @@ class Sped {
             $this->tipo = $idOrRow["tipo"];
             $this->arquivoNome = $idOrRow["arquivoNome"];
             $this->arquivoPDF = $idOrRow["arquivoPDF"];
+            $this->idSecao = $idOrRow["idSecao"];
+            //$this->idSecoes = $idOrRow["idSecoes"];
         }
     }
 
@@ -137,7 +141,23 @@ class Sped {
         $this->arquivoPDF = $arquivoPDF;
     }
 
+    public function getIdSecao() {
+        return $this->idSecao;
+    }
+
+    public function getIdSecoes() {
+        return $this->idSecoes;
+    }
+
+    public function setIdSecao($idSecao) {
+        $this->idSecao = $idSecao;
+    }
+
+    public function setIdSecoes($idSecoes) {
+        $this->idSecoes = $idSecoes;
+    }
+
     public function validate() {
-        return $this->titulo != null && $this->prazo != null;
+        return $this->titulo != null;
     }
 }

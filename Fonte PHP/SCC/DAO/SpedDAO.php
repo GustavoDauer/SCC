@@ -30,6 +30,7 @@
 require_once '../include/comum.php';
 require_once '../Model/Sped.php';
 require_once '../DAO/ArquivoDAO.php';
+require_once '../DAO/SecaoDAO.php';
 
 class SpedDAO {
 
@@ -37,11 +38,11 @@ class SpedDAO {
         try {
             $c = connect();
             $sql = "INSERT INTO Sped("
-                    . "titulo, Pessoa_idPessoa, resolvido, prazo, data, tipo, assunto "
+                    . "titulo, Secao_idSecao, resolvido, prazo, data, tipo, assunto "
                     . ") "
                     . "VALUES("
                     . "'" . $object->getTitulo() . "' "
-                    . ", " . $object->getIdResponsavel()
+                    . ", " . (empty($object->getIdSecao()) ? "NULL" : "'" . $object->getIdSecao() . "'")
                     . ", " . (empty($object->getResolvido()) ? "0 " : $object->getResolvido())
                     . ", " . (empty($object->getPrazo()) ? "NULL" : "'" . $object->getPrazo() . "'")
                     . ", " . (empty($object->getData()) ? "NULL" : "'" . $object->getData() . "'")
@@ -50,9 +51,23 @@ class SpedDAO {
                     . ");";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
-            if ($sqlOk && is_array($object->getArquivoPDF())) {
+            $id = 0;
+            if ($sqlOk) {
+                $id = $c->insert_id;
+                $idSecoes = $object->getIdSecoes();
+                foreach ($idSecoes as $idSecao) :
+                    $sql = "INSERT INTO Sped_has_Secao(Sped_idSped, Secao_idSecao) "
+                            . "VALUES("
+                            . $id
+                            . ", " . $idSecao
+                            . ");";
+                    $stmt = $c->prepare($sql);
+                    $sqlOk = $stmt ? $stmt->execute() : false;
+                endforeach;
+            }
+            if (is_array($object->getArquivoPDF())) {
                 $arquivoDAO = new ArquivoDAO();
-                $sqlOk = $arquivoDAO->uploadArquivo($object->getArquivoPDF(), $c->insert_id);
+                $sqlOk = $arquivoDAO->uploadArquivo($object->getArquivoPDF(), $id);
             }
             $c->close();
             return $sqlOk;
@@ -66,7 +81,7 @@ class SpedDAO {
             $c = connect();
             $sql = "UPDATE Sped SET "
                     . "titulo = '" . $object->getTitulo() . "'"
-                    . ", Pessoa_idPessoa = " . (empty($object->getIdResponsavel()) ? "NULL" : $object->getIdResponsavel())
+                    . ", Secao_idSecao = " . (empty($object->getIdSecao()) ? "NULL" : $object->getIdSecao())
                     . ", resolvido = " . (empty($object->getResolvido()) ? "0" : $object->getResolvido())
                     . ", prazo = " . (empty($object->getPrazo()) ? "NULL" : "'" . $object->getPrazo() . "'")
                     . ", data = " . (empty($object->getData()) ? "NULL" : "'" . $object->getData() . "'")
@@ -75,6 +90,28 @@ class SpedDAO {
                     . " WHERE idSped = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
+            if ($sqlOk) {
+                $id = $object->getId();
+                $idSecoes = $object->getIdSecoes();
+                $sql = "DELETE FROM Sped_has_Secao WHERE Sped_idSped = " . $object->getId();
+                $stmt = $c->prepare($sql);
+                $sqlOk = $stmt ? $stmt->execute() : false;
+                foreach ($idSecoes as $idSecao) :
+                    if ($sqlOk) {
+                        $sqlInsert = "INSERT INTO Sped_has_Secao(Sped_idSped, Secao_idSecao) "
+                                . "VALUES("
+                                . $id
+                                . ", " . $idSecao
+                                . ");";
+                        $stmtInsert = $c->prepare($sqlInsert);
+                        $sqlOk = $stmtInsert ? $stmtInsert->execute() : false;
+                        if (!$sqlOk)
+                            break;
+                    } else {
+                        break;
+                    }
+                endforeach;
+            }
             if ($sqlOk && is_array($object->getArquivoPDF())) {
                 $arquivoDAO = new ArquivoDAO();
                 $sqlOk = $arquivoDAO->uploadArquivo($object->getArquivoPDF(), $object->getId());
@@ -89,11 +126,30 @@ class SpedDAO {
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Sped "
-                    . " WHERE idSped = " . $object->getId() . ";";
+            $sql = "DELETE FROM Sped_has_Secao "
+                    . " WHERE Sped_idSped = " . $object->getId() . ";";
             $stmt = $c->prepare($sql);
             $sqlOk = $stmt ? $stmt->execute() : false;
+            if ($sqlOk) {
+                $sql = "DELETE FROM Sped "
+                        . " WHERE idSped = " . $object->getId() . ";";
+                $stmt = $c->prepare($sql);
+                $sqlOk = $stmt ? $stmt->execute() : false;
+            }
+            if ($sqlOk) {
+                $sqlOk = $this->deleteArquivo($object->getId());
+            }
             $c->close();
+            return $sqlOk;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+
+    public function deleteArquivo($id) {
+        try {
+            $arquivoDAO = new ArquivoDAO();
+            $sqlOk = $arquivoDAO->deleteArquivo($id);
             return $sqlOk;
         } catch (Exception $e) {
             throw($e);
@@ -123,7 +179,9 @@ class SpedDAO {
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
-                $lista[] = new Sped($objectArray);
+                $object = new Sped($objectArray);
+                $object->setIdSecoes($this->getIdSecoesEnvolvidasById($object->getId()));
+                $lista[] = $object;
             }
             $c->close();
             return isset($lista) ? $lista : null;
@@ -142,9 +200,27 @@ class SpedDAO {
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Sped($objectArray);
+                $instance->setIdSecoes($this->getIdSecoesEnvolvidasById($id));
             }
             $c->close();
             return isset($instance) ? $instance : null;
+        } catch (Exception $e) {
+            throw($e);
+        }
+    }
+
+    public function getIdSecoesEnvolvidasById($id) {
+        try {
+            $c = connect();
+            $sql = "SELECT * "
+                    . " FROM Sped_has_Secao "
+                    . " WHERE Sped_idSped = $id";
+            $result = $c->query($sql);
+            while ($row = $result->fetch_assoc()) {
+                $lista[] = $row["Secao_idSecao"];
+            }
+            $c->close();
+            return isset($lista) ? $lista : null;
         } catch (Exception $e) {
             throw($e);
         }
@@ -161,7 +237,8 @@ class SpedDAO {
             "data" => $row["data"],
             "tipo" => $row["tipo"],
             "arquivoNome" => $row["arquivo"],
-            "arquivoPDF" => ""
+            "arquivoPDF" => "",
+            "idSecao" => $row["Secao_idSecao"]
         );
     }
 }

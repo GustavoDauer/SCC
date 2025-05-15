@@ -78,7 +78,7 @@ $erro = isset($_REQUEST["error"]) ? $_REQUEST["error"] : "";
     <body style="margin: 0px; padding: 0px; background: #c5f9d0; background-image: url('../include/imagens/fundo_pagina.jpg'); background-repeat: no-repeat; background-size: 100% 100%;">
         <?php if ($erro == 1) { ?>
             <div class="alert alert-danger">
-                <strong>ERRO!</strong> Usuário ou senha incorretos ou usuário sem seção válida! O administrador deve adicionar o usuário na seção "pai" e nas subseções para corrigir o problema. 
+                <strong>ERRO!</strong> Usuário ou senha incorretos, tempo de seção expirado ou usuário sem seção válida!
             </div>
         <?php } ?>
         <div align="center" style="color: white;">

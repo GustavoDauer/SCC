@@ -5,7 +5,7 @@
     <tr>
         <td class="botao"><a href="../Controller/RPController.php?action=aniversariantes&mes=<?= $mesAnterior ?>" class="botaoLink"><</a></td>
         <td style="width: 100%;">
-            <?php if (is_array($pessoaList)) { ?> 
+<?php if (is_array($pessoaList)) { ?> 
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                     <tr>
                         <td>
@@ -26,21 +26,21 @@
                                         } else {
                                             $bolo = "bolo";
                                             $color = "black;";
-                                        }                                       
+                                        }                                        
                                         ?>
                                         <li class="linhaPainel" style="color: <?= $color ?>;">
                                             <img src="../include/imagens/<?= $bolo ?>.png" width="50" vspace="7"><br>
                                             <?= $postoDAO->getById($pessoa->getIdPosto())->getPosto(); ?><br>
-                                            <b><?= strtoupper($pessoa->getNomeGuerra()) ?></b><br>
-                                            <?= date_format(new DateTime($pessoa->getDataNascimento()), "d/m") ?><br>  
+                                            <b><?= strtoupper(html_entity_decode($pessoa->getNomeGuerra(), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></b><br>
+                                        <?= date_format(new DateTime($pessoa->getDataNascimento()), "d/m") ?><br>  
                                         </li>
-                                    <?php endforeach; ?>    
+    <?php endforeach; ?>    
                                 </ul>
                             </div>
                         </td>            
                     </tr>
                 </table>
-            <?php } ?>
+<?php } ?>
         </td>
         <td class="botao"><a href="../Controller/RPController.php?action=aniversariantes&mes=<?= $mesPosterior ?>" class="botaoLink">></a></td>
     </tr>

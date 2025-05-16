@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -36,183 +36,329 @@ class NotaFiscalDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "START TRANSACTION;"
-                    . "INSERT INTO `scc`.`NotaFiscal` (`tipoNF`, `nf`, `codigoVerificacao`, `chaveAcesso`, `valorNF`, `descricao`, `dataEmissaoNF`, `dataEntrega`, `dataRemessaTesouraria`, `Requisicao_idRequisicao`, `dataLiquidacao`, `dataPedido`, `dataPrazoEntrega`) "
-                    . "VALUES ("
-                    . "'" . $object->getTipoNF() . "' "
-                    . ", '" . $object->getNf() . "' "
-                    . ", '" . $object->getCodigoVerificacao() . "' "
-                    . ", '" . $object->getChaveAcesso() . "' "
-                    . ", '" . (empty($object->getValorNF()) ? "0.0" : $object->getValorNF()) . "'"
-                    . ", '" . $object->getDescricao() . "' "
-                    . ", " . (!empty($object->getDataEmissaoNF()) ? "'" . $object->getDataEmissaoNF() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataEntrega()) ? "'" . $object->getDataEntrega() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataRemessaTesouraria()) ? "'" . $object->getDataRemessaTesouraria() . "' " : "NULL ")
-                    . ", " . (!empty($object->getIdRequisicao()) ? $object->getIdRequisicao() : "NULL ")
-                    . ", " . (!empty($object->getDataLiquidacao()) ? "'" . $object->getDataLiquidacao() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataPedido()) ? "'" . $object->getDataPedido() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataPrazoEntrega()) ? "'" . $object->getDataPrazoEntrega() . "' " : "NULL ")
-                    . ");SET @idNotaFiscal = LAST_INSERT_ID();";
+            $c->begin_transaction();
+            // Prepara a query de inserção da NotaFiscal
+            $stmt = $c->prepare("
+            INSERT INTO `scc`.`NotaFiscal` 
+                (`tipoNF`, `nf`, `codigoVerificacao`, `chaveAcesso`, `valorNF`, `descricao`, `dataEmissaoNF`, `dataEntrega`, `dataRemessaTesouraria`, `Requisicao_idRequisicao`, `dataLiquidacao`, `dataPedido`, `dataPrazoEntrega`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+            $tipoNF = $object->getTipoNF();
+            $nf = $object->getNf();
+            $codigoVerificacao = $object->getCodigoVerificacao();
+            $chaveAcesso = $object->getChaveAcesso();
+            $valorNF = empty($object->getValorNF()) ? 0.0 : $object->getValorNF();
+            $descricao = $object->getDescricao();
+            $dataEmissaoNF = !empty($object->getDataEmissaoNF()) ? $object->getDataEmissaoNF() : null;
+            $dataEntrega = !empty($object->getDataEntrega()) ? $object->getDataEntrega() : null;
+            $dataRemessaTesouraria = !empty($object->getDataRemessaTesouraria()) ? $object->getDataRemessaTesouraria() : null;
+            $idRequisicao = !empty($object->getIdRequisicao()) ? $object->getIdRequisicao() : null;
+            $dataLiquidacao = !empty($object->getDataLiquidacao()) ? $object->getDataLiquidacao() : null;
+            $dataPedido = !empty($object->getDataPedido()) ? $object->getDataPedido() : null;
+            $dataPrazoEntrega = !empty($object->getDataPrazoEntrega()) ? $object->getDataPrazoEntrega() : null;
+            $stmt->bind_param(
+                    "ssssdssssisss",
+                    $tipoNF,
+                    $nf,
+                    $codigoVerificacao,
+                    $chaveAcesso,
+                    $valorNF,
+                    $descricao,
+                    $dataEmissaoNF,
+                    $dataEntrega,
+                    $dataRemessaTesouraria,
+                    $idRequisicao,
+                    $dataLiquidacao,
+                    $dataPedido,
+                    $dataPrazoEntrega
+            );
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao inserir Nota Fiscal: " . $stmt->error);
+            }
+            $idNotaFiscal = $c->insert_id;
+            // Inserção dos itens vinculados à nota fiscal
             $itemList = $object->getItemList();
             if (!is_null($itemList)) {
+                $stmtItem = $c->prepare("
+                INSERT INTO `scc`.`NotaFiscal_has_Item` (`NotaFiscal_idNotaFiscal`, `Item_idItem`, `quantidade`)
+                VALUES (?, ?, ?)
+            ");
                 foreach ($itemList as $item) {
-                    $sql .= "INSERT INTO `scc`.`NotaFiscal_has_Item` (`NotaFiscal_idNotaFiscal`, `Item_idItem`, `quantidade`) "
-                            . "VALUES ("
-                            . "@idNotaFiscal "
-                            . ", " . $item["idItem"]
-                            . ", " . $item["quantidadeItem"]
-                            . ");";
+                    $idItem = $item["idItem"];
+                    $quantidadeItem = $item["quantidadeItem"];
+                    $stmtItem->bind_param("iii", $idNotaFiscal, $idItem, $quantidadeItem);
+                    if (!$stmtItem->execute()) {
+                        throw new Exception("Erro ao inserir item da nota fiscal: " . $stmtItem->error);
+                    }
                 }
+                $stmtItem->close();
             }
-            $sql .= "COMMIT;";
-            //$stmt = $c->prepare($sql);
-            //$sqlOk = $stmt ? $stmt->execute() : false;
-            $sqlOk = $c->multi_query($sql);
+            $stmt->close();
+            $c->commit();
             $c->close();
-            return $sqlOk;
+            return true;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($c) && $c->errno === 0) {
+                $c->rollback();
+                $c->close();
+            }
+            throw $e;
         }
     }
 
-    public function update($object) { // ToDo NULL nos campos de datas
+    public function update($object) {
         try {
             $c = connect();
-            $sql = "START TRANSACTION;
-                UPDATE `scc`.`NotaFiscal` SET                        
-                        `tipoNF` = '" . $object->getTipoNF() . "'
-                        , `nf` = '" . $object->getNf() . "'
-                        , `codigoVerificacao` = '" . $object->getCodigoVerificacao() . "'
-                        , `chaveAcesso` = '" . $object->getChaveAcesso() . "'
-                        , `valorNF` = '" . (empty($object->getValorNF()) ? "0.0" : $object->getValorNF()) . "'      
-                        , `descricao` = '" . $object->getDescricao() . "'
-                        , `dataEmissaoNF` = " . (!empty($object->getDataEmissaoNF()) ? "'" . $object->getDataEmissaoNF() . "' " : "NULL ") . "
-                        , `dataEntrega` = " . (!empty($object->getDataEntrega()) ? "'" . $object->getDataEntrega() . "' " : "NULL ") . "
-                        , `dataRemessaTesouraria` = " . (!empty($object->getDataRemessaTesouraria()) ? "'" . $object->getDataRemessaTesouraria() . "' " : "NULL ") . "
-                        , `Requisicao_idRequisicao` = '" . $object->getIdRequisicao() . "'
-                        , `dataLiquidacao` = " . (!empty($object->getDataLiquidacao()) ? "'" . $object->getDataLiquidacao() . "' " : "NULL ") . "
-                        , `dataPedido` = " . (!empty($object->getDataPedido()) ? "'" . $object->getDataPedido() . "' " : "NULL ") . "
-                        , `dataPrazoEntrega` = " . (!empty($object->getDataPrazoEntrega()) ? "'" . $object->getDataPrazoEntrega() . "' " : "NULL ") . "
-                        WHERE `idNotaFiscal` = " . $object->getId() . ";";
+            $c->begin_transaction();
+            $stmt = $c->prepare("
+            UPDATE `scc`.`NotaFiscal` SET
+                `tipoNF` = ?, 
+                `nf` = ?, 
+                `codigoVerificacao` = ?, 
+                `chaveAcesso` = ?, 
+                `valorNF` = ?, 
+                `descricao` = ?, 
+                `dataEmissaoNF` = ?, 
+                `dataEntrega` = ?, 
+                `dataRemessaTesouraria` = ?, 
+                `Requisicao_idRequisicao` = ?, 
+                `dataLiquidacao` = ?, 
+                `dataPedido` = ?, 
+                `dataPrazoEntrega` = ?
+            WHERE `idNotaFiscal` = ?
+        ");
+            $tipoNF = $object->getTipoNF();
+            $nf = $object->getNf();
+            $codigoVerificacao = $object->getCodigoVerificacao();
+            $chaveAcesso = $object->getChaveAcesso();
+            $valorNF = empty($object->getValorNF()) ? 0.0 : $object->getValorNF();
+            $descricao = $object->getDescricao();
+            $dataEmissaoNF = !empty($object->getDataEmissaoNF()) ? $object->getDataEmissaoNF() : null;
+            $dataEntrega = !empty($object->getDataEntrega()) ? $object->getDataEntrega() : null;
+            $dataRemessaTesouraria = !empty($object->getDataRemessaTesouraria()) ? $object->getDataRemessaTesouraria() : null;
+            $idRequisicao = !empty($object->getIdRequisicao()) ? $object->getIdRequisicao() : null;
+            $dataLiquidacao = !empty($object->getDataLiquidacao()) ? $object->getDataLiquidacao() : null;
+            $dataPedido = !empty($object->getDataPedido()) ? $object->getDataPedido() : null;
+            $dataPrazoEntrega = !empty($object->getDataPrazoEntrega()) ? $object->getDataPrazoEntrega() : null;
+            $idNotaFiscal = $object->getId();
+            $stmt->bind_param(
+                    "ssssdssssisssi",
+                    $tipoNF,
+                    $nf,
+                    $codigoVerificacao,
+                    $chaveAcesso,
+                    $valorNF,
+                    $descricao,
+                    $dataEmissaoNF,
+                    $dataEntrega,
+                    $dataRemessaTesouraria,
+                    $idRequisicao,
+                    $dataLiquidacao,
+                    $dataPedido,
+                    $dataPrazoEntrega,
+                    $idNotaFiscal
+            );
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao atualizar Nota Fiscal: " . $stmt->error);
+            }
+            // Atualiza ou insere os itens relacionados
             $itemList = $object->getItemList();
             if (!is_null($itemList)) {
+                $updateStmt = $c->prepare("
+                UPDATE `scc`.`NotaFiscal_has_Item` 
+                SET `quantidade` = ? 
+                WHERE `NotaFiscal_idNotaFiscal` = ? AND `Item_idItem` = ?
+            ");
+                $insertStmt = $c->prepare("
+                INSERT INTO `scc`.`NotaFiscal_has_Item` (`NotaFiscal_idNotaFiscal`, `Item_idItem`, `quantidade`) 
+                VALUES (?, ?, ?)
+            ");
                 foreach ($itemList as $item) {
-                    $list = $this->getByNFIdEItemId($object->getId(), $item["idItem"]);
-                    if (!is_null($list)) {
-                        $sql .= "UPDATE `scc`.`NotaFiscal_has_Item` "
-                                . "SET "
-                                . " `quantidade` = " . $item["quantidadeItem"]
-                                . " WHERE "
-                                . " `NotaFiscal_idNotaFiscal` = " . $object->getId() . " AND `Item_idItem` = " . $item["idItem"] . ";";
+                    $idItem = $item["idItem"];
+                    $quantidade = $item["quantidadeItem"];
+                    $existe = $this->getByNFIdEItemId($idNotaFiscal, $idItem);
+                    if (!is_null($existe)) {
+                        $updateStmt->bind_param("iii", $quantidade, $idNotaFiscal, $idItem);
+                        if (!$updateStmt->execute()) {
+                            throw new Exception("Erro ao atualizar item da nota: " . $updateStmt->error);
+                        }
                     } else {
-                        $sql .= "INSERT INTO `scc`.`NotaFiscal_has_Item` (`NotaFiscal_idNotaFiscal`, `Item_idItem`, `quantidade`) "
-                                . "VALUES ("
-                                . $object->getId()
-                                . ", " . $item["idItem"]
-                                . ", " . $item["quantidadeItem"]
-                                . ");";
+                        $insertStmt->bind_param("iii", $idNotaFiscal, $idItem, $quantidade);
+                        if (!$insertStmt->execute()) {
+                            throw new Exception("Erro ao inserir novo item da nota: " . $insertStmt->error);
+                        }
                     }
                 }
+                $updateStmt->close();
+                $insertStmt->close();
             }
-            $sql .= "COMMIT;";
-            //$stmt = $c->prepare($sql);
-            //$sqlOk = $stmt ? $stmt->execute() : false;            
-            $sqlOk = $c->multi_query($sql);
+            $stmt->close();
+            $c->commit();
             $c->close();
-            return $sqlOk;
+            return true;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($c) && $c->errno === 0) {
+                $c->rollback();
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM NotaFiscal "
-                    . " WHERE idNotaFiscal = " . $object->getId() . ";";
-            $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt = $c->prepare("DELETE FROM NotaFiscal WHERE idNotaFiscal = ?");
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar statement: " . $c->error);
+            }
+            $id = $object->getId();
+            $stmt->bind_param("i", $id);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            if (isset($c) && $c instanceof mysqli) {
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     public function getAllList($filtro = "") {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . ", REPLACE(valorNF, '.', ',') AS valorNF "
-                    . ", DATE_FORMAT(dataLiquidacao, '%d/%m/%Y') as dataLiquidacao "
-                    . " FROM NotaFiscal ";
-            $result = $c->query($sql);
+            // Consulta fixa, sem WHERE, conforme código original
+            $sql = "SELECT *,
+                       REPLACE(valorNF, '.', ',') AS valorNF,
+                       DATE_FORMAT(dataLiquidacao, '%d/%m/%Y') as dataLiquidacao
+                FROM NotaFiscal";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar statement: " . $c->error);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new NotaFiscal($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            if (isset($c) && $c instanceof mysqli) {
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . ", REPLACE(valorNF, '.', ',') AS valorNF "
-                    . " FROM NotaFiscal "
-                    . " WHERE idNotaFiscal = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+            $sql = "SELECT *, 
+                       REPLACE(valorNF, '.', ',') AS valorNF 
+                FROM NotaFiscal 
+                WHERE idNotaFiscal = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar statement: " . $c->error);
+            }
+            $stmt->bind_param("i", $id); // "i" para inteiro
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new NotaFiscal($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $instance;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            if (isset($c) && $c instanceof mysqli) {
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     public function getByRequisicaoId($idRequisicao) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . ", REPLACE(valorNF, '.', ',') AS valorNF "
-                    . ", DATE_FORMAT(dataLiquidacao, '%d/%m/%Y') as dataLiquidacao "
-                    . " FROM NotaFiscal "
-                    . " WHERE Requisicao_idRequisicao = $idRequisicao";
-            $result = $c->query($sql);
+            $sql = "SELECT *, 
+                       REPLACE(valorNF, '.', ',') AS valorNF,
+                       DATE_FORMAT(dataLiquidacao, '%d/%m/%Y') AS dataLiquidacao
+                FROM NotaFiscal
+                WHERE Requisicao_idRequisicao = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar statement: " . $c->error);
+            }
+            $stmt->bind_param("i", $idRequisicao); // "i" indica inteiro
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new NotaFiscal($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            if (isset($c) && $c instanceof mysqli) {
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     public function getByNFIdEItemId($idNotaFiscal, $idItem) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM `scc`.`NotaFiscal_has_Item` "
-                    . " INNER JOIN NotaFiscal ON idNotaFiscal = NotaFiscal_idNotaFiscal "
-                    . " WHERE `NotaFiscal_idNotaFiscal` = " . $idNotaFiscal . " AND `Item_idItem` = " . $idItem . ";";
-            $result = $c->query($sql);
+            $sql = "SELECT * 
+                FROM `scc`.`NotaFiscal_has_Item`
+                INNER JOIN NotaFiscal ON idNotaFiscal = NotaFiscal_idNotaFiscal
+                WHERE `NotaFiscal_idNotaFiscal` = ? AND `Item_idItem` = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar statement: " . $c->error);
+            }
+            $stmt->bind_param("ii", $idNotaFiscal, $idItem); // ambos são inteiros
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new NotaFiscal($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            if (isset($c) && $c instanceof mysqli) {
+                $c->close();
+            }
+            throw $e;
         }
     }
 
@@ -234,5 +380,4 @@ class NotaFiscalDAO {
             "dataPrazoEntrega" => $row["dataPrazoEntrega"]
         );
     }
-
 }

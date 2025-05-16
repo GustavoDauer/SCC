@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,32 +35,19 @@ class AuditoriaPessoaDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO AuditoriaPessoa("
-                    . "Pessoa_idPessoa, dataEntrada, local, identidade, autorizacao"
-                    . ") "
-                    . "VALUES("
-                    . ($object->getIdPessoa() > 0 ? $object->getIdPessoa() : "NULL")
-                    . ", " . "CURRENT_TIME"                    
-                    . ", '" . $object->getLocal() . "'"
-                    . ", '" . $object->getIdentidade() . "'"
-                    . ", " . $object->getAutorizacao() . ""
-                    . ");";
+            $sql = "INSERT INTO AuditoriaPessoa (
+                        Pessoa_idPessoa, dataEntrada, local, identidade, autorizacao
+                    ) VALUES (
+                        ?, CURRENT_TIME, ?, ?, ?
+                    )";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
-            $c->close();
-            return $sqlOk;
-        } catch (Exception $e) {
-            throw($e);
-        }      
-    }    
-
-    public function delete($object) {
-        try {
-            $c = connect();
-            $sql = "DELETE FROM AuditoriaPessoa "
-                    . " WHERE Pessoa_idPessoa = " . $object->getIdPessoa() . " AND dataEntrada = " . $object->getDataEntrada() . ";";
-            $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $idPessoa = $object->getIdPessoa() > 0 ? $object->getIdPessoa() : null;
+            $local = $object->getLocal();
+            $identidade = $object->getIdentidade();
+            $autorizacao = $object->getAutorizacao();
+            $stmt->bind_param("isss", $idPessoa, $local, $identidade, $autorizacao);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -71,34 +58,38 @@ class AuditoriaPessoaDAO {
     public function getAllList($filtro = "") {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM AuditoriaPessoa ";                   
+            $sql = "SELECT * FROM AuditoriaPessoa 
+                    WHERE dataEntrada >= ? AND dataEntrada <= ?
+                    ORDER BY dataEntrada";
             $dataHoje = date('Y-m-d');
             $dataAmanha = date('Y-m-d', strtotime(' +1 day'));
             $inicio = !isset($filtro["inicio"]) ? $dataHoje : $filtro["inicio"];
             $fim = !isset($filtro["fim"]) ? $dataAmanha : $filtro["fim"];
-            $sql .= " WHERE dataEntrada >= '" . $inicio . " 00:00'"
-                    . " AND dataEntrada <= '" . $fim . " 23:59'"
-                    . " ORDER BY dataEntrada"; 
-            $result = $c->query($sql);
+            $inicio .= " 00:00";
+            $fim .= " 23:59";
+            $stmt = $c->prepare($sql);
+            $stmt->bind_param("ss", $inicio, $fim);
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new AuditoriaPessoa($objectArray);
             }
+            $stmt->close();
             $c->close();
             return isset($lista) ? $lista : null;
         } catch (Exception $e) {
             throw($e);
         }
-    }           
+    }
 
     public function fillArray($row) {
         return array(
             "idPessoa" => $row["Pessoa_idPessoa"],
             "dataEntrada" => $row["dataEntrada"],
             "dataSaida" => $row["dataSaida"],
-            "local" => $row["local"],                        
-            "autorizacao" => $row["autorizacao"] ,
+            "local" => $row["local"],
+            "autorizacao" => $row["autorizacao"],
             "identidade" => $row["identidade"]
         );
     }

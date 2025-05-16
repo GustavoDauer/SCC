@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -32,11 +32,20 @@ require_once '../Model/ExameDePagamento.php';
 
 class ExameDePagamentoDAO {
 
+    private function validarTabela($tabela) {
+        // Lista branca (whitelist) com nomes válidos de tabelas
+        $tabelasValidas = ['CPEX', 'Efetivo'];
+        if (!in_array($tabela, $tabelasValidas)) {
+            throw new Exception("Nome de tabela inválido");
+        }
+        return "ExamePagamento" . $tabela;
+    }
+
     public function getAllList($table) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM ExamePagamento$table ";
+            $tabela = $this->validarTabela($table);
+            $sql = "SELECT nome FROM $tabela";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $lista[] = $row["nome"];
@@ -47,12 +56,15 @@ class ExameDePagamentoDAO {
             throw($e);
         }
     }
-    
+
     public function getAllListNotIn($table, $notInTable) {
         try {
             $c = connect();
-            $sql = "SELECT nome FROM ExamePagamento$table WHERE nome NOT IN ( "
-                              . "SELECT nome FROM ExamePagamento$notInTable );";
+            $tabela1 = $this->validarTabela($table);
+            $tabela2 = $this->validarTabela($notInTable);
+            $sql = "SELECT nome FROM $tabela1 WHERE nome NOT IN (
+                        SELECT nome FROM $tabela2
+                    )";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $lista[] = $row["nome"];
@@ -67,9 +79,12 @@ class ExameDePagamentoDAO {
     public function insert($nome, $table) {
         try {
             $c = connect();
-            $stmt = $c->prepare("INSERT INTO ExamePagamento$table (nome) VALUES (?)");
+            $tabela = $this->validarTabela($table);
+            $sql = "INSERT INTO $tabela (nome) VALUES (?)";
+            $stmt = $c->prepare($sql);
             $stmt->bind_param("s", $nome);
             $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -80,16 +95,15 @@ class ExameDePagamentoDAO {
     public function reset() {
         try {
             $c = connect();
-            $sql = "DELETE FROM ExamePagamentoCPEX;";
-            $stmt = $c->prepare($sql);
+            $stmt = $c->prepare("DELETE FROM ExamePagamentoCPEX;");
             $sqlOk = $stmt ? $stmt->execute() : false;
             if (!$sqlOk) {
                 $c->close();
                 return false;
             }
-            $sql = "DELETE FROM ExamePagamentoEfetivo;";
-            $stmt = $c->prepare($sql);
+            $stmt = $c->prepare("DELETE FROM ExamePagamentoEfetivo;");
             $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {

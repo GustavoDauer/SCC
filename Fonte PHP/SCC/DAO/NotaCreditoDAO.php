@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,65 +35,91 @@ class NotaCreditoDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO `scc`.`NotaCredito` (`dataNc`, `nc`, `pi`, `valor`, `gestorNc`, `ptres`, `fonte`, `ug`) "
-                    . "VALUES ("
-                    . "'" . $object->getDataNc() . "' "
-                    . ", '" . $object->getNc() . "' "
-                    . ", '" . $object->getPi() . "' "
-                    . ", '" . $object->getValor() . "' "
-                    . ", '" . $object->getGestorNc() . "' "
-                    . ", '" . $object->getPtres() . "' "
-                    . ", '" . $object->getFonte() . "' "
-                    . ", '" . $object->getUg() . "' "
-                    . ");";
-            $stmt = $c->prepare($sql);            
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $sql = "INSERT INTO `scc`.`NotaCredito` 
+                (`dataNc`, `nc`, `pi`, `valor`, `gestorNc`, `ptres`, `fonte`, `ug`) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar insert: " . $c->error);
+            }
+            $stmt->bind_param(
+                    "ssssssss",
+                    $object->getDataNc(),
+                    $object->getNc(),
+                    $object->getPi(),
+                    $object->getValor(),
+                    $object->getGestorNc(),
+                    $object->getPtres(),
+                    $object->getFonte(),
+                    $object->getUg()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE `scc`.`NotaCredito`
-                    SET                        
-                        `dataNc` = '" . $object->getDataNc() . "'
-                        , `nc` = '" . $object->getNc() . "'
-                        , `pi` = '" . $object->getPi() . "'
-                        , `valor` = '" . $object->getValor() . "'
-                        , `gestorNc` = '" . $object->getGestorNc() . "'
-                        , `ptres` = '" . $object->getPtres() . "'
-                        , `fonte` = '" . $object->getFonte() . "'
-                        , `ug` = '" . $object->getUg() . "'
-                        WHERE `idNotaCredito` = " . $object->getId() . ";";
+            $sql = "UPDATE `scc`.`NotaCredito` SET
+                `dataNc` = ?, 
+                `nc` = ?, 
+                `pi` = ?, 
+                `valor` = ?, 
+                `gestorNc` = ?, 
+                `ptres` = ?, 
+                `fonte` = ?, 
+                `ug` = ?
+                WHERE `idNotaCredito` = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar update: " . $c->error);
+            }
+            $stmt->bind_param(
+                    "ssssssssi",
+                    $object->getDataNc(),
+                    $object->getNc(),
+                    $object->getPi(),
+                    $object->getValor(),
+                    $object->getGestorNc(),
+                    $object->getPtres(),
+                    $object->getFonte(),
+                    $object->getUg(),
+                    $object->getId()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM NotaCredito "
-                    . " WHERE idNotaCredito = " . $object->getId() . ";";
+            $sql = "DELETE FROM NotaCredito WHERE idNotaCredito = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar delete: " . $c->error);
+            }
+            $stmt->bind_param("i", $object->getId());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     public function getAllList($filtro = "") {
-        try {            
+        try {
             $c = connect();
             $sql = "SELECT *, SUM(valorNE) AS totalEmpenhado "
                     . ", REPLACE(valor, '.', ',') AS valor "
@@ -128,7 +154,7 @@ class NotaCreditoDAO {
                 $object->setTotalEmpenhado($row["totalEmpenhado"]);
                 $lista[] = $object;
             }
-            $c->close();            
+            $c->close();
             return isset($lista) ? $lista : null;
         } catch (Exception $e) {
             throw($e);
@@ -138,19 +164,25 @@ class NotaCreditoDAO {
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . ", REPLACE(valor, '.', ',') AS valor "
-                    . " FROM NotaCredito "
-                    . " WHERE idNotaCredito = $id";
-            $result = $c->query($sql);            
-            while ($row = $result->fetch_assoc()) {
+            $sql = "SELECT *, REPLACE(valor, '.', ',') AS valor 
+                    FROM NotaCredito WHERE idNotaCredito = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar getById: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new NotaCredito($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $instance;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -168,5 +200,4 @@ class NotaCreditoDAO {
             "valorRecolhido" => $row["valorRecolhido"]
         );
     }
-
 }

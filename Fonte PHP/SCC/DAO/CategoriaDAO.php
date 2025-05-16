@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,14 +35,11 @@ class CategoriaDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO Categoria("
-                    . "categoria "
-                    . ") "
-                    . "VALUES("
-                    . "'" . $object->getCategoria() . "' "
-                    . ");";
+            $sql = "INSERT INTO Categoria (categoria) VALUES (?)";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param("s", $object->getCategoria());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -53,11 +50,11 @@ class CategoriaDAO {
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE Categoria SET "
-                    . "categoria = '" . $object->getCategoria() . "' "
-                    . " WHERE idCategoria = " . $object->getId() . ";";
+            $sql = "UPDATE Categoria SET categoria = ? WHERE idCategoria = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param("si", $object->getCategoria(), $object->getId());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -68,10 +65,11 @@ class CategoriaDAO {
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Categoria "
-                    . " WHERE idCategoria = " . $object->getId() . ";";
+            $sql = "DELETE FROM Categoria WHERE idCategoria = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param("i", $object->getId());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -82,9 +80,7 @@ class CategoriaDAO {
     public function getAllList() {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Categoria "
-                    . " ORDER BY categoria";
+            $sql = "SELECT * FROM Categoria ORDER BY categoria";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -100,14 +96,16 @@ class CategoriaDAO {
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Categoria "
-                    . " WHERE idCategoria = $id";
-            $result = $c->query($sql);
+            $sql = "SELECT * FROM Categoria WHERE idCategoria = ?";
+            $stmt = $c->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Categoria($objectArray);
             }
+            $stmt->close();
             $c->close();
             return isset($instance) ? $instance : null;
         } catch (Exception $e) {
@@ -121,5 +119,4 @@ class CategoriaDAO {
             "categoria" => $row["categoria"]
         );
     }
-
 }

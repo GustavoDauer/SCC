@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,8 +35,7 @@ class ClasseDAO {
     public function getAllList() {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Classe ";
+            $sql = "SELECT * FROM Classe";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -52,14 +51,16 @@ class ClasseDAO {
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Classe "
-                    . " WHERE idClasse = $id";
-            $result = $c->query($sql);
+            $sql = "SELECT * FROM Classe WHERE idClasse = ?";
+            $stmt = $c->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Classe($objectArray);
             }
+            $stmt->close();
             $c->close();
             return isset($instance) ? $instance : null;
         } catch (Exception $e) {
@@ -73,5 +74,4 @@ class ClasseDAO {
             "classe" => $row["classe"]
         );
     }
-
 }

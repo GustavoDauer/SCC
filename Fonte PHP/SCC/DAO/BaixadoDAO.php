@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,25 +35,28 @@ class BaixadoDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO Baixado("
-                    . "Posto_idPosto, nome, cia, turma, diagnostico, situacao, bi, bar, dispensa, amparo, acao, dataAtualizacao "
-                    . ") "
-                    . "VALUES("
-                    . $object->getIdPosto() . ", "
-                    . "'" . $object->getNome() . "', "
-                    . "'" . $object->getCia() . "', "
-                    . $object->getTurma() . ", "
-                    . "'" . $object->getDiagnostico() . "', "
-                    . "'" . $object->getSituacao() . "', "
-                    . "'" . $object->getBi() . "', "
-                    . "'" . $object->getBar() . "', "
-                    . "'" . $object->getDispensa() . "', "
-                    . "'" . $object->getAmparo() . "', "
-                    . "'" . $object->getAcao() . "', "
-                    . " CURRENT_DATE " //(empty($object->getDataInicio()) ? "NULL " : "'" . $object->getDataAtualizacao() . "' ")
-                    . ");";
+            $sql = "INSERT INTO Baixado (
+                        Posto_idPosto, nome, cia, turma, diagnostico, situacao, bi, bar, dispensa, amparo, acao, dataAtualizacao
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_DATE
+                    )";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param(
+                    "ississsssss",
+                    $object->getIdPosto(),
+                    $object->getNome(),
+                    $object->getCia(),
+                    $object->getTurma(),
+                    $object->getDiagnostico(),
+                    $object->getSituacao(),
+                    $object->getBi(),
+                    $object->getBar(),
+                    $object->getDispensa(),
+                    $object->getAmparo(),
+                    $object->getAcao()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -64,22 +67,29 @@ class BaixadoDAO {
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE Baixado SET "
-                    . "Posto_idPosto = " . $object->getIdPosto() . ", "
-                    . "nome = '" . $object->getNome() . "', "
-                    . "cia = '" . $object->getCia() . "', "
-                    . "turma = " . $object->getTurma() . ", "
-                    . "diagnostico = '" . $object->getDiagnostico() . "', "
-                    . "situacao = '" . $object->getSituacao() . "', "
-                    . "bi = '" . $object->getBi() . "', "
-                    . "bar = '" . $object->getBar() . "', "
-                    . "dispensa = '" . $object->getDispensa() . "', "
-                    . "amparo = '" . $object->getAmparo() . "', "
-                    . "acao = '" . $object->getAcao() . "', "
-                    . "dataAtualizacao = CURRENT_DATE " //. (empty($object->getDataInicio()) ? "NULL " : "'" . $object->getDataAtualizacao() . "' ")
-                    . " WHERE idBaixado = " . $object->getId() . ";";
+            $sql = "UPDATE Baixado SET 
+                        Posto_idPosto = ?, nome = ?, cia = ?, turma = ?, diagnostico = ?, 
+                        situacao = ?, bi = ?, bar = ?, dispensa = ?, amparo = ?, acao = ?, 
+                        dataAtualizacao = CURRENT_DATE
+                    WHERE idBaixado = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param(
+                    "ississsssssi",
+                    $object->getIdPosto(),
+                    $object->getNome(),
+                    $object->getCia(),
+                    $object->getTurma(),
+                    $object->getDiagnostico(),
+                    $object->getSituacao(),
+                    $object->getBi(),
+                    $object->getBar(),
+                    $object->getDispensa(),
+                    $object->getAmparo(),
+                    $object->getAcao(),
+                    $object->getId()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -90,10 +100,11 @@ class BaixadoDAO {
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Baixado "
-                    . " WHERE idBaixado = " . $object->getId() . ";";
+            $sql = "DELETE FROM Baixado WHERE idBaixado = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->bind_param("i", $object->getId());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -104,21 +115,31 @@ class BaixadoDAO {
     public function getAllList($filtro = "") {
         try {
             $c = connect();
-            $sqlFiltro = "";
+            $params = [];
+            $types = "";
+            $sql = "SELECT *, 
+                        DATE_FORMAT(dataAtualizacao, '%d/%m/%Y') as dataAtualizacao, 
+                        DATE_FORMAT(dataAtualizacao, '%Y/%m/%d') as dataAtualizacaoOriginal 
+                    FROM Baixado";
             if (isset($filtro) && $filtro["situacao"] != "todos") {
-                $sqlFiltro .= " WHERE ";
-                $sqlFiltro .= !empty($filtro["situacao"]) ? " situacao LIKE '%" . $filtro["situacao"] . "%'" : "";
+                if (!empty($filtro["situacao"])) {
+                    $sql .= " WHERE situacao LIKE ?";
+                    $types .= "s";
+                    $params[] = "%" . $filtro["situacao"] . "%";
+                }
             }
-            $sql = "SELECT *, "
-                    . "DATE_FORMAT(dataAtualizacao, '%d/%m/%Y') as dataAtualizacao, DATE_FORMAT(dataAtualizacao, '%Y/%m/%d') as dataAtualizacaoOriginal "
-                    . " FROM Baixado "
-                    . $sqlFiltro
-                    . " ORDER BY dataAtualizacao ";
-            $result = $c->query($sql);
+            $sql .= " ORDER BY dataAtualizacao";
+            $stmt = $c->prepare($sql);
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new Baixado($objectArray);
             }
+            $stmt->close();
             $c->close();
             return isset($lista) ? $lista : null;
         } catch (Exception $e) {
@@ -129,15 +150,20 @@ class BaixadoDAO {
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . ", DATE_FORMAT(dataAtualizacao, '%d/%m/%Y') as dataAtualizacaoFormatada, DATE_FORMAT(dataAtualizacao, '%Y/%m/%d') as dataAtualizacaoOriginal "
-                    . " FROM Baixado "
-                    . " WHERE idBaixado = $id";
-            $result = $c->query($sql);
+            $sql = "SELECT *, 
+                        DATE_FORMAT(dataAtualizacao, '%d/%m/%Y') as dataAtualizacaoFormatada, 
+                        DATE_FORMAT(dataAtualizacao, '%Y/%m/%d') as dataAtualizacaoOriginal 
+                    FROM Baixado 
+                    WHERE idBaixado = ?";
+            $stmt = $c->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Baixado($objectArray);
             }
+            $stmt->close();
             $c->close();
             return isset($instance) ? $instance : null;
         } catch (Exception $e) {
@@ -163,5 +189,4 @@ class BaixadoDAO {
             "acao" => $row["acao"]
         );
     }
-
 }

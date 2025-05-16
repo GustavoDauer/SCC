@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -37,22 +37,40 @@ class CombustivelDAO {
             $c = connect();
             $sql = "
                 UPDATE `scc`.`Combustivel` SET
-`ctc01-celula1` = '" . $object->getCtc01celula1() . "',
-`ctc01-celula2` = '" . $object->getCtc01celula2() . "',
-`ctc01-celula3` = '" . $object->getCtc01celula3() . "',
-`ctc01-celula1-valor` = '" . $object->getCtc01celula1valor() . "',
-`ctc01-celula2-valor` = '" . $object->getCtc01celula2valor() . "',
-`ctc01-celula3-valor` = '" . $object->getCtc01celula3valor() . "',
-`ctc04-celula1` = '" . $object->getCtc04celula1() . "',
-`ctc04-celula2` = '" . $object->getCtc04celula2() . "',
-`ctc04-celula3` = '" . $object->getCtc04celula3() . "',
-`ctc04-celula1-valor` = '" . $object->getCtc04celula1valor() . "',
-`ctc04-celula2-valor` = '" . $object->getCtc04celula2valor() . "',
-`ctc04-celula3-valor` = '" . $object->getCtc04celula3valor() . "',
-`diesel` = '" . $object->getDiesel() . "',
-`gasolina` = '" . $object->getGasolina() . "';";
-            $stmt = $c->prepare($sql);            
+                    `ctc01-celula1` = ?,
+                    `ctc01-celula2` = ?,
+                    `ctc01-celula3` = ?,
+                    `ctc01-celula1-valor` = ?,
+                    `ctc01-celula2-valor` = ?,
+                    `ctc01-celula3-valor` = ?,
+                    `ctc04-celula1` = ?,
+                    `ctc04-celula2` = ?,
+                    `ctc04-celula3` = ?,
+                    `ctc04-celula1-valor` = ?,
+                    `ctc04-celula2-valor` = ?,
+                    `ctc04-celula3-valor` = ?,
+                    `diesel` = ?,
+                    `gasolina` = ?";
+            $stmt = $c->prepare($sql);
+            $stmt->bind_param(
+                    "ssssssssssssss",
+                    $object->getCtc01celula1(),
+                    $object->getCtc01celula2(),
+                    $object->getCtc01celula3(),
+                    $object->getCtc01celula1valor(),
+                    $object->getCtc01celula2valor(),
+                    $object->getCtc01celula3valor(),
+                    $object->getCtc04celula1(),
+                    $object->getCtc04celula2(),
+                    $object->getCtc04celula3(),
+                    $object->getCtc04celula1valor(),
+                    $object->getCtc04celula2valor(),
+                    $object->getCtc04celula3valor(),
+                    $object->getDiesel(),
+                    $object->getGasolina()
+            );
             $sqlOk = $stmt ? $stmt->execute() : false;
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -63,16 +81,16 @@ class CombustivelDAO {
     public function getAllList() {
         try {
             $c = connect();
-            $sql = "SELECT *, "
-                    . "REPLACE(`ctc01-celula1-valor`, '.', ',') as `ctc01-celula1-valor`, "
-                    . "REPLACE(`ctc01-celula2-valor`, '.', ',') as `ctc01-celula2-valor`, "
-                    . "REPLACE(`ctc01-celula3-valor`, '.', ',') as `ctc01-celula3-valor`, "
-                    . "REPLACE(`ctc04-celula1-valor`, '.', ',') as `ctc04-celula1-valor`, "
-                    . "REPLACE(`ctc04-celula2-valor`, '.', ',') as `ctc04-celula2-valor`, "
-                    . "REPLACE(`ctc04-celula3-valor`, '.', ',') as `ctc04-celula3-valor`, "
-                    . "REPLACE(`diesel`, '.', ',') as `diesel`, "
-                    . "REPLACE(`gasolina`, '.', ',') as `gasolina` "
-                    . " FROM Combustivel ";
+            $sql = "SELECT *, 
+                        REPLACE(`ctc01-celula1-valor`, '.', ',') as `ctc01-celula1-valor`,
+                        REPLACE(`ctc01-celula2-valor`, '.', ',') as `ctc01-celula2-valor`,
+                        REPLACE(`ctc01-celula3-valor`, '.', ',') as `ctc01-celula3-valor`,
+                        REPLACE(`ctc04-celula1-valor`, '.', ',') as `ctc04-celula1-valor`,
+                        REPLACE(`ctc04-celula2-valor`, '.', ',') as `ctc04-celula2-valor`,
+                        REPLACE(`ctc04-celula3-valor`, '.', ',') as `ctc04-celula3-valor`,
+                        REPLACE(`diesel`, '.', ',') as `diesel`,
+                        REPLACE(`gasolina`, '.', ',') as `gasolina`
+                    FROM Combustivel";
             $result = $c->query($sql);
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
@@ -103,5 +121,4 @@ class CombustivelDAO {
             "gasolina" => $row["gasolina"]
         );
     }
-
 }

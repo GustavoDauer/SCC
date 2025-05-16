@@ -2,7 +2,7 @@
 
 /* * *****************************************************************************
  * 
- * Copyright © 2021 Gustavo Henrique Mello Dauer - 2º Ten 
+ * Copyright © 2025 Gustavo Henrique Mello Dauer - 1º Ten 
  * Chefe da Seção de Informática do 2º BE Cmb
  * Email: gustavodauer@gmail.com
  * 
@@ -35,23 +35,28 @@ class MaterialDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO Material("
-                    . "Classe_idClasse, item, marca, modelo, ano, motivo, local, motivoDetalhado, secaoResponsavel, Situacao_idSituacao"
-                    . ") "
-                    . "VALUES("
-                    . $object->getIdClasse() . ", "
-                    . "'" . $object->getItem() . "', "
-                    . "'" . $object->getMarca() . "', "
-                    . "'" . $object->getModelo() . "', "
-                    . "'" . $object->getAno() . "', "
-                    . "'" . $object->getMotivo() . "', "
-                    . "'" . $object->getLocal() . "', "
-                    . "'" . $object->getMotivoDetalhado() . "', "
-                    . "'" . $object->getSecaoResponsavel() . "', "
-                    . $object->getIdSituacao()
-                    . ");";
+            $sql = "INSERT INTO Material (
+            Classe_idClasse, item, marca, modelo, ano, motivo, local, motivoDetalhado, secaoResponsavel, Situacao_idSituacao
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $stmt->bind_param(
+                    "issssssssi",
+                    $object->getIdClasse(),
+                    $object->getItem(),
+                    $object->getMarca(),
+                    $object->getModelo(),
+                    $object->getAno(),
+                    $object->getMotivo(),
+                    $object->getLocal(),
+                    $object->getMotivoDetalhado(),
+                    $object->getSecaoResponsavel(),
+                    $object->getIdSituacao()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -62,38 +67,60 @@ class MaterialDAO {
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE Material SET "
-                    . "Classe_idClasse = " . $object->getIdClasse() . ", "
-                    . "item = '" . $object->getItem() . "', "
-                    . "marca = '" . $object->getMarca() . "', "
-                    . "modelo = '" . $object->getModelo() . "', "
-                    . "ano = '" . $object->getAno() . "', "
-                    . "motivo = '" . $object->getMotivo() . "', "
-                    . "local = '" . $object->getLocal() . "', "
-                    . "motivoDetalhado = '" . $object->getMotivoDetalhado() . "', "
-                    . "secaoResponsavel = '" . $object->getSecaoResponsavel() . "', "
-                    . "Situacao_idSituacao = " . $object->getIdSituacao()
-                    . " WHERE idMaterial = " . $object->getId() . ";";
+            $sql = "UPDATE Material SET 
+            Classe_idClasse = ?, 
+            item = ?, 
+            marca = ?, 
+            modelo = ?, 
+            ano = ?, 
+            motivo = ?, 
+            local = ?, 
+            motivoDetalhado = ?, 
+            secaoResponsavel = ?, 
+            Situacao_idSituacao = ? 
+            WHERE idMaterial = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->bind_param(
+                    "issssssssii",
+                    $object->getIdClasse(),
+                    $object->getItem(),
+                    $object->getMarca(),
+                    $object->getModelo(),
+                    $object->getAno(),
+                    $object->getMotivo(),
+                    $object->getLocal(),
+                    $object->getMotivoDetalhado(),
+                    $object->getSecaoResponsavel(),
+                    $object->getIdSituacao(),
+                    $object->getId()
+            );
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Material "
-                    . " WHERE idMaterial = " . $object->getId() . ";";
+            $sql = "DELETE FROM Material WHERE idMaterial = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->bind_param("i", $object->getId());
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -101,10 +128,6 @@ class MaterialDAO {
         try {
             $c = connect();
             $sqlFiltro = "";
-//            if (isset($filtro) && $filtro["idSituacao"] != "") {
-//                $sqlFiltro .= " WHERE ";
-//                $sqlFiltro .= "Situacao_idSituacao = " . $filtro["idSituacao"];
-//            }
             $sql = "SELECT * "
                     . " FROM Material "
                     . " ORDER BY Classe_idClasse, item ";
@@ -153,5 +176,4 @@ class MaterialDAO {
             "idSituacao" => $row["Situacao_idSituacao"]
         );
     }
-
 }

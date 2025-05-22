@@ -19,6 +19,14 @@ Gerador de mensagens para compartilhamento:
 
 ![Comando-Copiar](https://github.com/user-attachments/assets/fa31ab26-b1e9-412c-bf72-2c2310395357)
 
+S1
+----------------------
+Mapa da Força digital:
+![S1-1](https://github.com/user-attachments/assets/3142c5f6-88fb-4e49-98a5-63c3441c699e)
+
+Gerenciador de Prazos de Sindicâncias, Processos Administrativos, entre outros:
+![S1-2](https://github.com/user-attachments/assets/07764b30-ceee-4262-8c8f-4d57f2fc3059)
+
 
 Executando SCC
 ======================

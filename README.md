@@ -1,3 +1,5 @@
+![SCC](https://github.com/user-attachments/assets/a7600e51-a429-45b4-b4e5-3e1db4ca743a)
+
 SCC introdução
 ===========================
 SCC é um software desenvolvido a pedido do Comando do 2º BE Cmb para controle 
@@ -7,6 +9,16 @@ SCC é um software-livre multiplataforma.
 É escrito em PHP, usando banco de dados MySQL (MariaDB), Bootstrap e JQuery.
 
 Hospedado originalmente na Intranet do 2º BE Cmb.
+
+Comando
+----------------------
+
+![Comando](https://github.com/user-attachments/assets/72333e77-d481-4885-b609-48f95972fd7d)
+
+Gerador de mensagens para compartilhamento:
+
+![Comando-Copiar](https://github.com/user-attachments/assets/fa31ab26-b1e9-412c-bf72-2c2310395357)
+
 
 Executando SCC
 ======================

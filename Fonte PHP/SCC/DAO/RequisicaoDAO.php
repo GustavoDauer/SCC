@@ -5,166 +5,257 @@ require_once '../include/comum.php';
 
 class RequisicaoDAO {
 
-    function insert($object) {
+    public function insert($object) {
         try {
             $c = connect();
-            $sql = "START TRANSACTION;"
-                    . "INSERT INTO `scc`.`Requisicao` (`dataRequisicao`, `om`, `Secao_idSecao`, `NotaCredito_idNotaCredito`, `Categoria_idCategoria`, `modalidade`, `numeroModalidade`, `ug`, `omModalidade`, `empresa`, `cnpj`, `contato`, `dataNE`, `tipoNE`, `tipoNF`, `ne`, `valorNE`, `observacaoSALC`, `dataEnvioNE`, `valorAnulado`, `justificativaAnulado`, `valorReforcado`, `observacaoReforco`, `NotaCredito_idNotaCreditoReforco`, `dataParecer`, `parecer`, `observacaoConformidade`, `dataAssinatura`, `dataEnvioNEEmpresa`, `dataPrazoEntrega`, `dataOficio`, `diex`, `dataDiex`, `Processo_idProcesso`, `observacaoAlmox`, `dataProtocoloSalc1`, `dataProtocoloConformidade`, `dataProtocoloSalc2`, `dataProtocoloAlmox`, `responsavel`) "
-                    . " VALUES("
-                    . (!empty($object->getDataRequisicao()) ? "'" . $object->getDataRequisicao() . "' " : "NULL ")
-                    . ", '" . $object->getOm() . "'"
-                    . ", " . (!empty($object->getIdSecao()) ? $object->getIdSecao() : "NULL ")
-                    . ", " . (!empty($object->getIdNotaCredito()) ? $object->getIdNotaCredito() : "NULL ")
-                    . ", " . (!empty($object->getIdCategoria()) ? $object->getIdCategoria() : "NULL ")
-                    . ", '" . $object->getModalidade() . "'"
-                    . ", " . $object->getNumeroModalidade()
-                    . ", " . $object->getUg() . " "
-                    . ", '" . $object->getOmModalidade() . "'"
-                    . ", '" . $object->getEmpresa() . "'"
-                    . ", '" . $object->getCnpj() . "'"
-                    . ", '" . $object->getContato() . "'"
-                    . ", " . (!empty($object->getDataNE()) ? "'" . $object->getDataNE() . "' " : "NULL ")
-                    . ", '" . $object->getTipoNE() . "'"
-                    . ", '" . $object->getTipoNF() . "'"
-                    . ", '" . $object->getNe() . "'"
-                    . ", '" . (empty($object->getValorNE()) ? "0.0" : $object->getValorNE()) . "'"
-                    . ", '" . $object->getObservacaoSALC() . "'"
-                    . ", " . (!empty($object->getDataEnvioNE()) ? "'" . $object->getDataEnvioNE() . "' " : "NULL ")
-                    . ", '" . (empty($object->getValorAnulado()) ? "0.0" : $object->getValorAnulado()) . "'"
-                    . ", '" . $object->getJustificativaAnulado() . "'"
-                    . ", '" . (empty($object->getValorReforcado()) ? "0.0" : $object->getValorReforcado()) . "'"
-                    . ", '" . $object->getObservacaoReforco() . "'"
-                    . ", " . (!empty($object->getIdNotaCreditoReforco()) ? $object->getIdNotaCreditoReforco() : "NULL ")
-                    . ", " . (!empty($object->getDataParecer()) ? "'" . $object->getDataParecer() . "' " : "NULL ")
-                    . ", " . (!empty($object->getParecer()) ? $object->getParecer() : "NULL ")
-                    . ", '" . $object->getObservacaoConformidade() . "'"
-                    . ", " . (!empty($object->getDataAssinatura()) ? "'" . $object->getDataAssinatura() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataEnvioNEEmpresa()) ? "'" . $object->getDataEnvioNEEmpresa() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataPrazoEntrega()) ? "'" . $object->getDataPrazoEntrega() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataOficio()) ? "'" . $object->getDataOficio() . "' " : "NULL ")
-                    . ", '" . $object->getDiex() . "'"
-                    . ", " . (!empty($object->getDataDiex()) ? "'" . $object->getDataDiex() . "' " : "NULL ")
-                    . ", " . (!empty($object->getIdProcesso()) ? $object->getIdProcesso() : "NULL ")
-                    . ", '" . $object->getObservacaoAlmox() . "'"
-                    . ", " . (!empty($object->getDataProtocoloSalc1()) ? "'" . $object->getDataProtocoloSalc1() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataProtocoloConformidade()) ? "'" . $object->getDataProtocoloConformidade() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataProtocoloSalc2()) ? "'" . $object->getDataProtocoloSalc2() . "' " : "NULL ")
-                    . ", " . (!empty($object->getDataProtocoloAlmox()) ? "'" . $object->getDataProtocoloAlmox() . "' " : "NULL ")
-                    . ", '" . $object->getResponsavel() . "'"
-                    . ");SET @idRequisicao = LAST_INSERT_ID();"
-                    . " SELECT @idRequisicao AS idRequisicaoInsert; ";
+            $c->begin_transaction();
+            // Insert na tabela Requisicao
+            $sql = "INSERT INTO `scc`.`Requisicao` (
+            dataRequisicao, om, Secao_idSecao, NotaCredito_idNotaCredito, Categoria_idCategoria, modalidade, numeroModalidade,
+            ug, omModalidade, empresa, cnpj, contato, dataNE, tipoNE, tipoNF, ne, valorNE, observacaoSALC, dataEnvioNE,
+            valorAnulado, justificativaAnulado, valorReforcado, observacaoReforco, NotaCredito_idNotaCreditoReforco, dataParecer,
+            parecer, observacaoConformidade, dataAssinatura, dataEnvioNEEmpresa, dataPrazoEntrega, dataOficio, diex,
+            dataDiex, Processo_idProcesso, observacaoAlmox, dataProtocoloSalc1, dataProtocoloConformidade, dataProtocoloSalc2,
+            dataProtocoloAlmox, responsavel
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar insert Requisicao: " . $c->error);
+            }
+            // Preparar valores, tratando valores NULL e defaults
+            $dataRequisicao = $object->getDataRequisicao() ?: null;
+            $om = $object->getOm();
+            $secaoId = $object->getIdSecao() ?: null;
+            $notaCreditoId = $object->getIdNotaCredito() ?: null;
+            $categoriaId = $object->getIdCategoria() ?: null;
+            $modalidade = $object->getModalidade();
+            $numeroModalidade = $object->getNumeroModalidade();
+            $ug = $object->getUg();
+            $omModalidade = $object->getOmModalidade();
+            $empresa = $object->getEmpresa();
+            $cnpj = $object->getCnpj();
+            $contato = $object->getContato();
+            $dataNE = $object->getDataNE() ?: null;
+            $tipoNE = $object->getTipoNE();
+            $tipoNF = $object->getTipoNF();
+            $ne = $object->getNe();
+            $valorNE = $object->getValorNE() ?: 0.0;
+            $observacaoSALC = $object->getObservacaoSALC();
+            $dataEnvioNE = $object->getDataEnvioNE() ?: null;
+            $valorAnulado = $object->getValorAnulado() ?: 0.0;
+            $justificativaAnulado = $object->getJustificativaAnulado();
+            $valorReforcado = $object->getValorReforcado() ?: 0.0;
+            $observacaoReforco = $object->getObservacaoReforco();
+            $notaCreditoIdReforco = $object->getIdNotaCreditoReforco() ?: null;
+            $dataParecer = $object->getDataParecer() ?: null;
+            $parecer = $object->getParecer() ?: null;
+            $observacaoConformidade = $object->getObservacaoConformidade();
+            $dataAssinatura = $object->getDataAssinatura() ?: null;
+            $dataEnvioNEEmpresa = $object->getDataEnvioNEEmpresa() ?: null;
+            $dataPrazoEntrega = $object->getDataPrazoEntrega() ?: null;
+            $dataOficio = $object->getDataOficio() ?: null;
+            $diex = $object->getDiex();
+            $dataDiex = $object->getDataDiex() ?: null;
+            $processoId = $object->getIdProcesso() ?: null;
+            $observacaoAlmox = $object->getObservacaoAlmox();
+            $dataProtocoloSalc1 = $object->getDataProtocoloSalc1() ?: null;
+            $dataProtocoloConformidade = $object->getDataProtocoloConformidade() ?: null;
+            $dataProtocoloSalc2 = $object->getDataProtocoloSalc2() ?: null;
+            $dataProtocoloAlmox = $object->getDataProtocoloAlmox() ?: null;
+            $responsavel = $object->getResponsavel();
+            $stmt->bind_param(
+                    "ssiiisiiisssssssdsssssdsssssisssssssssss",
+                    $dataRequisicao, $om, $secaoId, $notaCreditoId, $categoriaId, $modalidade, $numeroModalidade,
+                    $ug, $omModalidade, $empresa, $cnpj, $contato, $dataNE, $tipoNE, $tipoNF, $ne, $valorNE, $observacaoSALC,
+                    $dataEnvioNE, $valorAnulado, $justificativaAnulado, $valorReforcado, $observacaoReforco, $notaCreditoIdReforco,
+                    $dataParecer, $parecer, $observacaoConformidade, $dataAssinatura, $dataEnvioNEEmpresa, $dataPrazoEntrega,
+                    $dataOficio, $diex, $dataDiex, $processoId, $observacaoAlmox, $dataProtocoloSalc1, $dataProtocoloConformidade,
+                    $dataProtocoloSalc2, $dataProtocoloAlmox, $responsavel
+            );
+            $stmt->execute();
+            $lastId = $stmt->insert_id;
+            $stmt->close();
+            // Inserir os itens
             $itemList = $object->getItemList();
             if (!is_null($itemList)) {
+                $sqlItem = "INSERT INTO `scc`.`Item` (numeroItem, descricao, quantidade, valor, Requisicao_idRequisicao) VALUES (?, ?, ?, ?, ?)";
+                $stmtItem = $c->prepare($sqlItem);
+                if (!$stmtItem) {
+                    throw new Exception("Erro ao preparar insert Item: " . $c->error);
+                }
                 foreach ($itemList as $item) {
-                    $sql .= "INSERT INTO `scc`.`Item` (`numeroItem`, `descricao`, `quantidade`, `valor`, `Requisicao_idRequisicao`) "
-                            . "VALUES ("
-                            . "'" . $item->getNumeroItem() . "' "
-                            . ", '" . $item->getDescricao() . "' "
-                            . ", " . (empty($item->getQuantidade()) ? "0" : $item->getQuantidade()) . " "
-                            . ", '" . (empty($item->getValor()) ? "0.0" : $item->getValor()) . "' "
-                            . ", @idRequisicao "
-                            . ");";
+                    $numeroItem = $item->getNumeroItem();
+                    $descricao = $item->getDescricao();
+                    $quantidade = $item->getQuantidade() ?: 0;
+                    $valor = $item->getValor() ?: 0.0;
+                    $requisicaoId = $lastId;
+                    $stmtItem->bind_param("ssidi", $numeroItem, $descricao, $quantidade, $valor, $requisicaoId);
+                    $stmtItem->execute();
                 }
+                $stmtItem->close();
             }
-            $sql .= "COMMIT;";
-            $sqlOk = $c->multi_query($sql);
-            $lastId = 0;
-            do {
-                if ($result = $c->store_result()) {
-                    while ($row = $result->fetch_row()) {
-                        $lastId = $row[0];
-                    }
-                }
-            } while ($c->next_result());
-            $sqlOk = $sqlOk == false ? false : $lastId;
+            $c->commit();
             $c->close();
-            return $sqlOk;
+            return $lastId;
         } catch (Exception $e) {
-            throw($e);
+            if ($c && $c->errno === 0) {
+                $c->rollback();
+                $c->close();
+            }
+            throw $e;
         }
     }
 
-    function update($object) {
+    public function update($object) {
         try {
             $c = connect();
-            $sql = "START TRANSACTION;
-                        UPDATE `scc`.`Requisicao`
-                        SET "
-                    . " dataRequisicao = " . (!empty($object->getDataRequisicao()) ? "'" . $object->getDataRequisicao() . "' " : "NULL ")
-                    . ", om = '" . $object->getOm() . "' "
-                    . ", Secao_idSecao = " . $object->getIdSecao() . " "
-                    . ", NotaCredito_idNotaCredito = " . (!empty($object->getIdNotaCredito()) ? $object->getIdNotaCredito() : "NULL ")
-                    . ", Categoria_idCategoria = " . (!empty($object->getIdCategoria()) ? $object->getIdCategoria() : "NULL ")
-                    . ", modalidade = '" . $object->getModalidade() . "' "
-                    . ", numeroModalidade = " . $object->getNumeroModalidade()
-                    . ", ug = " . $object->getUg()
-                    . ", omModalidade = '" . $object->getOmModalidade() . "' "
-                    . ", empresa = '" . $object->getEmpresa() . "' "
-                    . ", cnpj = '" . $object->getCnpj() . "' "
-                    . ", contato = '" . $object->getContato() . "' "
-                    . ", dataNE = " . (!empty($object->getDataNE()) ? "'" . $object->getDataNE() . "' " : "NULL ")
-                    . ", tipoNE = '" . $object->getTipoNE() . "' "
-                    . ", tipoNF = '" . $object->getTipoNF() . "' "
-                    . ", ne = '" . $object->getNe() . "' "
-                    . ", valorNE = '" . (empty($object->getValorNE()) ? "0.0" : $object->getValorNE()) . "' "
-                    . ", observacaoSALC = '" . $object->getObservacaoSALC() . "' "
-                    . ", dataEnvioNE = " . (!empty($object->getDataEnvioNE()) ? "'" . $object->getDataEnvioNE() . "' " : "NULL ")
-                    . ", valorAnulado = '" . (empty($object->getValorAnulado()) ? "0.0" : $object->getValorAnulado()) . "' "
-                    . ", justificativaAnulado = '" . $object->getJustificativaAnulado() . "' "
-                    . ", valorReforcado = '" . (empty($object->getValorReforcado()) ? "0.0" : $object->getValorReforcado()) . "' "
-                    . ", observacaoReforco = '" . $object->getObservacaoReforco() . "' "
-                    . ", NotaCredito_idNotaCreditoReforco = " . (!empty($object->getIdNotaCreditoReforco()) ? $object->getIdNotaCreditoReforco() : "NULL ")
-                    . ", dataParecer = " . (!empty($object->getDataParecer()) ? "'" . $object->getDataParecer() . "' " : "NULL ")
-                    . ", parecer = " . (!empty($object->getParecer()) ? $object->getParecer() : "NULL ")
-                    . ", observacaoConformidade = '" . $object->getObservacaoConformidade() . "' "
-                    . ", dataAssinatura = " . (!empty($object->getDataAssinatura()) ? "'" . $object->getDataAssinatura() . "' " : "NULL ")
-                    . ", dataEnvioNEEmpresa = " . (!empty($object->getDataEnvioNEEmpresa()) ? "'" . $object->getDataEnvioNEEmpresa() . "' " : "NULL ")
-                    . ", dataPrazoEntrega = " . (!empty($object->getDataPrazoEntrega()) ? "'" . $object->getDataPrazoEntrega() . "' " : "NULL ")
-                    . ", dataOficio = " . (!empty($object->getDataOficio()) ? "'" . $object->getDataOficio() . "' " : "NULL ")
-                    . ", diex = '" . $object->getDiex() . "' "
-                    . ", dataDiex = " . (!empty($object->getDataDiex()) ? "'" . $object->getDataDiex() . "' " : "NULL ")
-                    . ", Processo_idProcesso = " . (!empty($object->getIdProcesso()) ? $object->getIdProcesso() . " " : "NULL ") . " "
-                    . ", observacaoAlmox = '" . $object->getObservacaoAlmox() . "' "
-                    . ", dataProtocoloSalc1 = " . (!empty($object->getDataProtocoloSalc1()) ? "'" . $object->getDataProtocoloSalc1() . "' " : "NULL ")
-                    . ", dataProtocoloConformidade = " . (!empty($object->getDataProtocoloConformidade()) ? "'" . $object->getDataProtocoloConformidade() . "' " : "NULL ")
-                    . ", dataProtocoloSalc2 = " . (!empty($object->getDataProtocoloSalc2()) ? "'" . $object->getDataProtocoloSalc2() . "' " : "NULL ")
-                    . ", dataProtocoloAlmox = " . (!empty($object->getDataProtocoloAlmox()) ? "'" . $object->getDataProtocoloAlmox() . "' " : "NULL ")
-                    . ", responsavel = '" . $object->getResponsavel() . "' "
-                    . " WHERE idRequisicao = " . $object->getId() . ";";
+            $c->begin_transaction();
+            $sql = "UPDATE `scc`.`Requisicao` SET
+            dataRequisicao = ?,
+            om = ?,
+            Secao_idSecao = ?,
+            NotaCredito_idNotaCredito = ?,
+            Categoria_idCategoria = ?,
+            modalidade = ?,
+            numeroModalidade = ?,
+            ug = ?,
+            omModalidade = ?,
+            empresa = ?,
+            cnpj = ?,
+            contato = ?,
+            dataNE = ?,
+            tipoNE = ?,
+            tipoNF = ?,
+            ne = ?,
+            valorNE = ?,
+            observacaoSALC = ?,
+            dataEnvioNE = ?,
+            valorAnulado = ?,
+            justificativaAnulado = ?,
+            valorReforcado = ?,
+            observacaoReforco = ?,
+            NotaCredito_idNotaCreditoReforco = ?,
+            dataParecer = ?,
+            parecer = ?,
+            observacaoConformidade = ?,
+            dataAssinatura = ?,
+            dataEnvioNEEmpresa = ?,
+            dataPrazoEntrega = ?,
+            dataOficio = ?,
+            diex = ?,
+            dataDiex = ?,
+            Processo_idProcesso = ?,
+            observacaoAlmox = ?,
+            dataProtocoloSalc1 = ?,
+            dataProtocoloConformidade = ?,
+            dataProtocoloSalc2 = ?,
+            dataProtocoloAlmox = ?,
+            responsavel = ?
+            WHERE idRequisicao = ?
+        ";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar update Requisicao: " . $c->error);
+            }
+            // Preparar valores com tratamento de NULL e defaults
+            $dataRequisicao = $object->getDataRequisicao() ?: null;
+            $om = $object->getOm();
+            $secaoId = $object->getIdSecao() ?: null;
+            $notaCreditoId = $object->getIdNotaCredito() ?: null;
+            $categoriaId = $object->getIdCategoria() ?: null;
+            $modalidade = $object->getModalidade();
+            $numeroModalidade = $object->getNumeroModalidade();
+            $ug = $object->getUg();
+            $omModalidade = $object->getOmModalidade();
+            $empresa = $object->getEmpresa();
+            $cnpj = $object->getCnpj();
+            $contato = $object->getContato();
+            $dataNE = $object->getDataNE() ?: null;
+            $tipoNE = $object->getTipoNE();
+            $tipoNF = $object->getTipoNF();
+            $ne = $object->getNe();
+            $valorNE = $object->getValorNE() ?: 0.0;
+            $observacaoSALC = $object->getObservacaoSALC();
+            $dataEnvioNE = $object->getDataEnvioNE() ?: null;
+            $valorAnulado = $object->getValorAnulado() ?: 0.0;
+            $justificativaAnulado = $object->getJustificativaAnulado();
+            $valorReforcado = $object->getValorReforcado() ?: 0.0;
+            $observacaoReforco = $object->getObservacaoReforco();
+            $notaCreditoIdReforco = $object->getIdNotaCreditoReforco() ?: null;
+            $dataParecer = $object->getDataParecer() ?: null;
+            $parecer = $object->getParecer() ?: null;
+            $observacaoConformidade = $object->getObservacaoConformidade();
+            $dataAssinatura = $object->getDataAssinatura() ?: null;
+            $dataEnvioNEEmpresa = $object->getDataEnvioNEEmpresa() ?: null;
+            $dataPrazoEntrega = $object->getDataPrazoEntrega() ?: null;
+            $dataOficio = $object->getDataOficio() ?: null;
+            $diex = $object->getDiex();
+            $dataDiex = $object->getDataDiex() ?: null;
+            $processoId = $object->getIdProcesso() ?: null;
+            $observacaoAlmox = $object->getObservacaoAlmox();
+            $dataProtocoloSalc1 = $object->getDataProtocoloSalc1() ?: null;
+            $dataProtocoloConformidade = $object->getDataProtocoloConformidade() ?: null;
+            $dataProtocoloSalc2 = $object->getDataProtocoloSalc2() ?: null;
+            $dataProtocoloAlmox = $object->getDataProtocoloAlmox() ?: null;
+            $responsavel = $object->getResponsavel();
+            $idRequisicao = $object->getId();
+            // Bind dos parâmetros (note a ordem deve bater com a query!)
+            $stmt->bind_param(
+                    "ssiiisiiisssssssdsssssdsssssissssssssssi",
+                    $dataRequisicao, $om, $secaoId, $notaCreditoId, $categoriaId, $modalidade, $numeroModalidade,
+                    $ug, $omModalidade, $empresa, $cnpj, $contato, $dataNE, $tipoNE, $tipoNF, $ne, $valorNE, $observacaoSALC,
+                    $dataEnvioNE, $valorAnulado, $justificativaAnulado, $valorReforcado, $observacaoReforco, $notaCreditoIdReforco,
+                    $dataParecer, $parecer, $observacaoConformidade, $dataAssinatura, $dataEnvioNEEmpresa, $dataPrazoEntrega,
+                    $dataOficio, $diex, $dataDiex, $processoId, $observacaoAlmox, $dataProtocoloSalc1, $dataProtocoloConformidade,
+                    $dataProtocoloSalc2, $dataProtocoloAlmox, $responsavel, $idRequisicao
+            );
+            $stmt->execute();
+            $stmt->close();
+            // Inserir itens novos vinculados à requisição (não faz update dos itens existentes)
             $itemList = $object->getItemList();
             if (!is_null($itemList)) {
-                foreach ($itemList as $item) {
-                    $sql .= "INSERT INTO `scc`.`Item` (`numeroItem`, `descricao`, `quantidade`, `valor`, `Requisicao_idRequisicao`) "
-                            . "VALUES ("
-                            . "'" . $item->getNumeroItem() . "' "
-                            . ", '" . $item->getDescricao() . "' "
-                            . ", " . (empty($item->getQuantidade()) ? "0" : $item->getQuantidade()) . " "
-                            . ", '" . (empty($item->getValor()) ? "0.0" : $item->getValor()) . "' "
-                            . ", " . $object->getId()
-                            . ");";
+                $sqlItem = "INSERT INTO `scc`.`Item` (numeroItem, descricao, quantidade, valor, Requisicao_idRequisicao) VALUES (?, ?, ?, ?, ?)";
+                $stmtItem = $c->prepare($sqlItem);
+                if (!$stmtItem) {
+                    throw new Exception("Erro ao preparar insert Item: " . $c->error);
                 }
+                foreach ($itemList as $item) {
+                    $numeroItem = $item->getNumeroItem();
+                    $descricao = $item->getDescricao();
+                    $quantidade = $item->getQuantidade() ?: 0;
+                    $valor = $item->getValor() ?: 0.0;
+                    $stmtItem->bind_param("ssidi", $numeroItem, $descricao, $quantidade, $valor, $idRequisicao);
+                    $stmtItem->execute();
+                }
+                $stmtItem->close();
             }
-            $sql .= "COMMIT;";
-            //$stmt = $c->prepare($sql);            
-            //$sqlOk = $stmt ? $stmt->execute() : false;               
-            $sqlOk = $c->multi_query($sql);
+            $c->commit();
             $c->close();
-            return $sqlOk;
+            return true;
         } catch (Exception $e) {
-            throw($e);
+            if ($c && $c->errno === 0) {
+                $c->rollback();
+                $c->close();
+            }
+            throw $e;
         }
     }
 
     function delete($id) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Requisicao WHERE idRequisicao = $id";
+            $sql = "DELETE FROM Requisicao WHERE idRequisicao = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar delete: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -176,82 +267,95 @@ class RequisicaoDAO {
                     . ", REPLACE(valorAnulado, '.', ',') AS valorAnulado "
                     . ", REPLACE(valorReforcado, '.', ',') AS valorReforcado "
                     . " FROM Requisicao "
-                    . " WHERE idRequisicao = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+                    . " WHERE idRequisicao = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Requisicao($objectArray);
                 $instance->setHasNFsParaEntrega($this->checkNFSemEntrega($id));
                 $instance->setHasNFsParaLiquidar($this->checkNFSemLiquidar($id));
                 $instance->setHasNFsParaRemessa($this->checkNFSemRemessa($id));
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $instance;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
-    public function getAllList($filtro = "") {
+    public function getAllList($filtro = []) {
         try {
             $c = connect();
             $sql = "SELECT * "
                     . " FROM Requisicao "
                     . " LEFT JOIN NotaCredito ON NotaCredito_idNotaCredito = idNotaCredito "
                     . " LEFT JOIN NotaFiscal ON Requisicao_idRequisicao = idRequisicao ";
-            if (
-                    $filtro["idSecao"] > 0 ||
-                    $filtro["idNotaCredito"] > 0 ||
-                    !empty($filtro["ug"]) ||
-                    !empty($filtro["ne"]) ||
-                    $filtro["materiaisEntregues"] === 1 ||
-                    $filtro["materiaisEntregues"] === 0 ||
-                    $filtro["ano"] > 0
-            ) {
-                $sql .= " WHERE ";
-                if ($filtro["ano"] > 0) {
-                    $sql .= " dataNE >= '" . $filtro["ano"] . "-01-01' AND dataNE <= '" . $filtro["ano"] . "-12-31' OR (dataNE IS NULL OR dataNE = '') ";
-                }
-                if ($filtro["idSecao"] > 0) {
-                    if ($filtro["ano"] > 0) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " Secao_idSecao = " . $filtro["idSecao"];
-                }
-                if ($filtro["idNotaCredito"] > 0) {
-                    if ($filtro["ano"] > 0 || $filtro["idSecao"] > 0) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " NotaCredito_idNotaCredito = " . $filtro["idNotaCredito"];
-                }
-                if (!empty($filtro["ug"])) {
-                    if ($filtro["ano"] > 0 || $filtro["idSecao"] > 0 || $filtro["idNotaCredito"] > 0) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " NotaCredito.ug = '" . $filtro["ug"] . "'";
-                }
-                if (!empty($filtro["ne"])) {
-                    if ($filtro["ano"] > 0 || $filtro["idSecao"] > 0 || $filtro["idNotaCredito"] > 0 || !empty($filtro["ug"])) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " ne LIKE '%" . $filtro["ne"] . "%'";
-                }
-                if ($filtro["materiaisEntregues"] === 1) {
-                    if ($filtro["ano"] > 0 || $filtro["idSecao"] > 0 || $filtro["idNotaCredito"] > 0 || !empty($filtro["ug"]) || !empty($filtro["ne"])) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " (dataEntrega != '' AND dataEntrega IS NOT NULL) ";
-                }
-                if ($filtro["materiaisEntregues"] === 0) {
-                    if ($filtro["ano"] > 0 || $filtro["idSecao"] > 0 || $filtro["idNotaCredito"] > 0 || !empty($filtro["ug"]) || !empty($filtro["ne"])) {
-                        $sql .= " AND ";
-                    }
-                    $sql .= " (dataEntrega = '' OR dataEntrega IS NULL) ";
-                }
+            $conditions = [];
+            $params = [];
+            $types = "";
+            // Filtro por ano
+            if (!empty($filtro["ano"]) && $filtro["ano"] > 0) {
+                $conditions[] = "(dataNE >= ? AND dataNE <= ? OR dataNE IS NULL OR dataNE = '')";
+                $params[] = $filtro["ano"] . "-01-01";
+                $params[] = $filtro["ano"] . "-12-31";
+                $types .= "ss";
             }
-            $sql .= " GROUP BY idRequisicao"
+            // Filtro idSecao
+            if (!empty($filtro["idSecao"]) && $filtro["idSecao"] > 0) {
+                $conditions[] = "Secao_idSecao = ?";
+                $params[] = $filtro["idSecao"];
+                $types .= "i";
+            }
+            // Filtro idNotaCredito
+            if (!empty($filtro["idNotaCredito"]) && $filtro["idNotaCredito"] > 0) {
+                $conditions[] = "NotaCredito_idNotaCredito = ?";
+                $params[] = $filtro["idNotaCredito"];
+                $types .= "i";
+            }
+            // Filtro ug
+            if (!empty($filtro["ug"])) {
+                $conditions[] = "NotaCredito.ug = ?";
+                $params[] = $filtro["ug"];
+                $types .= "s";
+            }
+            // Filtro ne LIKE
+            if (!empty($filtro["ne"])) {
+                $conditions[] = "ne LIKE ?";
+                $params[] = "%" . $filtro["ne"] . "%";
+                $types .= "s";
+            }
+            // Filtro materiaisEntregues = 1 (true)
+            if (isset($filtro["materiaisEntregues"]) && $filtro["materiaisEntregues"] === 1) {
+                $conditions[] = "(dataEntrega != '' AND dataEntrega IS NOT NULL)";
+            }
+            // Filtro materiaisEntregues = 0 (false)
+            if (isset($filtro["materiaisEntregues"]) && $filtro["materiaisEntregues"] === 0) {
+                $conditions[] = "(dataEntrega = '' OR dataEntrega IS NULL)";
+            }
+            if (count($conditions) > 0) {
+                $sql .= " WHERE " . implode(" AND ", $conditions);
+            }
+            $sql .= " GROUP BY idRequisicao "
                     . " ORDER BY dataNE, dataRequisicao";
-            $result = $c->query($sql);
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
+            }
+            if (!empty($params)) {
+                // Bind dinâmico dos parâmetros
+                $stmt->bind_param($types, ...$params);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $object = new Requisicao($objectArray);
@@ -260,10 +364,11 @@ class RequisicaoDAO {
                 $object->setHasNFsParaRemessa($this->checkNFSemRemessa($object->getId()));
                 $lista[] = $object;
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -273,17 +378,25 @@ class RequisicaoDAO {
             $sql = "SELECT * "
                     . " FROM Requisicao "
                     . " LEFT JOIN NotaFiscal ON Requisicao_idRequisicao = idRequisicao "
-                    . " WHERE idRequisicao = $id AND (dataEntrega = '' OR dataEntrega IS NULL) "
-                    . " GROUP BY idRequisicao ";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+                    . " WHERE idRequisicao = ? AND (dataEntrega = '' OR dataEntrega IS NULL) "
+                    . " GROUP BY idRequisicao";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Requisicao($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? true : false;
+            return isset($instance);
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -293,104 +406,133 @@ class RequisicaoDAO {
             $sql = "SELECT * "
                     . " FROM Requisicao "
                     . " LEFT JOIN NotaFiscal ON Requisicao_idRequisicao = idRequisicao "
-                    . " WHERE idRequisicao = $id AND (dataLiquidacao = '' OR dataLiquidacao IS NULL) "
-                    . " GROUP BY idRequisicao ";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+                    . " WHERE idRequisicao = ? AND (dataLiquidacao = '' OR dataLiquidacao IS NULL) "
+                    . " GROUP BY idRequisicao";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Requisicao($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? true : false;
+            return isset($instance);
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     function checkNFSemRemessa($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Requisicao "
-                    . " LEFT JOIN NotaFiscal ON Requisicao_idRequisicao = idRequisicao "
-                    . " WHERE idRequisicao = $id AND (dataRemessaTesouraria = '' OR dataRemessaTesouraria IS NULL) "
-                    . " GROUP BY idRequisicao ";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+            $sql = "SELECT * 
+                FROM Requisicao 
+                LEFT JOIN NotaFiscal ON Requisicao_idRequisicao = idRequisicao 
+                WHERE idRequisicao = ? AND (dataRemessaTesouraria = '' OR dataRemessaTesouraria IS NULL) 
+                GROUP BY idRequisicao";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Requisicao($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? true : false;
+            return isset($instance);
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     function getTotalItensQuantity($id) {
         try {
             $c = connect();
-            $sql = "SELECT SUM(quantidade) as quantidade "
-                    . " FROM Requisicao "
-                    . " INNER JOIN Item ON Requisicao_idRequisicao = idRequisicao "
-                    . " WHERE idRequisicao = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                $quantidade = $row["quantidade"];
+            $sql = "SELECT SUM(quantidade) as quantidade
+                FROM Requisicao
+                INNER JOIN Item ON Requisicao_idRequisicao = idRequisicao
+                WHERE idRequisicao = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
             }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $quantidade = 0;
+            if ($row = $result->fetch_assoc()) {
+                $quantidade = $row["quantidade"] ?? 0;
+            }
+            $stmt->close();
             $c->close();
-            return isset($quantidade) ? $quantidade : 0;
+            return $quantidade;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     function getTotalItensUsed($id) {
         try {
             $c = connect();
-            $sql = "SELECT SUM(NotaFiscal_has_Item.quantidade) as quantidade "
-                    . " FROM Requisicao "
-                    . " LEFT JOIN Item ON Requisicao_idRequisicao = idRequisicao "
-                    . " LEFT JOIN NotaFiscal_has_Item ON Item_idItem = IdItem "
-                    . " WHERE idRequisicao = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                $quantidade = $row["quantidade"];
+            $sql = "SELECT SUM(NotaFiscal_has_Item.quantidade) as quantidade
+                FROM Requisicao
+                LEFT JOIN Item ON Requisicao_idRequisicao = idRequisicao
+                LEFT JOIN NotaFiscal_has_Item ON Item_idItem = IdItem
+                WHERE idRequisicao = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
             }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $quantidade = 0;
+            if ($row = $result->fetch_assoc()) {
+                $quantidade = $row["quantidade"] ?? 0;
+            }
+            $stmt->close();
             $c->close();
-            return isset($quantidade) ? $quantidade : 0;
+            return $quantidade;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     function getTotalItensLiquidado($id) {
         try {
             $c = connect();
-//            $sql = " SELECT SUM(NotaFiscal_has_Item.quantidade) as quantidade FROM Requisicao 
-//                LEFT JOIN NotaFiscal ON NotaFiscal.Requisicao_idRequisicao = idRequisicao 
-//                LEFT JOIN Item ON Item.Requisicao_idRequisicao = idRequisicao 
-//                LEFT JOIN NotaFiscal_has_Item ON Item_idItem = IdItem 
-//                WHERE 
-//                    NotaFiscal_has_Item.quantidade > 0 AND 
-//                    idRequisicao = $id AND 
-//                    dataLiquidacao != '' AND 
-//                    dataLiquidacao IS NOT NULL";
-            $sql = " SELECT SUM(NotaFiscal_has_Item.quantidade) as quantidade 
-                        FROM NotaFiscal_has_Item 
-                        INNER JOIN NotaFiscal ON 
-                            (dataLiquidacao != '' AND dataLiquidacao IS NOT NULL) AND 
-                            idNotaFiscal = NotaFiscal_idNotaFiscal
-                        INNER JOIN Requisicao ON 
-                            idRequisicao = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
-                $quantidade = $row["quantidade"];
+            $sql = "SELECT SUM(NotaFiscal_has_Item.quantidade) as quantidade
+                FROM NotaFiscal_has_Item
+                INNER JOIN NotaFiscal ON NotaFiscal_idNotaFiscal = idNotaFiscal
+                INNER JOIN Requisicao ON idRequisicao = ?
+                WHERE dataLiquidacao != '' AND dataLiquidacao IS NOT NULL";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar consulta: " . $c->error);
             }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $quantidade = 0;
+            if ($row = $result->fetch_assoc()) {
+                $quantidade = $row["quantidade"] ?? 0;
+            }
+            $stmt->close();
             $c->close();
-            return isset($quantidade) ? $quantidade : 0;
+            return $quantidade;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 

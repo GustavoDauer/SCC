@@ -35,16 +35,17 @@ class ProvidenciaDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO Providencia("
-                    . "providencia, data, Material_idMaterial "
-                    . ") "
-                    . "VALUES("
-                    . "'" . $object->getProvidencia() . "', "
-                    . " CURRENT_DATE, "
-                    . "" . $object->getIdMaterial()
-                    . ");";
-            $stmt = $c->prepare($sql);            
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $sql = "INSERT INTO Providencia (providencia, data, Material_idMaterial) VALUES (?, CURRENT_DATE, ?)";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $providencia = $object->getProvidencia();
+            $idMaterial = $object->getIdMaterial();
+            // Supondo que providencia é string e Material_idMaterial é inteiro
+            $stmt->bind_param("si", $providencia, $idMaterial);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -55,27 +56,36 @@ class ProvidenciaDAO {
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE Providencia SET "
-                    . "providencia = '" . $object->getProvidencia() . "' "
-                    //. "data = '" . $object->getData() . "' "
-                    //. "Material_idMaterial = " . $object->getIdMaterial() . " "
-                    . "WHERE idProvidencia = " . $object->getId();
+            $sql = "UPDATE Providencia SET providencia = ? WHERE idProvidencia = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $providencia = $object->getProvidencia();
+            $id = $object->getId();
+            // 's' para string (providencia), 'i' para inteiro (id)
+            $stmt->bind_param("si", $providencia, $id);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
             throw($e);
         }
     }
-    
+
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Providencia "
-                    . " WHERE idProvidencia = " . $object->getId() . ";";
-            $stmt = $c->prepare($sql);            
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            $sql = "DELETE FROM Providencia WHERE idProvidencia = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $id = $object->getId();
+            $stmt->bind_param("i", $id);
+            $sqlOk = $stmt->execute();
+            $stmt->close();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -86,56 +96,71 @@ class ProvidenciaDAO {
     public function getAllList() {
         try {
             $c = connect();
-            $sql = "SELECT *, "
-                    . "DATE_FORMAT(data, '%d/%m/%Y') as data "
-                    . " FROM Providencia ";
-            $result = $c->query($sql);
+            $sql = "SELECT *, DATE_FORMAT(data, '%d/%m/%Y') as dataFormatada FROM Providencia";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new Providencia($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
     public function getByMaterialId($id) {
-        try {           
+        try {
             $c = connect();
-            $sql = "SELECT *, "
-                    . "DATE_FORMAT(data, '%d/%m/%Y') as data "
-                    . " FROM Providencia "
-                    . " WHERE Material_idMaterial = $id";
-            $result = $c->query($sql);            
+            $sql = "SELECT *, DATE_FORMAT(data, '%d/%m/%Y') as dataFormatada FROM Providencia WHERE Material_idMaterial = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new Providencia($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
-    
+
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT *, "
-                    . "DATE_FORMAT(data, '%d/%m/%Y') as data "
-                    . " FROM Providencia "
-                    . " WHERE idProvidencia = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+            $sql = "SELECT *, DATE_FORMAT(data, '%d/%m/%Y') as dataFormatada FROM Providencia WHERE idProvidencia = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Providencia($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $instance;
         } catch (Exception $e) {
-            throw($e);
+            throw $e;
         }
     }
 
@@ -147,5 +172,4 @@ class ProvidenciaDAO {
             "idMaterial" => $row["idMaterial"]
         );
     }
-
 }

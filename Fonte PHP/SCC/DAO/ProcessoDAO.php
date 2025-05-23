@@ -35,21 +35,38 @@ class ProcessoDAO {
     public function insert($object) {
         try {
             $c = connect();
-            $sql = "INSERT INTO Processo("
-                    . "portaria, responsavel, solucao, dataInicio, dataFim, tipo, assunto, dataPrazo"
-                    . ") "
-                    . "VALUES("
-                    . "'" . $object->getPortaria() . "', "
-                    . "'" . $object->getResponsavel() . "', "
-                    . "'" . $object->getSolucao() . "', "
-                    . (empty($object->getDataInicio()) ? "NULL, " : "'" . $object->getDataInicio() . "', ")
-                    . (empty($object->getDataFim()) ? "NULL, " : "'" . $object->getDataFim() . "', ")
-                    . "'" . $object->getTipo() . "', "
-                    . "'" . $object->getAssunto() . "', "
-                    . (empty($object->getDataPrazo()) ? "NULL " : "'" . $object->getDataPrazo() . "' ")
-                    . ");";
+            $sql = "INSERT INTO Processo (
+                    portaria, responsavel, solucao, dataInicio, dataFim, tipo, assunto, dataPrazo
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            // Preparar valores, tratando NULLs
+            $portaria = $object->getPortaria();
+            $responsavel = $object->getResponsavel();
+            $solucao = $object->getSolucao();
+            $dataInicio = $object->getDataInicio();
+            $dataInicio = empty($dataInicio) ? null : $dataInicio;
+            $dataFim = $object->getDataFim();
+            $dataFim = empty($dataFim) ? null : $dataFim;
+            $tipo = $object->getTipo();
+            $assunto = $object->getAssunto();
+            $dataPrazo = $object->getDataPrazo();
+            $dataPrazo = empty($dataPrazo) ? null : $dataPrazo;
+            // "ssssssss" porque são 8 parâmetros do tipo string ou null
+            $stmt->bind_param(
+                    "ssssssss",
+                    $portaria,
+                    $responsavel,
+                    $solucao,
+                    $dataInicio,
+                    $dataFim,
+                    $tipo,
+                    $assunto,
+                    $dataPrazo
+            );
+            $sqlOk = $stmt->execute();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -60,20 +77,53 @@ class ProcessoDAO {
     public function update($object) {
         try {
             $c = connect();
-            $sql = "UPDATE Processo SET "
-                    . "portaria = '" . $object->getPortaria() . "', "
-                    . "responsavel = '" . $object->getResponsavel() . "', "
-                    . "solucao = '" . $object->getSolucao() . "', "
-                    . "dataInicio = " . (empty($object->getDataInicio()) ? "NULL, " : "'" . $object->getDataInicio() . "', ")
-                    . "dataFim = " . (empty($object->getDataFim()) ? "NULL, " : "'" . $object->getDataFim() . "', ")
-                    . "tipo = '" . $object->getTipo() . "', "
-                    . "assunto = '" . $object->getAssunto() . "', "
-                    . "prorrogacaoPrazo = " . (empty($object->getProrrogacaoPrazo()) ? "NULL, " : "'" . $object->getProrrogacaoPrazo() . "', ")
-                    . "prorrogacao = '" . $object->getProrrogacao() . "', "
-                    . "dataPrazo = " . (empty($object->getDataPrazo()) ? "NULL " : "'" . $object->getDataPrazo() . "' ")
-                    . " WHERE idProcesso = " . $object->getId() . ";";
+            $sql = "UPDATE Processo SET
+                    portaria = ?,
+                    responsavel = ?,
+                    solucao = ?,
+                    dataInicio = ?,
+                    dataFim = ?,
+                    tipo = ?,
+                    assunto = ?,
+                    prorrogacaoPrazo = ?,
+                    prorrogacao = ?,
+                    dataPrazo = ?
+                WHERE idProcesso = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $portaria = $object->getPortaria();
+            $responsavel = $object->getResponsavel();
+            $solucao = $object->getSolucao();
+            $dataInicio = $object->getDataInicio();
+            $dataInicio = empty($dataInicio) ? null : $dataInicio;
+            $dataFim = $object->getDataFim();
+            $dataFim = empty($dataFim) ? null : $dataFim;
+            $tipo = $object->getTipo();
+            $assunto = $object->getAssunto();
+            $prorrogacaoPrazo = $object->getProrrogacaoPrazo();
+            $prorrogacaoPrazo = empty($prorrogacaoPrazo) ? null : $prorrogacaoPrazo;
+            $prorrogacao = $object->getProrrogacao();
+            $dataPrazo = $object->getDataPrazo();
+            $dataPrazo = empty($dataPrazo) ? null : $dataPrazo;
+            $idProcesso = $object->getId();
+            // Bind dos parâmetros - 10 strings + 1 inteiro
+            $stmt->bind_param(
+                    "ssssssssssi",
+                    $portaria,
+                    $responsavel,
+                    $solucao,
+                    $dataInicio,
+                    $dataFim,
+                    $tipo,
+                    $assunto,
+                    $prorrogacaoPrazo,
+                    $prorrogacao,
+                    $dataPrazo,
+                    $idProcesso
+            );
+            $sqlOk = $stmt->execute();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -84,10 +134,14 @@ class ProcessoDAO {
     public function delete($object) {
         try {
             $c = connect();
-            $sql = "DELETE FROM Processo "
-                    . " WHERE idProcesso = " . $object->getId() . ";";
+            $sql = "DELETE FROM Processo WHERE idProcesso = ?";
             $stmt = $c->prepare($sql);
-            $sqlOk = $stmt ? $stmt->execute() : false;
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $idProcesso = $object->getId();
+            $stmt->bind_param("i", $idProcesso);
+            $sqlOk = $stmt->execute();
             $c->close();
             return $sqlOk;
         } catch (Exception $e) {
@@ -95,26 +149,29 @@ class ProcessoDAO {
         }
     }
 
-    public function getAllList($filtro = "") {
+    public function getAllList($filtro = []) {
         try {
             $c = connect();
-            $sqlFiltro = "";
+            $whereClauses = [];
+            $params = [];
+            $paramTypes = "";
+            // Monta os filtros condicionais
             if (isset($filtro) && ($filtro["solucao"] != "todos" || !empty($filtro["tipo"]))) {
-                $sqlFiltro .= " WHERE ";
                 if ($filtro["solucao"] != "todos" && !empty($filtro["solucao"])) {
                     if ($filtro["solucao"] == "concluido") {
-                        $sqlFiltro .= " solucao != '' ";
+                        $whereClauses[] = "solucao != ''";
                     } else if ($filtro["solucao"] == "emandamento") {
-                        $sqlFiltro .= " solucao = '' ";
+                        $whereClauses[] = "solucao = ''";
                     } else if ($filtro["solucao"] == "protocolado") {
-                        $sqlFiltro .= " solucao = '' AND dataFim IS NOT NULL AND dataFim != '' ";
+                        $whereClauses[] = "solucao = '' AND dataFim IS NOT NULL AND dataFim != ''";
                     } else {
-                        $sqlFiltro .= " solucao = '' ";
+                        $whereClauses[] = "solucao = ''";
                     }
                 }
                 if (!empty($filtro["tipo"])) {
-                    $sqlFiltro .= $filtro["solucao"] != "todos" ? " AND " : "";
-                    $sqlFiltro .= " tipo = '" . $filtro["tipo"] . "'";
+                    $whereClauses[] = "tipo = ?";
+                    $params[] = $filtro["tipo"];
+                    $paramTypes .= "s";
                 }
             }
             $sql = "SELECT * "
@@ -122,22 +179,43 @@ class ProcessoDAO {
                     . ", DATE_FORMAT(dataFim, '%d/%m/%Y') as dataFim, DATE_FORMAT(dataFim, '%Y/%m/%d') as dataFimOriginal "
                     . ", DATE_FORMAT(prorrogacaoPrazo, '%d/%m/%Y') as prorrogacaoPrazo, DATE_FORMAT(prorrogacaoPrazo, '%Y/%m/%d') as prorrogacaoPrazoOriginal "
                     . ", DATE_FORMAT(dataPrazo, '%d/%m/%Y') as dataPrazo, DATE_FORMAT(dataPrazo, '%Y/%m/%d') as dataPrazoOriginal "
-                    . " FROM Processo "
-                    . $sqlFiltro
-                    . " ORDER BY dataInicio DESC ";
-            $result = $c->query($sql);
+                    . " FROM Processo ";
+            if (count($whereClauses) > 0) {
+                $sql .= " WHERE " . implode(" AND ", $whereClauses);
+            }
+            $sql .= " ORDER BY dataInicio DESC";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            if (!empty($params)) {
+                // Passa os parâmetros para o bind_param usando operador splat e referência
+                $bindParams = [];
+                $bindParams[] = &$paramTypes;
+                foreach ($params as $key => $value) {
+                    $bindParams[] = &$params[$key];
+                }
+                call_user_func_array([$stmt, 'bind_param'], $bindParams);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $lista = [];
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new Processo($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($lista) ? $lista : null;
+            return !empty($lista) ? $lista : null;
         } catch (Exception $e) {
             throw($e);
         }
     }
 
     public function getById($id) {
+        if (!is_numeric($id) || $id <= 0) {
+            return null;
+        }
         try {
             $c = connect();
             $sql = "SELECT * "
@@ -146,14 +224,22 @@ class ProcessoDAO {
                     . ", DATE_FORMAT(prorrogacaoPrazo, '%d/%m/%Y') as prorrogacaoPrazoFormatada, DATE_FORMAT(prorrogacaoPrazo, '%Y/%m/%d') as prorrogacaoPrazoOriginal "
                     . ", DATE_FORMAT(dataPrazo, '%d/%m/%Y') as dataPrazoFormatada, DATE_FORMAT(dataPrazo, '%Y/%m/%d') as dataPrazoOriginal "
                     . " FROM Processo "
-                    . " WHERE idProcesso = $id";
-            $result = $c->query($sql);
-            while ($row = $result->fetch_assoc()) {
+                    . " WHERE idProcesso = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar query: " . $c->error);
+            }
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $instance = null;
+            if ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Processo($objectArray);
             }
+            $stmt->close();
             $c->close();
-            return isset($instance) ? $instance : null;
+            return $instance;
         } catch (Exception $e) {
             throw($e);
         }

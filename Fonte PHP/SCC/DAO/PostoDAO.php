@@ -35,9 +35,13 @@ class PostoDAO {
     public function getAllList() {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Posto ";
-            $result = $c->query($sql);
+            $sql = "SELECT * FROM Posto";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $lista[] = new Posto($objectArray);
@@ -52,10 +56,14 @@ class PostoDAO {
     public function getById($id) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Posto "
-                    . " WHERE idPosto = $id";
-            $result = $c->query($sql);
+            $sql = "SELECT * FROM Posto WHERE idPosto = ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $stmt->bind_param("i", $id); // "i" para inteiro
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Posto($objectArray);
@@ -66,14 +74,19 @@ class PostoDAO {
             throw($e);
         }
     }
-    
+
     public function getByPosto($posto) {
         try {
             $c = connect();
-            $sql = "SELECT * "
-                    . " FROM Posto "
-                    . " WHERE posto LIKE '%$posto%'";
-            $result = $c->query($sql);
+            $sql = "SELECT * FROM Posto WHERE posto LIKE ?";
+            $stmt = $c->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Erro ao preparar a query: " . $c->error);
+            }
+            $likePosto = '%' . $posto . '%';
+            $stmt->bind_param("s", $likePosto);
+            $stmt->execute();
+            $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $objectArray = $this->fillArray($row);
                 $instance = new Posto($objectArray);
@@ -91,5 +104,4 @@ class PostoDAO {
             "posto" => $row["posto"]
         );
     }
-
 }

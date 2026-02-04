@@ -367,8 +367,8 @@ class PessoaDAO {
             $c = connect();
             $sql = "SELECT *, DATE_FORMAT(dataNascimento, '%m-%d') AS Day
                 FROM Pessoa
-                WHERE dataNascimento LIKE ? AND Posto_idPosto > 1
-                ORDER BY Day";
+                WHERE (dataNascimento LIKE ? AND Posto_idPosto > 1) AND dataExpiracao > CURRENT_DATE"
+                ORDER BY Day"; // Posto_idPosto > 1 não mostra os sd recrutas no aniversariantes
 
             $stmt = $c->prepare($sql);
             if (!$stmt) {

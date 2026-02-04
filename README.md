@@ -27,14 +27,18 @@ Mapa da Força digital:
 Gerenciador de Prazos de Sindicâncias, Processos Administrativos, entre outros:
 ![S1-2](https://github.com/user-attachments/assets/07764b30-ceee-4262-8c8f-4d57f2fc3059)
 
+RP
+----------------------
+Aniversariantes:
+
 
 Executando SCC
 ======================
 
 Requisitos:
-* Apache Server v. 2.4.38
-* PHP v. 7.3.14
-* MariaDB v. 10.3.22
+* Apache Server v. 2.4.66
+* PHP v. 8.4
+* MariaDB v. 10.5
  
 Debian/Ubuntu Linux package dependencies:
 apache2 php php-mysql mariadb-server 

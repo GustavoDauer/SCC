@@ -284,9 +284,12 @@ class RPController {
                     $pessoa->setDataExpiracao(date('Y') + 1 . "-03-01"); // Renovar data de expiração para 1 ano a frente
                     $idPosto = 1;
                     $posto = $postoDAO->getByPosto($data[2]); // Tenta identificar o posto do militar pelo nome do posto
+                    $postoReconhecido = "";
                     if (!is_null($posto)) {
                         $idPosto = $posto->getId();
+                        $postoReconhecido = $posto->getPosto();;
                     } else {
+                        $postoReconhecido = "Posto desconhecido";
                         $idPosto = $data[2] === "Ten Cel" ? 13 : 1; // Verifica se é o posto de Ten Cel, se não for, assume que é um recruta (Sd Recr), pois até a presente data, esses são os únicos postos divergentes dos cadastros desse sistema
                     }
                     $pessoa->setIdPosto($idPosto);
@@ -294,17 +297,20 @@ class RPController {
                     $dataNascimentoFormatted = $dataNascimento[2] . "-" . $dataNascimento[1] . "-" . $dataNascimento[0];
                     $pessoa->setDataNascimento($dataNascimentoFormatted);
                     $pessoaDAO->update($pessoa);
-                    $result .= $pessoa->getNome();
+                    $result .= ($postoReconhecido === "Posto desconhecido" ? "<span style='color: red; font-weight: bold;'>$postoReconhecido</span>" : "<span style='color: darkgreen; font-weight: bold;'>$postoReconhecido</span>")  . " " . $pessoa->getNome() . " ";
                     $result .= " <b><span style='color: darkgreen';'>Encontrado</span> - atualizando cadastro no BD - </b>";
                 } else {
-                    $result .= "<b><span style='color: red';'>Não encontrado</span> - preparando novo cadastro no BD - </b>";
-                    $idPosto = 1;
-                    $posto = $postoDAO->getByPosto($data[2]);
+                    $result .= "<b><span style='color: red';'>Não encontrado</span> - preparando novo cadastro no BD - </b>";                    
+                    $idPosto = 1;                    
                     $expiracao = (date('Y') + 1) . '-03-01';
+                    $posto = $postoDAO->getByPosto($data[2]); // Tenta identificar o posto do militar pelo nome do posto
+                    $postoReconhecido = "";
                     if (!is_null($posto)) {
                         $idPosto = $posto->getId();
+                        $postoReconhecido = $posto->getPosto();;
                     } else {
-                        $idPosto = $data[2] === "Ten Cel" ? 13 : 1;
+                        $postoReconhecido = "Posto desconhecido";
+                        $idPosto = $data[2] === "Ten Cel" ? 13 : 1; // Verifica se é o posto de Ten Cel, se não for, assume que é um recruta (Sd Recr), pois até a presente data, esses são os únicos postos divergentes dos cadastros desse sistema
                     }
                     $pessoa = new Pessoa();
                     $pessoa->setCpf($data[6]);
@@ -319,6 +325,7 @@ class RPController {
                     $dataNascimento = explode("/", $data[5]);
                     $dataNascimentoFormatted = $dataNascimento[2] . "-" . $dataNascimento[1] . "-" . $dataNascimento[0];
                     $pessoa->setDataNascimento($dataNascimentoFormatted);
+                    $result .= ($postoReconhecido === "Posto desconhecido" ? "<span style='color: red; font-weight: bold;'>$postoReconhecido</span>" : "<span style='color: darkgreen; font-weight: bold;'>$postoReconhecido</span>")  . " " . $pessoa->getNome() . " ";
                     $result .= $pessoaDAO->insert($pessoa) ? "<span style='color: darkgreen; font-weight: bold;'>Cadastro efetuado com sucesso!</span>" : "<span style='color: red; font-weight: bold;'>Erro ao efetuar o cadastro!</span>";
                 }
                 $result .= "<br>";

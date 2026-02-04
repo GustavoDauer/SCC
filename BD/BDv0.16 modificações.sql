@@ -1,10 +1,24 @@
 ALTER TABLE `scc`.`Sped` 
 ADD COLUMN `secaoResponsavel` VARCHAR(25) NULL AFTER `Pessoa_idPessoa`,
-ADD COLUMN `secoesEnvolvidas` VARCHAR(250) NULL AFTER `secaoResponsavel`;
+ADD COLUMN `secoesEnvolvidas` VARCHAR(250) NULL AFTER `secaoResponsavel`,
+ADD COLUMN `assunto` VARCHAR(250) NULL AFTER `tipo`,
+ADD COLUMN `arquivo` BLOB NULL AFTER `assunto`;
 
 ALTER TABLE `scc`.`Sped` 
 DROP COLUMN `secoesEnvolvidas`,
 DROP COLUMN `secaoResponsavel`;
+
+ALTER TABLE `scc`.`Sped` 
+DROP COLUMN `responsavel`,
+ADD COLUMN `Pessoa_idPessoa` INT NULL AFTER `arquivo`,
+ADD INDEX `fk_Pessoa_idPessoa_idx` (`Pessoa_idPessoa` ASC);
+
+ALTER TABLE `scc`.`Sped` 
+ADD CONSTRAINT `fk_Pessoa_idPessoa`
+  FOREIGN KEY (`Pessoa_idPessoa`)
+  REFERENCES `scc`.`Pessoa` (`idPessoa`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
 
 ALTER TABLE `scc`.`Sped` 
 ADD COLUMN `Secao_idSecao` INT(11) NULL AFTER `Pessoa_idPessoa`,
@@ -32,5 +46,7 @@ CREATE TABLE `scc`.`Sped_has_Secao` (
     REFERENCES `scc`.`Secao` (`idSecao`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+    
+ALTER TABLE `scc`.`Pessoa` 
+ADD COLUMN `telefone` VARCHAR(14) NULL AFTER `dataExpiracao`;
   
-

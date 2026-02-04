@@ -47,6 +47,9 @@ apache2 php php-mysql mariadb-server
 SCC foi testado para execução em Linux, porém deverá executar em Windows e 
 MacOSX sem problemas.
 
+Por padrão o usuário secinfo / secinfo será adicionado com permissão total no sistema.
+Outros usuários adicionados por padrão também podem ser consultados ao logar com o usuário secinfo e acessando o módulo de gestão de usuários.
+
 Ajuda / Bugs
 ======================
 

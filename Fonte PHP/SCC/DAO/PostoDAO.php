@@ -78,13 +78,11 @@ class PostoDAO {
     public function getByPosto($posto) {
         try {
             $c = connect();
-            $sql = "SELECT * FROM Posto WHERE posto LIKE ?";
+            $sql = "SELECT * FROM Posto WHERE posto LIKE '%" . rtrim($posto) . "%'";
             $stmt = $c->prepare($sql);
             if (!$stmt) {
                 throw new Exception("Erro ao preparar a query: " . $c->error);
-            }
-            $likePosto = '%' . $posto . '%';
-            $stmt->bind_param("s", $likePosto);
+            }            
             $stmt->execute();
             $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {

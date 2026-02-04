@@ -30,7 +30,8 @@ Gerenciador de Prazos de Sindicâncias, Processos Administrativos, entre outros:
 RP
 ----------------------
 Aniversariantes:
-blob:https://web.whatsapp.com/cfa391d3-3823-4ca8-927d-2fddf9ce1eb2
+![cfa391d3-3823-4ca8-927d-2fddf9ce1eb2](https://github.com/user-attachments/assets/fda0676e-ac6b-4a5f-9f60-83f45b9439ed)
+
 
 Executando SCC
 ======================
